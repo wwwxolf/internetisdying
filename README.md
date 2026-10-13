@@ -11,17 +11,19 @@ A minimal pixel-style landing page prototype for the **Internet Chaos** social g
 
 ## Preview
 
-Open \`index.html\` in a modern browser. Some pixel styling requires an internet connection to load the NES.css and Google Fonts CDNs.
+Open `public/index.html` in a modern browser. Some styling requires loading the NES.css and Google Fonts CDNs.
 
-## Publish on Cloudflare Pages
+## Deploy on Cloudflare Workers
 
-1. Sign in at https://dash.cloudflare.com/ .
-2. **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
-3. Authorize/select GitHub repo \`wwwxolf/internetisdying\` on branch \`main\`.
-4. For static HTML: choose a suitable static/no-framework preset; leave build command blank and use \`/\` as the output directory (or select the directory that contains \`index.html\`, per the current dashboard).
-5. Deploy and open the \`.pages.dev\` URL shown by Cloudflare.
+This repository is configured for **Cloudflare Workers Static Assets** (not Pages) through `wrangler.jsonc`. The public landing page is `public/index.html`.
 
-Cloudflare's dashboard labels and defaults may change; verify the deployment setup in the current UI.
+1. In Cloudflare **Workers & Pages**, use the existing Worker `internetisdying` connected to the GitHub repo `wwwxolf/internetisdying` branch `main`.
+2. Use build command `exit 0` and deploy command `npx wrangler deploy`. Root directory `/`.
+3. The Workers Builds pipeline uses `wrangler.jsonc` and uploads files from `public/` as static assets; no Worker JavaScript entry point is necessary.
+4. When the build completes, open the Worker URL shown in the Cloudflare dashboard (usually on a `workers.dev` subdomain, not necessarily `pages.dev`).
+5. If a previously started build failed, wait for a new commit-triggered build or use **Retry deployment**.
+
+To update the public design, edit `public/index.html`. The original root `index.html` is retained only as a historical copy of the initial prototype; Workers deploys the `public/` version.
 
 ## Planned backend (not in this repository yet)
 
