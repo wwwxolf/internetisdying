@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="theme-color" content="#0b101b"/>
+  <title>CHAOS ARENA — THE INTERNET IS DYING</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="./styles.css?v=3"/>
+  <script src="./config.js"></script>
+  <script type="module" src="./flow.js?v=3"></script>
+</head>
+<body data-page="arena">
+  <div class="preview-bar">DESIGN PREVIEW • GAME SYSTEM AND ADS ARE NOT LIVE</div>
+  <div class="page">
+    <header class="header">
+      <a class="brand" href="./index.html">THE INTERNET<br><span>IS DYING_</span></a>
+      <nav class="header-right"><a class="navlink" href="./index.html">← HOME</a><span class="tiny-pill">V3</span></nav>
+    </header>
+    <main class="flow-shell arena-shell">
+      <p class="eyebrow">WORLD_001 / CHAOS ARENA</p>
+      <h1 class="flow-title">CHOOSE YOUR <span>SIDE_</span></h1>
+      <p id="flow-status" class="flow-message" role="status" aria-live="polite">Checking your account...</p>
+      <section id="arena-content" hidden>
+        <div class="arena-player">
+          <span id="arena-identity"></span>
+          <button type="button" id="signout" class="reset">SIGN OUT</button>
+        </div>
+        <div class="heart-zone small-heart" data-stage="critical" id="heart-zone">
+          <svg viewBox="0 0 16 16" class="pixel-heart" role="img" aria-label="Heart representing the internet" shape-rendering="crispEdges">
+            <path fill="#8e2f49" d="M3 2h3v1H3z M10 2h3v1h-3z M2 3h5v1H2z M9 3h5v1H9z M1 4h14v4H1z M2 8h12v1H2z M3 9h10v1H3z M4 10h8v1H4z M5 11h6v1H5z M6 12h4v1H6z M7 13h2v1H7z"/>
+            <path fill="#ff657d" d="M3 3h3v1H3z M10 3h3v1h-3z M2 4h12v4H2z M3 8h10v1H3z M4 9h8v1H4z M5 10h6v1H5z M6 11h4v1H6z M7 12h2v1H7z"/>
+            <path fill="#ffb4c0" d="M3 4h3v1H3z M2 5h5v1H2z M2 6h3v1H2z M4 7h2v1H4z"/>
+            <path fill="#db3c59" d="M12 5h2v3h-2z M10 8h3v1h-3z M9 9h3v1H9z M8 10h3v1H8z"/>
+            <path class="crack" fill="#0b101b" d="M8 3h1v2H8z M7 5h2v1H7z M8 6h1v2H8z M7 8h2v1H7z M7 9h1v2H7z M8 11h1v2H8z"/>
+          </svg>
+        </div>
+        <div class="hud">
+          <div class="hud-head">
+            <div class="hud-numbers"><strong class="hp-current" id="arena-hp">500,000</strong><span class="hp-max">/ 1,000,000 HP</span></div>
+            <span class="status" id="arena-status">● CRITICAL</span>
+          </div>
+          <div class="hp-track" role="progressbar" aria-label="Simulated internet HP" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" id="arena-progress"><div class="hp-fill" id="arena-fill"></div></div>
+          <div class="hud-foot"><span id="arena-percent">50.0% LIFE REMAINING</span><span class="demo-marker">LOCAL SIMULATION ONLY</span></div>
+        </div>
+        <p class="flow-intro">HEAL OR KILL — ONE LOCAL DEMO ACTION PER UTC DAY</p>
+        <div class="choices">
+          <button type="button" class="choice heal" data-arena-action="HEAL"><span class="choice-title">♥ HEAL</span><span class="choice-caption">KEEP IT ALIVE</span></button>
+          <button type="button" class="choice kill" data-arena-action="KILL"><span class="choice-title">☠ KILL</span><span class="choice-caption">FINISH THE JOB</span></button>
+        </div>
+        <div id="arena-result" class="result" hidden role="status" aria-live="polite"><h3 id="arena-result-title"></h3><p id="arena-result-text"></p></div>
+        <div class="demo-reset"><button type="button" id="arena-reset" class="reset">↺ RESET LOCAL DEMO</button></div>
+        <div class="panel ad-panel" aria-label="Future advertisement placement">
+          <span class="ad-label">ADVERTISEMENT • PLACEHOLDER</span>
+          <p>Ad placement reserved for a future approved network. No advertisement is served here.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
