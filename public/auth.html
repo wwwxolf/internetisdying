@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="theme-color" content="#0b101b"/>
+  <title>JOIN THE CHAOS — THE INTERNET IS DYING</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="./styles.css?v=3"/>
+  <script src="./config.js"></script>
+  <script type="module" src="./flow.js?v=3"></script>
+</head>
+<body data-page="auth">
+  <div class="preview-bar">DESIGN PREVIEW • GAME SYSTEM AND ADS ARE NOT LIVE</div>
+  <div class="page">
+    <header class="header">
+      <a class="brand" href="./index.html">THE INTERNET<br><span>IS DYING_</span></a>
+      <nav class="header-right"><a class="navlink" href="./index.html">← HOME</a><span class="tiny-pill">V3</span></nav>
+    </header>
+    <main class="flow-shell">
+      <p class="eyebrow">WORLD_001 / IDENTITY ACCESS</p>
+      <h1 class="flow-title">JOIN THE <span>CHAOS_</span></h1>
+      <p class="flow-intro">To change the internet, you need an identity. Sign in once. Then choose your side.</p>
+      <div class="panel auth-panel">
+        <h2 class="flow-heading">REGISTER / SIGN IN</h2>
+        <p id="flow-status" class="flow-message" role="status" aria-live="polite">Checking authentication...</p>
+        <div id="auth-controls" hidden>
+          <button type="button" class="auth-google" id="google-login">CONTINUE WITH GOOGLE</button>
+          <div class="divider-text">OR CONTINUE WITH EMAIL</div>
+          <form id="email-form">
+            <label class="field-label" for="email">EMAIL ADDRESS</label>
+            <input type="email" id="email" placeholder="you@example.com" required autocomplete="email"/>
+            <button class="dialog-button" type="submit" id="email-send">SEND SIGN-IN EMAIL →</button>
+          </form>
+          <form id="otp-form" class="otp-form" hidden>
+            <label class="field-label" for="otp">SIX-DIGIT EMAIL CODE (IF PROVIDED)</label>
+            <input id="otp" type="text" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="one-time-code" placeholder="123456" required/>
+            <button type="submit" class="dialog-button">VERIFY CODE →</button>
+          </form>
+          <p class="mini">A sign-in link may also arrive by email. The exact email format depends on Supabase email-template settings.</p>
+        </div>
+      </div>
+      <p class="flow-bottom">NEW PLAYER → CREATE NICKNAME & CHARACTER<br>RETURNING PLAYER → ENTER ARENA</p>
+    </main>
+  </div>
+</body>
+</html>
