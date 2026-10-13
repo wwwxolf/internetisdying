@@ -4,7 +4,7 @@ A minimal pixel-style landing page prototype for the **Internet Chaos** social g
 
 ## Current state: **UI V2 design prototype only**
 
-- **Frontend:** static HTML in \`public/index.html\`, custom styles in \`public/styles.css\`, demo script in \`public/app.js\`, plus [NES.css](https://nostalgic-css.github.io/NES.css/).
+- **Frontend:** static HTML in `public/index.html`, custom styles in `public/styles.css`, demo script in `public/app.js`, plus [NES.css](https://nostalgic-css.github.io/NES.css/).
 - **Typography:** Press Start 2P for important UI and Pixelify Sans for smaller labels/body; mobile-first layout.
 - **Heart:** original grid-based SVG with stepped heartbeat, critical-state animation, dead-state crack, and reduced-motion support.
 - **Interactive local demo:** choose HUMAN/BOT/ALIEN/GLITCH, pick a nickname, HEAL/KILL once per UTC day on the device; random base power 0–25,000 with original weighted tiers (60% / 30% / 9% / 1%) and 95% normal / 4% x2 / 1% x3 critical hits. HP and profile persist in browser localStorage. RESET DEMO restores 500,000 HP and unlocks local actions.
