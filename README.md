@@ -1,55 +1,62 @@
 # THE INTERNET IS DYING
 
-A minimal pixel-style landing page prototype for the **Internet Chaos** social game.
+**Internet Chaos** — a minimal retro pixel web game. Hosted via Cloudflare Workers Static Assets.
 
-## Current state: **UI V2 design prototype only**
+## Status: V3 onboarding UI committed; live authentication NOT configured
 
-- **Frontend:** static HTML in `public/index.html`, custom styles in `public/styles.css`, demo script in `public/app.js`, plus [NES.css](https://nostalgic-css.github.io/NES.css/).
-- **Typography:** Press Start 2P for important UI and Pixelify Sans for smaller labels/body; mobile-first layout.
-- **Heart:** original grid-based SVG with stepped heartbeat, critical-state animation, dead-state crack, and reduced-motion support.
-- **Interactive local demo:** choose HUMAN/BOT/ALIEN/GLITCH, pick a nickname, HEAL/KILL once per UTC day on the device; random base power 0–25,000 with original weighted tiers (60% / 30% / 9% / 1%) and 95% normal / 4% x2 / 1% x3 critical hits. HP and profile persist in browser localStorage. RESET DEMO restores 500,000 HP and unlocks local actions.
-- **Visual previews:** countdown to midnight UTC and clearly marked SAMPLE DATA Hall of Fame.
-- **Not implemented:** production sign-up/email verification, shared HP, global voting, founder multipliers, payments, secure server randomness, anti-bot, leaderboards, or real-time backend.
-- **IMPORTANT:** Demo actions never contact a server. No real email collection, payments or global votes. Browser storage is neither a real user account nor anti-cheat protection.
+### Live code paths
+- `public/index.html` — public landing page, global-life preview, two **non-interactive** HEAL/KILL visual buttons, and sole active CTA **JOIN THE CHAOS**.
+- `public/auth.html` — real **Supabase Auth** Google OAuth and email sign-in wiring; until a dedicated project is configured, buttons are disabled with a clear notice.
+- `public/onboarding.html` — one-time nickname and character (HUMAN/BOT/ALIEN/GLITCH) flow.
+- `public/arena.html` — guarded player Arena; its HP changes are **LOCAL DEMO ONLY**, not global votes or purchases.
+- `public/flow.js` — routing and account/auth logic, plus unchanged weighted random and crit mechanics in the local Arena.
+- `public/styles.css` — NES.css + original full-pixel responsive custom styling.
+- `public/config.js` — placeholder for publicly shareable Supabase project URL + **publishable** key.
+- `supabase/migrations/20261013_iid_profiles.sql` — private RLS profile table, case-insensitive unique nickname, immutable origin.
 
-## Preview
+### V3 user flow
 
-Open `public/index.html` in a modern browser. Some styling requires loading the NES.css and Google Fonts CDNs.
+Landing → JOIN THE CHAOS → Google or email login → **first-time** nickname & character → Arena.
 
-## Deploy on Cloudflare Workers
+Returning authenticated users with a profile go straight to Arena.
 
-This repository is configured for **Cloudflare Workers Static Assets** (not Pages) through `wrangler.jsonc`. The public landing page is `public/index.html`.
+There is **no advertising SDK** yet. The Arena includes a labelled, passive placeholder below the gameplay area; monetization must not obstruct registration or play.
 
-1. In Cloudflare **Workers & Pages**, use the existing Worker `internetisdying` connected to the GitHub repo `wwwxolf/internetisdying` branch `main`.
-2. Use build command `exit 0` and deploy command `npx wrangler deploy`. Root directory `/`.
-3. The Workers Builds pipeline uses `wrangler.jsonc` and uploads files from `public/` as static assets; no Worker JavaScript entry point is necessary.
-4. When the build completes, open the Worker URL shown in the Cloudflare dashboard (usually on a `workers.dev` subdomain, not necessarily `pages.dev`).
-5. If a previously started build failed, wait for a new commit-triggered build or use **Retry deployment**.
+### How to enable real login
 
-To update the public design, edit `public/index.html`. The original root `index.html` is retained only as a historical copy of the initial prototype; Workers deploys the `public/` version.
+**Do not reuse the existing Supabase database for another application. Create a DEDICATED Supabase project for THE INTERNET IS DYING first, with explicit owner approval.**
 
-## Planned backend (not in this repository yet)
+1. Create the dedicated Supabase project in the preferred organization and choose its plan.
+2. Apply `supabase/migrations/20261013_iid_profiles.sql` via the Supabase SQL editor or migrations.
+3. In Supabase Dashboard → Authentication, configure the **Google** OAuth provider with its Google client ID/secret. Add the required Google redirect URI (Supabase's `/auth/v1/callback`) to the Google OAuth client.
+4. Configure email auth (magic link by default; use an OTP email template if 6-digit codes are desired). Configure appropriate production SMTP and auth rate limits before launch.
+5. In Authentication → URL Configuration, set the **Site URL** to `https://internetisdying.wwwxolf.workers.dev` and allow redirect URL(s):
+   - `https://internetisdying.wwwxolf.workers.dev/onboarding.html`
+   - for local testing, explicitly approved local redirect URL(s) if needed
+6. Add project values to `public/config.js`:
+   - `supabaseUrl`: the dedicated project's `https://<project-ref>.supabase.co` URL
+   - `supabasePublishableKey`: a **publishable key** (`sb_publishable_...`), not a secret key
+7. Never commit database passwords, Google OAuth secrets, Supabase secret/service-role keys, JWT secrets or payment provider secrets to this public GitHub repository.
+8. Wait for Cloudflare deployment to become Ready, then test Google and email flows and row-level security end to end.
 
-- Supabase email OTP and unique nickname
-- One verified action per round
-- Secure, server-side weighted random power and criticals
-- One global HP ledger with atomic updates and audited settlements
-- Balanced HEAL/KILL power and optional Founder bonuses
-- Hall of Fame and World History
-- Authentication abuse prevention, rate limits, and server-side bot checks
-- Payment and weekly premium-power design **only after** fairness, pricing and security review
+### IMPORTANT: features not yet live
 
-## Working design constants
+- No production accounts until Supabase is configured.
+- No live HP, shared global votes, founder power, premium, payment, ad network, server-side RNG, or Hall of Fame ranking.
+- Clicking HEAL/KILL on the landing page **does nothing**. When account setup is complete, the Arena shows a clearly labelled browser-local simulation.
+- Local browser random, localStorage and local daily limits must never be trusted for competitive game security.
 
-- Title: **THE INTERNET IS DYING**
-- Mode: **INTERNET CHAOS**
-- Initial HP: **500,000 of 1,000,000** (fictional preview)
-- Sides: **HEAL** and **KILL**
-- Origins: **HUMAN, BOT, ALIEN, GLITCH**
-- Theme: **NES.css as a component foundation**, original dark custom pixel layout.
+### Deployment
 
-Rule values and pay-to-win economics remain provisional pending balancing and security review.
+This is **Cloudflare Workers Static Assets**. `wrangler.jsonc` points to `public/`.
+The Cloudflare Worker is connected to the GitHub `main` branch.
 
-## License
+Existing deploy command: `npx wrangler deploy`; build command: `exit 0`. After committing, check that the latest Cloudflare build is Ready.
 
-No explicit license has been selected for the original project files. Third-party dependencies retain their respective licenses.
+### Fonts and visuals
+
+Press Start 2P for prominent headings/buttons; Pixelify Sans for readable pixel body text; NES.css for retro components; original pixel-heart SVG and heartbeat.
+
+### License
+
+No license chosen for this repository; third-party dependencies keep their respective licenses.
