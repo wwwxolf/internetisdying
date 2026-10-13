@@ -157,3 +157,58 @@ dialog::backdrop{background:rgba(0,0,0,.80)}
  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
  .pixel-heart{animation:none!important}
 }
+
+
+/* ----------------- V3: Landing gate + account flow ----------------- */
+.choice.preview-only{cursor:default;pointer-events:none;position:relative}
+.choice.preview-only:hover{filter:none}
+.flow-shell{max-width:650px;margin:0 auto;padding:38px 0 66px;min-height:calc(100dvh - 160px);text-align:center}
+.flow-title{font-family:"Press Start 2P",monospace;font-size:clamp(17px,3.6vw,27px);line-height:1.75;margin:14px 0 10px}
+.flow-title span{color:var(--red)}
+.flow-intro{font-size:18px;color:var(--muted);line-height:1.4;margin:9px auto 23px;max-width:560px}
+.auth-panel{text-align:left;padding:26px}
+.flow-heading{font:12px/1.9 "Press Start 2P",monospace;margin:0 0 14px}
+.flow-message{font-size:16px;color:var(--muted);border-left:3px solid #52637c;padding:10px 12px;background:#101a28;overflow-wrap:anywhere;margin:10px 0 17px}
+.flow-message[data-kind="warning"]{color:#f1c67b;border-color:#d3a954}
+.flow-message[data-kind="error"]{color:#ffacb4;border-color:var(--red)}
+.flow-message[data-kind="success"]{color:var(--green);border-color:var(--green)}
+.auth-google{font:10px/1.7 "Press Start 2P",monospace;width:100%;padding:17px 12px;text-align:center;color:#151a24;background:#eaf0f1;border:3px solid #697581;box-shadow:4px 4px #040810}
+.auth-google:hover:not(:disabled){background:#fff}
+.auth-google:disabled,.dialog-button:disabled,.cta:disabled{opacity:.55;cursor:not-allowed}
+.divider-text{text-align:center;margin:21px 0;color:var(--muted);font-size:15px}
+.field-label{display:block;font:9px/1.75 "Press Start 2P",monospace;margin-bottom:11px;color:var(--ink)}
+.auth-panel input{display:block;width:100%;height:53px;border:3px solid #546079;background:#0b101b;color:var(--ink);font:19px "Pixelify Sans",monospace;padding:12px;min-width:0}
+.auth-panel input::placeholder{color:#7d8a9b}
+.auth-panel .dialog-button{margin-top:15px}
+.auth-panel .mini{font-size:16px;line-height:1.35;margin:17px 0 0}
+.otp-form{margin-top:20px;padding-top:16px;border-top:2px solid var(--line)}
+.flow-bottom{font-size:14px;line-height:1.5;color:var(--muted);margin:22px auto;max-width:620px}
+.arena-shell{padding-top:32px}
+.arena-player{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;border:2px solid var(--line);background:var(--panel);padding:12px 16px;text-align:left;margin:18px 0}
+#arena-identity{font:11px/1.9 "Press Start 2P",monospace;color:var(--gold);overflow-wrap:anywhere}
+.arena-shell .small-heart{min-height:129px;margin:7px auto}
+.arena-shell .pixel-heart{width:117px;height:117px}
+.arena-shell .hud{margin:12px auto}
+.arena-shell .choices{margin:16px auto}
+.ad-panel{margin-top:34px;text-align:center;min-height:115px;border-style:dashed;box-shadow:none}
+.ad-label{font:9px/1.7 "Press Start 2P",monospace;color:var(--muted)}
+.ad-panel p{font-size:15px;margin:9px auto 0}
+#landing-status:empty{display:none}
+#landing-status{font-size:15px;color:#f6c67c;margin:12px auto}
+@media(max-width:640px){
+ .flow-shell{padding:27px 0 44px}
+ .flow-title{font-size:17px}
+ .flow-intro{font-size:17px}
+ .auth-panel{padding:17px}
+ .flow-heading{font-size:10px}
+ .field-label{font-size:8px}
+ .auth-google{font-size:9px}
+ .flow-bottom{font-size:13px}
+ #arena-identity{font-size:9px}
+}
+@media(max-width:380px){
+ .auth-panel{padding:13px}
+ .flow-title{font-size:15px}
+ .auth-google{font-size:8px}
+ .avatar-label{font-size:7px}
+}
