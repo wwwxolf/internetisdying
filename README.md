@@ -2,12 +2,15 @@
 
 A minimal pixel-style landing page prototype for the **Internet Chaos** social game.
 
-## Current state: design prototype only
+## Current state: **UI V2 design prototype only**
 
-- **Tech:** static HTML + custom CSS + [NES.css](https://nostalgic-css.github.io/NES.css/).
-- **Works:** responsive landing page, retro heart/HP bar, HEAL and KILL preview buttons, local character selection (HUMAN/BOT/ALIEN/GLITCH), nickname stored locally, random demo power (including critical multipliers), illustrative Hall of Fame, UTC countdown.
-- **Not implemented:** actual sign-up/authentication, email verification, shared HP, global votes, Founders multipliers, payment/boosters, server-side randomness, anti-bot, leaderboard or real-time storage.
-- **IMPORTANT:** No emails, payments or global votes are accepted by this prototype. The page explicitly labels its preview-only information. A demo action affects only the current browser display; do not mistake it for a public vote.
+- **Frontend:** static HTML in \`public/index.html\`, custom styles in \`public/styles.css\`, demo script in \`public/app.js\`, plus [NES.css](https://nostalgic-css.github.io/NES.css/).
+- **Typography:** Press Start 2P for important UI and Pixelify Sans for smaller labels/body; mobile-first layout.
+- **Heart:** original grid-based SVG with stepped heartbeat, critical-state animation, dead-state crack, and reduced-motion support.
+- **Interactive local demo:** choose HUMAN/BOT/ALIEN/GLITCH, pick a nickname, HEAL/KILL once per UTC day on the device; random base power 0–25,000 with original weighted tiers (60% / 30% / 9% / 1%) and 95% normal / 4% x2 / 1% x3 critical hits. HP and profile persist in browser localStorage. RESET DEMO restores 500,000 HP and unlocks local actions.
+- **Visual previews:** countdown to midnight UTC and clearly marked SAMPLE DATA Hall of Fame.
+- **Not implemented:** production sign-up/email verification, shared HP, global voting, founder multipliers, payments, secure server randomness, anti-bot, leaderboards, or real-time backend.
+- **IMPORTANT:** Demo actions never contact a server. No real email collection, payments or global votes. Browser storage is neither a real user account nor anti-cheat protection.
 
 ## Preview
 
