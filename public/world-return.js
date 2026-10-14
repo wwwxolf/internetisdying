@@ -70,6 +70,7 @@ export async function initWorldReturn({sb,nickname}) {
  const native=$("share-card-native");
  const download=$("share-card-download");
  const whatsapp=$("share-card-whatsapp");
+ const copyInvite=$("share-card-copy");
  let shareFile=null,shareData=null,shareUrl=null,shareLib=null,preparing=false;
  const clearShare=()=>{
   if(shareUrl){URL.revokeObjectURL(shareUrl);shareUrl=null;}
@@ -92,7 +93,7 @@ export async function initWorldReturn({sb,nickname}) {
    // panel values or a previous PNG for a newly requested share.
    const {data,error}=await sb.rpc("iid_share_snapshot");
    if(error)throw error;
-   shareLib??=await import("./breaking-share-card.js?v=1");
+   shareLib??=await import("./breaking-share-card.js?v=2");
    shareLib.validateSnapshot(data);
    const png=await shareLib.renderBreakingCard(data);
    if(png.type!=="image/png")throw Error("PNG unavailable");
@@ -139,6 +140,16 @@ export async function initWorldReturn({sb,nickname}) {
   a.href=shareUrl;a.download=shareFile.name;
   document.body.append(a);a.click();a.remove();
   feedback.textContent="PNG READY • ATTACH IT IN WHATSAPP";
+ });
+ copyInvite.addEventListener("click",async()=>{
+  if(!shareData||!shareLib)return;
+  const invite=shareLib.shareCaption(shareData);
+  try{
+   await navigator.clipboard.writeText(invite);
+   feedback.textContent="INVITE + WEBSITE LINK COPIED • PASTE IN WHATSAPP";
+  }catch{
+   feedback.textContent="COPY NOT AVAILABLE • USE WHATSAPP LINK BELOW";
+  }
  });
  whatsapp.addEventListener("click",()=>{
   if(!shareData||!shareLib)return;
