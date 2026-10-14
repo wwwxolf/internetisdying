@@ -19,7 +19,7 @@ if(ready && page!=="landing"){
   let maker=window.supabase?.createClient;
   if(typeof maker!=="function"){
    const mod=await Promise.race([
-    import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"),
+    import("https://esm.sh/@supabase/supabase-js@2?bundle"),
     new Promise((_,reject)=>setTimeout(()=>reject(new Error("Supabase SDK download timed out")),8000))
    ]);
    maker=mod.createClient;
