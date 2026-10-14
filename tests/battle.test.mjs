@@ -80,7 +80,7 @@ test('settlement retry leaves HP/version and permanent history unchanged',async(
   await fresh();const b=await start();await expire(b.id);const r=await settle(b.id);
   assert.deepEqual(await settle(b.id),r);const s=await rpc('status');assert.equal(s.world.version,1);
   assert.equal(s.monthly.battle_count,1);assert.equal(s.monthly.heal_count,1);assert.equal(s.monthly.heal_hp,r.applied_hp);
-  await assert.rejects(start(),/COOLDOWN_ACTIVE/);
+  await assert.rejects(start(),/WINDOW_ALREADY_USED/);
   assert.equal((await start('HEAL',b.request_id)).id,b.id);
 });
 test('unacknowledged settlement is recoverable from status',async()=>{
@@ -101,7 +101,7 @@ test('other player cannot read or settle a battle',async()=>{
 });
 test('abandoned sessions cannot be replaced, and late taps fail',async()=>{
   await fresh();const b=await start();await expire(b.id);await assert.rejects(tap(b.id,1),/TAP_WINDOW_CLOSED/);
-  assert.equal((await start()).id,b.id);await settle(b.id);await assert.rejects(start(),/COOLDOWN_ACTIVE/);
+  assert.equal((await start()).id,b.id);await settle(b.id);await assert.rejects(start(),/WINDOW_ALREADY_USED/);
 });
 test('pause prevents new battles but existing sessions can settle',async()=>{
   await fresh();const b=await start();await expire(b.id);await admin('update public.iid_world set enabled=false');
@@ -133,12 +133,26 @@ test('batched taps are idempotent, capped, paced and tied to server timestamps',
   assert.equal((await batch(18)).counted_taps,18);
 });
 
-test('rolling 24-hour cap independently rejects a seventh settlement opportunity',async()=>{
-  await fresh();const b=await start();await expire(b.id);await settle(b.id);
-  await admin(`update public.iid_battles set created_at=statement_timestamp()-interval '6 hours',starts_at=statement_timestamp()-interval '6 hours'+interval '3 seconds',ends_at=statement_timestamp()-interval '6 hours'+interval '23 seconds',settled_at=statement_timestamp()-interval '5 hours';
-    insert into public.iid_battles select gen_random_uuid(),user_id,gen_random_uuid(),nickname,action,created_at,starts_at,ends_at,counted_taps,last_tap_at,settled_at,base,critical,bonus,power,hp_before,hp_after,applied_hp,world_version from public.iid_battles cross join generate_series(1,5);`);
-  await assert.rejects(start(),/ROLLING_LIMIT_REACHED/);
-  assert.equal((await rpc('status')).rolling_count,6);
+test('six WIB slots are server-owned and one battle per current slot',async()=>{
+ await fresh();
+ const initial=await rpc('status');
+ assert.equal(initial.window_timezone,'Asia/Jakarta');
+ assert.equal(initial.window_used.length,6);
+ assert.ok(initial.window_used.every(v=>v===false));
+ assert.equal(initial.window_day,new Date(Date.now()+7*3600000).toISOString().slice(0,10));
+ const slot=initial.window_slot;
+ const b=await start('HEAL');await expire(b.id);await settle(b.id);
+ const used=await rpc('status');
+ assert.equal(used.window_used[slot],true);
+ assert.equal(used.window_used.filter(Boolean).length,1);
+ await assert.rejects(start('KILL'),/WINDOW_ALREADY_USED/);
+ // Prior slot should be marked used even if battle was *settled* after the boundary.
+ // This prevents replay of a used fixed slot and preserves its created_at.
+ const wibDay=used.window_day;
+ const midday=new Date(wibDay+'T00:00:00Z').getTime()-7*3600000;
+ const slotTime=new Date(midday+slot*4*3600000+2*60000).toISOString();
+ await admin("update public.iid_battles set created_at='"+slotTime+"' where id='"+b.id+"'");
+ await assert.rejects(start('KILL'),/WINDOW_ALREADY_USED/);
 });
 test('monthly general-card boundaries, UTC summary and heal/kill aggregation',async()=>{
   await fresh();const b=await start('KILL');await expire(b.id);await settle(b.id);
@@ -214,7 +228,7 @@ test('Daily Chaos voting is one per verified user per UTC day, non-editable',asy
 });
 test('World Decay is 800..1000 HP, idempotent per 3-hour slot and paused when disabled',async()=>{
  await fresh();
- await admin("delete from public.iid_decay_pulses; update public.iid_chaos_control set enabled=false,decay_anchor_at=statement_timestamp()-interval '3 hours 10 minutes'");
+ await admin("delete from public.iid_decay_pulses; update public.iid_chaos_control set enabled=false,decay_anchor_at=statement_timestamp()-interval '6 hours 10 minutes'");
  // The preceding RNG boundary test installs a deterministic random_int fixture.
  await admin('insert into iid_private.test_rolls(value) values (50)');
  assert.match(String((await cronRpc('process_decay')).status),/PAUSED/);
