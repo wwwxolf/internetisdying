@@ -5,7 +5,7 @@ Pixel browser game hosted with Cloudflare Workers Static Assets (`public/`).
 ## Status — 2026-10-14
 
 - Supabase: `internet-is-dying` / `wywrahaqpocueddxmjjq`.
-- Migration **applied**: `20261014033444_global_battle_engine`. The additive `20261014060500_batch_tap_acknowledgements` migration is **only in this draft branch**; not yet applied to live Supabase. Production stays paused.
+- Migration **applied**: `20261014033444_global_battle_engine`. The additive `20261014042237_batch_tap_acknowledgements` migration is **already applied** to live Supabase, while battle production remains paused. The new frontend is still a draft and has not been deployed.
 - Production world: **500,000 HP**, version **0**, **0 battles**, **paused** (`enabled=false`).
 - This branch adds the production client to `/arena.html` and preserves the old browser-only game at `/demo.html`. These frontend changes have **not been deployed** by this task.
 - Existing Cloudflare site still shows the old local demo. An existing Google-authenticated profile was observed; fresh OAuth and a real battle through the new client remain pending.
