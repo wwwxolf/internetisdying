@@ -49,9 +49,10 @@ export async function initWorldReturn({sb,nickname}) {
     ?"LATEST: "+data.latest_event.title+" • "+signed(data.latest_event.applied_hp)+" HP"
     :"NO DAILY CHAOS EVENT DURING THIS PERIOD");
   const share=$("world-return-share");
-  share.disabled=!visited||quiet;
-  if(share.disabled)share.title="Available after verified world activity";
-  else share.removeAttribute("title");
+  // A fresh snapshot can be generated even on a quiet/first visit.
+  // The server supplies truthful zeroes; a local demo never contributes.
+  share.disabled=false;
+  share.removeAttribute("title");
   message("SERVER VERIFIED • "+(data.replayed?"RECENT REPORT":"SINCE YOUR LAST VISIT"));
  }
  async function open() {
