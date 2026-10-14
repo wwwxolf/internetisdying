@@ -295,9 +295,16 @@ test('World Return first visit is truthful and creates no fictitious activity',a
  assert.equal(first.decay_pulses,0);
  assert.equal(first.chaos_events,0);
  assert.equal(first.source,'SERVER_LEDGER');
+ await db.exec('reset role');
+ const activeBefore=(await db.query("select last_active_at from public.iid_player_presence where user_id=$1::uuid",[U])).rows[0].last_active_at;
+ await login();
  const refresh=await presence();
  assert.equal(refresh.replayed,true);
  assert.equal(refresh.first_visit,true);
+ await db.exec('reset role');
+ const activeAfter=(await db.query("select last_active_at from public.iid_player_presence where user_id=$1::uuid",[U])).rows[0].last_active_at;
+ await login();
+ assert.equal(String(activeAfter),String(activeBefore),'refresh must not erase events from the cursor');
 });
 test('World Return sums actual HEAL, KILL, decay and event ledger independently',async()=>{
  await fresh();
