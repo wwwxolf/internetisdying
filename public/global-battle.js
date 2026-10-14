@@ -3,7 +3,7 @@ export async function initGlobalBattle({sb}) {
   const $=id=>document.getElementById(id);
   const choices=[...document.querySelectorAll('[data-arena-action]')];
   let state=null, battle=null, offset=0, busy=false, tapBusy=false, settling=false;
-  let retryAfter=0, disposed=false, refreshBusy=false, syncOk=false;
+  let retryAfter=0, tapRetryAfter=0, localTaps=0, disposed=false, refreshBusy=false, syncOk=false;
   const now=()=>Date.now()+offset;
   const fmt=n=>Number(n).toLocaleString('en-US');
   const message=text=>{$('flow-status').textContent=text;};
@@ -44,18 +44,19 @@ export async function initGlobalBattle({sb}) {
     $('tap-countdown').hidden=before<=0;
     $('tap-countdown').textContent=String(Math.max(1,Math.ceil(before/1000)));
     $('tap-target').hidden=before>0;
-    $('tap-target').disabled=before>0||remain<=0||tapBusy||refreshBusy||battle.counted_taps>=50;
+    $('tap-target').disabled=before>0||remain<=0||refreshBusy||localTaps>=50;
     $('tap-time').textContent=(Math.min(20000,Math.max(0,remain))/1000).toFixed(1);
-    $('tap-count').textContent=battle.counted_taps+' / 50';
+    $('tap-count').textContent=localTaps+' / 50';
     $('tap-bonus').textContent='+'+(Math.floor(battle.counted_taps/10)*2)+'%';
     $('tap-charge').style.width=(battle.counted_taps*2)+'%';
-    $('tap-combo').textContent=settling?'RECORDING RESULT…':battle.counted_taps===50?'MAX CHARGE — WAIT FOR RESULT':tapBusy?'CONFIRMING TAP…':'TAP TO CHARGE';
+    $('tap-combo').textContent=settling?'RECORDING RESULT…':battle.counted_taps===50?'MAX CHARGE VERIFIED':localTaps===50?'MAX TAPPED • VERIFYING '+battle.counted_taps+'/50':'SERVER CONFIRMED '+battle.counted_taps+'/50';
   }
   async function refresh() {
     if(refreshBusy||busy||tapBusy||settling||disposed)return;
     refreshBusy=true;
     try {
-      state=await rpc('status');battle=state.active;syncOk=true;
+      state=await rpc('status');const previousId=battle?.id;battle=state.active;syncOk=true;
+      localTaps=!battle?0:battle.id===previousId?Math.max(localTaps,battle.counted_taps):battle.counted_taps;
       if(!battle&&state.latest)showResult(state.latest);
       message(state.world.enabled?'GLOBAL BATTLE • RESULTS VERIFIED BY SERVER':'GLOBAL ENGINE PAUSED • YOUR PROFILE IS READY');
       render();
@@ -67,21 +68,36 @@ export async function initGlobalBattle({sb}) {
     busy=true;render();
     try {
       // A lost response is recoverable via status or another start (one pending/player).
-      battle=await rpc('start',{p_request_id:crypto.randomUUID(),p_action:action});
+      battle=await rpc('start',{p_request_id:crypto.randomUUID(),p_action:action});localTaps=battle.counted_taps;
       if(battle.settled_at){showResult(battle);battle=null;}
       else $('arena-result').hidden=true;
     }catch(e){syncOk=false;message('Battle not started: '+e.message+'. Use RETRY SYNC before trying again.');}
     finally{busy=false;render();}
   }
-  async function tap() {
-    if(!battle||tapBusy||refreshBusy||settling||now()<Date.parse(battle.starts_at)||now()>=Date.parse(battle.ends_at)||battle.counted_taps>=50)return;
-    tapBusy=true;render();
-    const id=battle.id,seq=battle.counted_taps+1;
+  // A phone can register touches immediately while bounded batches are in-flight.
+  // Server alone decides which events count toward bonus; this is NOT bot protection.
+  function tap() {
+    if(!battle||refreshBusy||settling||now()<Date.parse(battle.starts_at)||now()>=Date.parse(battle.ends_at)||localTaps>=50)return;
+    localTaps+=1;render();
+    void flushTaps();
+  }
+  async function flushTaps() {
+    if(!battle||tapBusy||refreshBusy||settling||now()<tapRetryAfter||now()>=Date.parse(battle.ends_at))return;
+    const confirmed=battle.counted_taps;
+    const next=Math.min(50,confirmed+10,localTaps);
+    if(next<=confirmed)return;
+    const id=battle.id;
+    tapBusy=true;
     try {
-      const ack=await rpc('tap',{p_battle_id:id,p_seq:seq});
-      if(battle?.id===id)battle.counted_taps=ack.counted_taps;
-    }catch(e){message('Tap was not confirmed: '+e.message+'. Only server-confirmed taps count.');}
-    finally{tapBusy=false;render();}
+      const ack=await rpc('tap_batch',{p_battle_id:id,p_total:next});
+      if(battle?.id===id)battle.counted_taps=Math.max(battle.counted_taps,ack.counted_taps);
+    }catch(e){
+      // Rate rejection can occur when a new batch arrives before server pacing.
+      // A retry with the SAME absolute total cannot double-count.
+      tapRetryAfter=now()+(String(e.message).includes('TAP_TOO_FAST')?500:850);
+      if(!String(e.message).includes('TAP_TOO_FAST'))
+        message('Some taps were not confirmed: '+e.message+'. The server only rewards accepted taps.');
+    }finally{tapBusy=false;render();}
   }
   async function settle() {
     if(!battle||settling||refreshBusy||tapBusy||now()<retryAfter)return;
@@ -95,7 +111,7 @@ export async function initGlobalBattle({sb}) {
   $('battle-refresh').addEventListener('click',refresh);
   choices.forEach(b=>b.disabled=true);
   await refresh();
-  const timer=setInterval(()=>{render();if(battle&&now()>=Date.parse(battle.ends_at))void settle();},100);
+  const timer=setInterval(()=>{render();if(battle&&now()<Date.parse(battle.ends_at))void flushTaps();else if(battle&&!tapBusy)void settle();},100);
   const poll=setInterval(()=>{if(!battle)void refresh();},15000);
   const visibility=()=>{if(!document.hidden)void refresh();};
   document.addEventListener('visibilitychange',visibility);
