@@ -50,6 +50,20 @@ There is **no advertising SDK** yet. The Arena includes a labelled, passive plac
 - Clicking HEAL/KILL on the landing page **does nothing**. When account setup is complete, the Arena shows a clearly labelled browser-local simulation.
 - Local browser random, localStorage and local daily limits must never be trusted for competitive game security.
 
+## Chaos Arena V5.1 — Tap Battle (local demo)
+
+The Arena now features **HEAL / KILL → 3, 2, 1 countdown → 20-second tap battle → power reveal**.
+
+- **50 counted taps maximum.** Reaching 50 ends the battle early; otherwise it ends after 20 actual elapsed seconds.
+- **Tap bonus:** 0–9 → 0%; 10–19 → 2%; 20–29 → 4%; 30–39 → 6%; 40–49 → 8%; 50 → **10% max**.
+- **Final simulated power:** `Math.round(basePower * criticalMultiplier * (1 + tapBonus / 100))`.
+- **Weighted random distribution and crit odds unchanged:** base power 60% (0–500), 30% (501–2,000), 9% (2,001–10,000), 1% (10,001–25,000); crit 95% ×1, 4% ×2, 1% ×3.
+- Preserves per-account browser-local HP/UTC cooldown using existing key `iid-arena-demo-v3:<user id>`. The expandable **LOCAL DEMO CONTROLS** panel allows reset for testing.
+- **This is NOT anti-bot protection.** The browser can be manipulated to fake clicks, time, localStorage or requests. **No production world votes or global HP updates are performed.**
+- **For real launch:** server-authoritative timed sessions, one accepted vote per verified account/day, transaction-safe global HP settlement, and explicit bot/rate-limit controls are required.
+- Files: `public/tap-battle.js` (pure bonus/roll helpers + interactive flow), `public/tap-battle.css` (responsive battle UI), `public/arena.html` (screen markup). Authentication remains in `public/flow.js`.
+- The ad slot remains a visual placeholder. No advertisements run during gameplay.
+
 ### Deployment
 
 This is **Cloudflare Workers Static Assets**. `wrangler.jsonc` points to `public/`.
