@@ -153,6 +153,9 @@ if(page==="arena"){
   const p=await profile(u.id);if(!p){next("./onboarding.html");return;}
   $("arena-content").hidden=false;
   $("arena-identity").textContent=p.origin+" / "+p.nickname;
+  // Origin visuals are cosmetic. Preserve the stored enum and all gameplay rules.
+  const originKey=["HUMAN","BOT","ALIEN","GLITCH"].includes(p.origin)?p.origin.toLowerCase():"human";
+  $("arena-origin-avatar").src="./assets/avatar-"+originKey+".svg";
   const demoMode=document.body.dataset.battleMode==="demo";
   show(demoMode?"LOCAL DEMO • NO GLOBAL VOTES":"CONNECTING TO GLOBAL BATTLE ENGINE…","success");
   $("signout").addEventListener("click",async()=>{

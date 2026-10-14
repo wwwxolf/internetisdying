@@ -9,10 +9,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
-  <link rel="stylesheet" href="./styles.css?v=3"/>
+  <link rel="stylesheet" href="./styles.css?v=6"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./flow.js?v=6"></script>
+  <script type="module" src="./flow.js?v=15"></script>
 </head>
 <body data-page="onboarding">
   <div class="preview-bar">DESIGN PREVIEW • GAME SYSTEM AND ADS ARE NOT LIVE</div>
@@ -30,10 +30,10 @@
         <p id="flow-status" class="flow-message" role="status" aria-live="polite">Checking your account...</p>
         <form id="profile-form" hidden>
           <div class="characters" role="group" aria-label="Choose your character">
-            <button type="button" class="avatar" data-origin="HUMAN" aria-pressed="true"><span class="avatar-icon" aria-hidden="true">H</span><span class="avatar-label">HUMAN</span></button>
-            <button type="button" class="avatar" data-origin="BOT" aria-pressed="false"><span class="avatar-icon" aria-hidden="true">B</span><span class="avatar-label">BOT</span></button>
-            <button type="button" class="avatar" data-origin="ALIEN" aria-pressed="false"><span class="avatar-icon" aria-hidden="true">A</span><span class="avatar-label">ALIEN</span></button>
-            <button type="button" class="avatar" data-origin="GLITCH" aria-pressed="false"><span class="avatar-icon" aria-hidden="true">G</span><span class="avatar-label">GLITCH</span></button>
+            <button type="button" class="avatar" data-origin="HUMAN" aria-pressed="true"><span class="avatar-icon" aria-hidden="true"><img src="./assets/avatar-human.svg" width="44" height="44" alt="" decoding="async"/></span><span class="avatar-label">HUMAN</span></button>
+            <button type="button" class="avatar" data-origin="BOT" aria-pressed="false"><span class="avatar-icon" aria-hidden="true"><img src="./assets/avatar-bot.svg" width="44" height="44" alt="" decoding="async"/></span><span class="avatar-label">BOT</span></button>
+            <button type="button" class="avatar" data-origin="ALIEN" aria-pressed="false"><span class="avatar-icon" aria-hidden="true"><img src="./assets/avatar-alien.svg" width="44" height="44" alt="" decoding="async"/></span><span class="avatar-label">ALIEN</span></button>
+            <button type="button" class="avatar" data-origin="GLITCH" aria-pressed="false"><span class="avatar-icon" aria-hidden="true"><img src="./assets/avatar-glitch.svg" width="44" height="44" alt="" decoding="async"/></span><span class="avatar-label">GLITCH</span></button>
           </div>
           <label class="field-label" for="nickname">UNIQUE NICKNAME</label>
           <input type="text" id="nickname" maxlength="18" minlength="3" pattern="[A-Za-z0-9_]{3,18}" autocomplete="nickname" placeholder="PIXELGHOST" required/>

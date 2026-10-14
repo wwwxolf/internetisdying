@@ -75,6 +75,7 @@ body[data-page="arena"] .arena-player-icon{
   font:16px/1 "Press Start 2P",monospace;
   box-shadow:3px 3px #070d15;
 }
+body[data-page="arena"] .arena-origin-avatar{display:block;width:32px;height:32px;object-fit:contain;image-rendering:pixelated}
 body[data-page="arena"] .arena-player-copy{display:flex;flex-direction:column;gap:5px;text-align:left;min-width:0}
 body[data-page="arena"] .arena-tiny{
   font-family:"Press Start 2P",monospace;
