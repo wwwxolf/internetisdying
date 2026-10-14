@@ -10,8 +10,8 @@ const next=name=>location.assign(new URL(name,location.href).href);
 const show=(msg,type="note")=>{const node=$("flow-status")||$("landing-status");if(node){node.textContent=msg;node.dataset.kind=type;}};
 const format=n=>Math.round(Math.max(0,n)).toLocaleString("en-US");
 const utcDay=()=>new Date().toISOString().slice(0,10);
-let sb=null;
-if(ready){
+let sb=null, sdkLoadError=null;
+if(ready && page!=="landing"){
  if(page!=="landing")show("Connecting to Google Sign-In...");
  try{
   // Use the official browser UMD SDK loaded by the HTML pages first.
@@ -27,7 +27,8 @@ if(ready){
   if(typeof maker!=="function")throw new Error("Supabase SDK did not initialize");
   sb=maker(conf.supabaseUrl,conf.supabasePublishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
  }catch(e){
-  show("LOGIN FAILED TO LOAD: Browser blocked the sign-in library or connection. Try regular Chrome and refresh. Details: "+(e.message||"unknown"),"error");
+  sdkLoadError=e.message||"unknown error";
+  show("LOGIN FAILED TO LOAD: Browser blocked the sign-in library or connection. Try regular Chrome and refresh. Details: "+sdkLoadError,"error");
  }
 }else if(page!=="landing"){
  show("LOGIN CONFIGURATION MISSING. Please refresh and contact support.","error");
@@ -46,10 +47,9 @@ async function profile(id){
 async function route(u){next((await profile(u.id))?"./arena.html":"./onboarding.html");}
 
 if(page==="landing"){
- $("join-btn").addEventListener("click",async()=>{
-  const btn=$("join-btn");btn.disabled=true;
-  try{const u=await user();if(u)await route(u);else next("./auth.html");}
-  catch(e){show("Couldn't check your profile. Please try again.","error");btn.disabled=false;}
+ $("join-btn").addEventListener("click",()=>{
+  // Login page handles returning users; never block landing CTA on SDK/network.
+  next("./auth.html");
  });
  const timer=$("timer");
  if(timer){
@@ -66,7 +66,7 @@ if(page==="auth"){
  controls.hidden=false;
  if(!sb){
   $("google-login").disabled=true;$("email-send").disabled=true;
-  show("Authentication library unavailable. Sign-in is not active.","warning");return;
+  show("GOOGLE LOGIN UNAVAILABLE: "+(sdkLoadError||"Authentication SDK unavailable")+". Open in Chrome and refresh.","error");return;
  }
  const googleReady=conf.googleAuthReady===true;
  const emailReady=conf.emailAuthReady===true;
