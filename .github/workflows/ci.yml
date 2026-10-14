@@ -1,0 +1,37 @@
+name: Global Battle Engine Checks
+
+on:
+  pull_request:
+    paths:
+      - "public/**"
+      - "supabase/migrations/**"
+      - "tests/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/ci.yml"
+  push:
+    branches: ["codex/global-battle-engine"]
+
+permissions:
+  contents: read
+
+jobs:
+  engine-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.19.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - name: Verify JS syntax
+        run: |
+          node --check public/global-battle.js
+          node --check public/flow.js
+          node --check public/tap-battle.js
