@@ -18,7 +18,9 @@ grant execute on all functions in schema auth to anon,authenticated;
 insert into auth.users(id) values('${U}'),('${V}');
 insert into auth.identities values('${U}','google'),('${V}','google');
 insert into auth.sessions values('${S}','${U}',null);`);
-for (const f of (await readdir('supabase/migrations')).filter(f=>f.endsWith('.sql')).sort()) {
+// pg_cron is a Supabase-hosted extension and is not provided by PGlite.
+// The scheduler migration is validated against the live Supabase database separately.
+for (const f of (await readdir('supabase/migrations')).filter(f=>f.endsWith('.sql')&&!f.includes('_game_economy_v2_scheduler_staged.sql')).sort()) {
   await db.exec(await readFile('supabase/migrations/'+f,'utf8'));
 }
 await db.exec(`insert into public.iid_profiles(user_id,nickname,origin) values('${U}','PlayerOne','HUMAN'),('${V}','PlayerTwo','GLITCH')`);
@@ -36,7 +38,7 @@ async function start(action='HEAL',req=crypto.randomUUID()) {return rpc('start',
 async function tap(id,n) {return rpc('tap',[id,n],['uuid','integer']);}
 async function settle(id) {return rpc('settle',[id],['uuid']);}
 async function expire(id) {await admin(`update public.iid_battles set created_at=statement_timestamp()-interval '30 seconds',starts_at=statement_timestamp()-interval '27 seconds',ends_at=statement_timestamp()-interval '7 seconds' where id='${id}'`);}
-async function fresh() {await admin('truncate public.iid_battles; update public.iid_world set hp=500000,version=0,enabled=true;');}
+async function fresh() {await admin('truncate public.iid_battles,public.iid_v2_window_results; update public.iid_economy_control set v2_enabled=false,activated_at=null; update public.iid_world set hp=500000,version=0,enabled=true;');}
 await login();
 after(()=>db.close());
 
@@ -181,6 +183,37 @@ test('authenticated start path retains player-row serialization',async()=>{
     const q=await db.query("select pg_get_functiondef('iid_private.require_player()'::regprocedure) as source");
     assert.match(q.rows[0].source,/from public\.iid_profiles[\s\S]*for update/i);
   }finally{await login();}
+});
+test('V2 combat uses 2-second ready, 12-second play, 24 taps and compressed war influence',async()=>{
+ await fresh();
+ await admin("update public.iid_economy_control set v2_enabled=true,activated_at=clock_timestamp()");
+ const b=await start('HEAL');
+ assert.equal(b.engine_version,2);
+ assert.equal(new Date(b.starts_at)-new Date(b.created_at),2000);
+ assert.equal(new Date(b.ends_at)-new Date(b.starts_at),12000);
+ await assert.rejects(rpc('tap_batch',[b.id,25],['uuid','integer']),/INVALID_TAP_TOTAL/);
+ await admin("update public.iid_battles set created_at=clock_timestamp()-interval '16 seconds',starts_at=clock_timestamp()-interval '14 seconds',ends_at=clock_timestamp()-interval '2 seconds',counted_taps=24 where id='"+b.id+"'");
+ const r=await settle(b.id);
+ assert.ok(r.power>=100&&r.power<=5300);
+ assert.ok([100,150,200].includes(r.critical));
+ assert.equal(r.bonus,6);
+ assert.ok(r.war_influence>=50&&r.war_influence<=364);
+ assert.equal(r.applied_hp,0,'V2 impact only applies when the window closes');
+ assert.equal(r.hp_before,r.hp_after);
+ assert.equal((await rpc('status')).world.hp,500000);
+ assert.deepEqual(await settle(b.id),r,'V2 settlement is idempotent');
+ await admin("update public.iid_economy_control set v2_enabled=false,activated_at=null");
+});
+test('V2 Chaos is symmetric, honors quorum ten and caps absolute impact',async()=>{
+ await db.exec('reset role');
+ try{
+   const q=async(d,r)=> (await db.query('select iid_private.chaos_impact_v2($1::bigint,$2::bigint,10) v',[d,r])).rows[0].v;
+   assert.equal(await q(0,20),4123);
+   assert.equal(await q(20,0),-4123);
+   assert.equal(await q(5,5),0);
+   assert.equal(await q(0,9),0);
+   assert.ok(Math.abs(await q(0,1000000))<=12000);
+ }finally{await login();}
 });
 test('monthly general-card boundaries, UTC summary and heal/kill aggregation',async()=>{
   await fresh();const b=await start('KILL');await expire(b.id);await settle(b.id);
