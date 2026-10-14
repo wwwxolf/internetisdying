@@ -165,7 +165,7 @@ if(page==="arena"){
 }
 function demo(id,p){
  // UI-only V5.1 mini-game; authenticated identity and profile logic stay unchanged.
- import("./tap-battle.js?v=1").then(({initTapBattle})=>{
+ import("./tap-battle.js?v=2").then(({initTapBattle})=>{
   initTapBattle({userId:id,profile:p});
  }).catch(error=>{
   show("TAP BATTLE COULD NOT LOAD: "+(error?.message||"Unknown error")+". Refresh the Arena.","error");
