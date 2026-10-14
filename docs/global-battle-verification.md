@@ -27,3 +27,13 @@ The old arena computed power/HP in the browser and allowed one local action per 
 5. Enable deliberately, verify a real stored result against displayed HP/history, and inspect current logs.
 
 No production frontend deployment, main-branch merge, real battle settlement, ads, payments or share-card rendering was performed by this task.
+
+## Follow-up audit — mobile latency and CI (2026-10-14)
+
+- Added an **additive, not-yet-applied** migration `20261014060500_batch_tap_acknowledgements.sql`, defining authenticated `iid_battle_tap_batch(p_battle_id,p_total)` with owner/Google checks, row lock, idempotent absolute sequence, maximum 10 newly accepted taps per request, 50 overall and 40ms/server-confirmed-tap pacing. The legacy per-tap endpoint is retained. Neither version proves human involvement.
+- Browser now records fast local tap feedback without waiting for each network RPC; flushes bounded absolute-tap batches sequentially and displays only the **server-confirmed** charge bonus. At 20s expiry, any unconfirmed taps cannot increase power. The server still requires the full 20s even if the player reaches 50 early; this differs intentionally from the former demo and should receive UX approval.
+- Added `.github/workflows/battle-tests.yml`, running locked dependencies and automated tests on PR changes.
+- **GitHub Actions for PR head `8b9c35efd2d72b529eb54e27d4759d8666fa85a4` completed SUCCESS**, 23 tests passed (17 SQL/RLS/rule tests + 6 client contract tests). A preceding run failed on a now-corrected stale one-tap client-test expectation, not a server bug.
+- **Live status remains unchanged** as last queried: production world HP 500000, version 0, enabled=false; zero pending/settled production battles. No production DDL, merge or deployment was performed in this follow-up.
+- **Still blocked:** migration must be applied before any new UI uses the batch endpoint; staged authenticated HTTP end-to-end browser tests with real Google sessions on slow and normal connections; Cloudflare paused-client validation; rate-limit and abuse monitoring. A static/CI PASS is not a real-user E2E PASS.
+
