@@ -38,6 +38,31 @@ test('tap submits only ID and sequence; lost acknowledgement reuses sequence',as
   assert.deepEqual(calls,[{p_battle_id:'battle',p_seq:1},{p_battle_id:'battle',p_seq:1}]);
   assert.equal(f.nodes.get('tap-count').textContent,'1 / 50');
 });
+test('rapid taps remain responsive while the first mobile network acknowledgement is pending',async()=>{
+  const requests=[];
+  let finishFirst;
+  const pending=new Promise(resolve=>{finishFirst=resolve;});
+  const active={id:'slow-net',action:'HEAL',counted_taps:0,starts_at:new Date(Date.now()-1000).toISOString(),ends_at:new Date(Date.now()+19000).toISOString()};
+  const f=fixture(async(name,args)=>{
+    if(name.endsWith('status'))return {data:state({active})};
+    requests.push({...args});
+    return requests.length===1?pending:{data:{counted_taps:args.p_total}};
+  });
+  await f.init();
+  const target=f.nodes.get('tap-target');
+  target.events.click();
+  for(let n=0;n<4;n++)target.events.click();
+  assert.equal(f.nodes.get('tap-count').textContent,'5 / 50'); // local feedback isn't blocked by latency
+  assert.equal(requests.length,1);
+  assert.deepEqual(requests[0],{p_battle_id:'slow-net',p_total:1});
+  assert.match(f.nodes.get('tap-combo').textContent,/SERVER CONFIRMED 0\/50/);
+  finishFirst({data:{counted_taps:1}});
+  await flush();
+  f.intervals[0]();
+  await flush();
+  assert.ok(requests.some(x=>x.p_total===5)); // flush rest in a bounded batch
+});
+
 test('expired session resumes settlement with same ID and displays server result',async()=>{
   let finished=false;const calls=[];
   const active={id:'same-battle',action:'HEAL',counted_taps:5,starts_at:new Date(Date.now()-25000).toISOString(),ends_at:new Date(Date.now()-5000).toISOString()};
