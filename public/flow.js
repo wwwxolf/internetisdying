@@ -12,8 +12,25 @@ const format=n=>Math.round(Math.max(0,n)).toLocaleString("en-US");
 const utcDay=()=>new Date().toISOString().slice(0,10);
 let sb=null;
 if(ready){
- try{const m=await import("https://esm.sh/@supabase/supabase-js@2?bundle");sb=m.createClient(conf.supabaseUrl,conf.supabasePublishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});}
- catch(e){show("Could not load authentication library. Check your internet connection.","error");}
+ if(page!=="landing")show("Connecting to Google Sign-In...");
+ try{
+  // Use the official browser UMD SDK loaded by the HTML pages first.
+  // The fallback is for browsers that block one CDN but permit another.
+  let maker=window.supabase?.createClient;
+  if(typeof maker!=="function"){
+   const mod=await Promise.race([
+    import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"),
+    new Promise((_,reject)=>setTimeout(()=>reject(new Error("Supabase SDK download timed out")),8000))
+   ]);
+   maker=mod.createClient;
+  }
+  if(typeof maker!=="function")throw new Error("Supabase SDK did not initialize");
+  sb=maker(conf.supabaseUrl,conf.supabasePublishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+ }catch(e){
+  show("LOGIN FAILED TO LOAD: Browser blocked the sign-in library or connection. Try regular Chrome and refresh. Details: "+(e.message||"unknown"),"error");
+ }
+}else if(page!=="landing"){
+ show("LOGIN CONFIGURATION MISSING. Please refresh and contact support.","error");
 }
 async function user(){
  if(!sb)return null;
@@ -59,8 +76,9 @@ if(page==="auth"){
  if(!googleReady&&!emailReady){
   show("DATABASE CONNECTED. SIGN-IN NOT READY: configure Auth redirect URLs, production email delivery and Google OAuth, then enable providers. No emails are being collected yet.","warning");return;
  }
- try{const u=await user();if(u){await route(u);return;}show(googleReady&&!emailReady?"GOOGLE SIGN-IN IS READY TO TEST. Email sign-in is not available yet.":"Choose your available sign-in method.","note");}
- catch(e){show("Sign-in setup error: "+e.message,"error");}
+ show(googleReady&&!emailReady?"GOOGLE SIGN-IN IS READY TO TEST. Email sign-in is not available yet.":"Choose your available sign-in method.","note");
+ // Register click handlers BEFORE checking the current user: a slow network
+ // must never leave an apparently enabled button with no click listener.
  $("google-login").addEventListener("click",async()=>{
   const btn=$("google-login");btn.disabled=true;show("Redirecting to Google...");
   try{
@@ -90,6 +108,11 @@ if(page==="auth"){
    await route(data.user);
   }catch(e){show("Verification error: "+e.message,"error");}
  });
+ // Background session detection must not block button interaction.
+ void (async()=>{
+  try{const u=await user();if(u)await route(u);}
+  catch(e){show("Session check failed. You can still try Google Sign-In.","warning");}
+ })();
  return;
 }
 if(page==="onboarding"){
