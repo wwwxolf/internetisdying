@@ -163,3 +163,17 @@ body[data-page="arena"] .tap-hold{display:block;margin:12px auto;min-height:48px
 body[data-page="arena"] .tap-hold[hidden]{display:none}
 body[data-page="arena"] .tap-hold:disabled{opacity:.45;cursor:not-allowed}
 body[data-page="arena"] .tap-hold:not(:disabled):active{transform:translate(2px,2px);box-shadow:1px 1px 0 #07130f}
+
+/* Visible V2 faction battle, intentionally distinct from authoritative World HP. */
+body[data-page="arena"] .v2-war{margin:18px 0;padding:16px 13px;border:2px solid #405c75;background:#111f30;color:#d8e8f8;box-shadow:4px 4px 0 #060e18}
+body[data-page="arena"] .v2-war[hidden]{display:none}
+body[data-page="arena"] .v2-war-head{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+body[data-page="arena"] .v2-war-head h3{margin:0;font:clamp(9px,1.8vw,11px)/1.5 "Press Start 2P",monospace}
+body[data-page="arena"] .v2-war-head span{color:#8caac3;font:8px/1.5 "Press Start 2P",monospace}
+body[data-page="arena"] .v2-war-score{display:flex;justify-content:space-between;gap:8px;font:clamp(9px,2vw,12px)/1.5 "Pixelify Sans",monospace}
+body[data-page="arena"] .v2-war-save{color:#80ecbd}
+body[data-page="arena"] .v2-war-kill{color:#ff8297}
+body[data-page="arena"] .v2-war-meter{display:flex;width:100%;height:18px;border:2px solid #52657e;background:#243549;margin:9px 0 12px;overflow:hidden}
+body[data-page="arena"] .v2-war-save-fill{width:50%;background:#5dd3a6;transition:width .3s ease}
+body[data-page="arena"] .v2-war-kill-fill{width:50%;background:#f26883;transition:width .3s ease}
+body[data-page="arena"] .v2-war-note{font:10px/1.6 "Pixelify Sans",monospace;color:#a7bad0;margin:4px 0}
