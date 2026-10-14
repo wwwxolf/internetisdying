@@ -13,7 +13,7 @@ test('While You Were Gone exists after identity and before Global Internet HP',a
   'world-return-share','world-return-dismiss','world-return-status']) {
   assert.ok(html.includes('id="'+id+'"'),id+' missing');
  }
- assert.match(html,/world-return\.css\?v=2/);
+ assert.match(html,/world-return\.css\?v=3/);
 });
 test('While You Were Gone is authenticated and never invents offline world statistics',async()=>{
  const flow=await readFile('public/flow.js','utf8');
