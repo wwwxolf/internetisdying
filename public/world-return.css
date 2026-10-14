@@ -1,0 +1,99 @@
+/* WHILE YOU WERE GONE — PIXEL WORLD RECAP, mobile-first. */
+body[data-page="arena"] .world-return{
+  margin:16px 0 24px;padding:18px 15px;
+  border:3px solid #42536e;background:#142034;
+  box-shadow:5px 5px 0 #070c16;
+  color:#f1f1ed;min-width:0;
+}
+body[data-page="arena"] .world-return[hidden]{display:none}
+body[data-page="arena"] .world-return-top{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+}
+body[data-page="arena"] .world-return-tag,
+body[data-page="arena"] .world-return-eyebrow{
+  color:#f1c979;font:9px/1.8 "Press Start 2P",monospace;
+}
+body[data-page="arena"] .world-return-dismiss{
+  flex-shrink:0;padding:6px 10px;cursor:pointer;background:#202e41;
+  border:2px solid #4b5b75;color:#faf2ed;font:12px "Press Start 2P",monospace;
+}
+body[data-page="arena"] .world-return-eyebrow{margin:7px 0 11px;color:#8aadd1}
+body[data-page="arena"] .world-return-title{
+  font:clamp(13px,2.6vw,17px)/1.8 "Press Start 2P",monospace;
+  color:#faf7ec;margin:0 0 10px;overflow-wrap:anywhere;
+}
+body[data-page="arena"] .world-return[data-trend="kill"] .world-return-title{color:#ff657d}
+body[data-page="arena"] .world-return[data-trend="heal"] .world-return-title{color:#72dfa6}
+body[data-page="arena"] .world-return-since,
+body[data-page="arena"] .world-return-user{
+  color:#a9bad0;font:17px/1.2 "Pixelify Sans",sans-serif;
+  margin:4px 0;
+}
+body[data-page="arena"] .world-return-grid{
+  margin:17px 0 11px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;
+}
+body[data-page="arena"] .world-return-stat{
+  display:flex;flex-direction:column;gap:10px;min-width:0;
+  border:2px solid #364d67;background:#0d1828;padding:14px 11px;
+}
+body[data-page="arena"] .world-return-stat > span,
+body[data-page="arena"] .world-return-final span{
+  font:9px/1.8 "Press Start 2P",monospace;color:#b6c6d7;
+}
+body[data-page="arena"] .world-return-stat > strong{
+  font:clamp(11px,2.5vw,15px)/1.6 "Press Start 2P",monospace;
+  overflow-wrap:anywhere;
+}
+body[data-page="arena"] .world-return-stat.heal strong{color:#72dfa6}
+body[data-page="arena"] .world-return-stat.kill strong,
+body[data-page="arena"] .world-return-stat.decay strong{color:#ff657d}
+body[data-page="arena"] .world-return-stat.chaos strong{color:#f1c979}
+body[data-page="arena"] .world-return-final{
+  background:#182b43;border:2px solid #48617e;padding:15px 12px;
+  display:flex;flex-wrap:wrap;justify-content:space-between;gap:15px;
+}
+body[data-page="arena"] .world-return-final div{display:flex;flex-direction:column;gap:8px;min-width:0}
+body[data-page="arena"] .world-return-final strong{
+  font:clamp(12px,2.6vw,16px)/1.5 "Press Start 2P",monospace;color:#f1c979;
+  overflow-wrap:anywhere;
+}
+body[data-page="arena"] .world-return-activity,
+body[data-page="arena"] .world-return-event{
+  margin:11px 0;color:#c5d0dd;
+  font:16px/1.35 "Pixelify Sans",sans-serif;
+}
+body[data-page="arena"] .world-return-event{color:#afbbce}
+body[data-page="arena"] .world-return-bottom{
+  border-top:2px solid #3c4b66;padding-top:13px;
+  display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;
+}
+body[data-page="arena"] .world-return-verification{
+  font:8px/1.8 "Press Start 2P",monospace;color:#9eb7ca;
+}
+body[data-page="arena"] .world-return-share{
+  cursor:pointer;min-height:44px;border:3px solid #72dfa6;
+  background:#72dfa6;color:#0e2b20;padding:10px;
+  font:9px/1.8 "Press Start 2P",monospace;
+  box-shadow:3px 3px 0 #030711;
+}
+body[data-page="arena"] .world-return-share:disabled{
+  cursor:not-allowed;opacity:.5;background:#263d3b;color:#a7beb4;
+}
+body[data-page="arena"] .world-return-share:enabled:active{
+  transform:translate(2px,2px);box-shadow:1px 1px 0 #030711;
+}
+@media(max-width:540px){
+  body[data-page="arena"] .world-return{padding:14px 10px;margin-bottom:22px;}
+  body[data-page="arena"] .world-return-eyebrow,
+  body[data-page="arena"] .world-return-tag{font-size:7px}
+  body[data-page="arena"] .world-return-title{font-size:12px}
+  body[data-page="arena"] .world-return-stat{padding:12px 7px;gap:7px}
+  body[data-page="arena"] .world-return-stat > span{font-size:7px}
+  body[data-page="arena"] .world-return-stat > strong{font-size:11px}
+  body[data-page="arena"] .world-return-final span{font-size:7px}
+  body[data-page="arena"] .world-return-final strong{font-size:11px}
+  body[data-page="arena"] .world-return-share{width:100%;font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-page="arena"] .world-return-share{transition:none}
+}
