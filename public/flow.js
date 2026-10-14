@@ -164,41 +164,11 @@ if(page==="arena"){
  }catch(e){show("Could not open Arena: "+e.message,"error");}
 }
 function demo(id,p){
- const key="iid-arena-demo-v3:"+id;let hp=500000,last=null;
- try{const saved=JSON.parse(localStorage.getItem(key)||"null");if(saved&&Number.isInteger(saved.hp)&&saved.hp>=0&&saved.hp<=1000000)hp=saved.hp;if(saved&&typeof saved.last==="string")last=saved.last;}catch(e){}
- const save=()=>{try{localStorage.setItem(key,JSON.stringify({hp,last}));}catch(e){}};
- const render=()=>{
-  const pct=hp/10000;
-  const color=hp<=0?"#8a8f9d":hp<=250000?"#bf3654":hp<=500000?"#ff657d":hp<=750000?"#d8c66b":"#72dfa6";
-  const status=hp<=0?"DEAD":hp<=250000?"NEAR DEATH":hp<=500000?"CRITICAL":hp<=750000?"STABLE":"RECOVERING";
-  $("arena-hp").textContent=format(hp);
-  $("arena-fill").style.width=pct+"%";
-  $("arena-fill").style.background="repeating-linear-gradient(90deg,"+color+" 0 16px,transparent 16px 19px)";
-  $("arena-status").textContent="● "+status;$("arena-status").style.color=color;
-  $("arena-percent").textContent=pct.toFixed(1)+"% LIFE REMAINING";
-  $("arena-progress").setAttribute("aria-valuenow",String(Math.round(pct)));
-  $("heart-zone").dataset.stage=hp<=0?"dead":hp<=250000?"danger":"critical";
- };
- const result=(heading,text)=>{
-  $("arena-result-title").textContent=heading;$("arena-result-text").textContent=text;
-  $("arena-result").hidden=false;$("arena-result").scrollIntoView({behavior:"smooth",block:"nearest"});
- };
- const rand=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
- const roll=()=>{
-  const r=Math.random(),c=Math.random();
-  const base=r<.60?rand(0,500):r<.90?rand(501,2000):r<.99?rand(2001,10000):rand(10001,25000);
-  const multiplier=c<.01?3:c<.05?2:1;
-  return {base,multiplier,total:base*multiplier};
- };
- document.querySelectorAll("[data-arena-action]").forEach(btn=>btn.addEventListener("click",()=>{
-  if(last===utcDay()){result("NEXT TURN TOMORROW_","Already used today's local demo action. Use RESET LOCAL DEMO to try again. No global vote was made.");return;}
-  const action=btn.dataset.arenaAction,r=roll(),before=hp;
-  hp=Math.max(0,Math.min(1000000,hp+(action==="HEAL"?r.total:-r.total)));
-  last=utcDay();save();render();
-  const heading=r.multiplier===3?"SUPER CRITICAL ×3!":r.multiplier===2?"CRITICAL ×2!":action+" ACTIVATED!";
-  result(heading,p.nickname+" "+action+": "+(action==="HEAL"?"+":"−")+format(r.total)+" HP (base "+format(r.base)+" ×"+r.multiplier+"). Applied "+format(Math.abs(hp-before))+" HP. LOCAL DEMO ONLY.");
- }));
- $("arena-reset").addEventListener("click",()=>{hp=500000;last=null;save();render();result("LOCAL DEMO RESET_","HP restored to 500,000. No actual global data changed.");});
- render();
+ // UI-only V5.1 mini-game; authenticated identity and profile logic stay unchanged.
+ import("./tap-battle.js?v=1").then(({initTapBattle})=>{
+  initTapBattle({userId:id,profile:p});
+ }).catch(error=>{
+  show("TAP BATTLE COULD NOT LOAD: "+(error?.message||"Unknown error")+". Refresh the Arena.","error");
+ });
 }
 })();
