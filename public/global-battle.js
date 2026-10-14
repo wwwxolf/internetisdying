@@ -5,6 +5,10 @@ export async function initGlobalBattle({sb}) {
   const choices=[...document.querySelectorAll('[data-arena-action]')];
   let state=null, battle=null, offset=0, busy=false, tapBusy=false, settling=false;
   let retryAfter=0, tapRetryAfter=0, localTaps=0, disposed=false, refreshBusy=false, syncOk=false;
+  let economy={enabled:false},holdLoop=null;
+  const maxTaps=()=>battle?.engine_version===2?24:50;
+  const v2Mode=()=>battle?.engine_version===2||(!battle&&economy.enabled);
+  const haltHold=()=>{if(holdLoop!==null){clearInterval(holdLoop);holdLoop=null;}};
   const now=()=>Date.now()+offset;
   const fmt=n=>Number(n).toLocaleString('en-US');
   const message=text=>{$('flow-status').textContent=text;};
@@ -16,7 +20,15 @@ export async function initGlobalBattle({sb}) {
   }
   function showResult(r) {
     $('arena-result').hidden=false;
-    $('arena-result-title').textContent=(r.action==='HEAL'?'SAVE':r.action)+' • '+fmt(r.applied_hp)+' HP APPLIED';
+    const side=r.action==='HEAL'?'SAVE':r.action;
+    if(r.engine_version===2){
+      const crit=(r.critical/100).toFixed(2).replace(/0+$/,'').replace(/\\.$/,'');
+      $('arena-result-title').textContent=side+' • '+fmt(r.power)+' PERSONAL POWER';
+      $('arena-result-text').textContent='CRIT ×'+crit+' • TAP BONUS +'+r.bonus+'% • '+
+        fmt(r.war_influence)+' WAR INFLUENCE. Faction impact settles after the UTC window closes. Your result is verified and recorded.';
+      return;
+    }
+    $('arena-result-title').textContent=side+' • '+fmt(r.applied_hp)+' HP APPLIED';
     $('arena-result-text').textContent=`Base ${fmt(r.base)} × critical ${r.critical} + ${r.bonus}% bonus = ${fmt(r.power)} HP. World after this battle: ${fmt(r.hp_after)}. Permanently recorded.`;
   }
   function render() {
@@ -29,7 +41,8 @@ export async function initGlobalBattle({sb}) {
     const stage=w.hp===0?'DEAD':w.hp<=250000?'NEAR DEATH':w.hp<=500000?'CRITICAL':w.hp<=750000?'STABLE':'RECOVERING';
     $('arena-status').textContent='● '+stage;
     $('heart-zone').dataset.stage=w.hp===0?'dead':w.hp<=250000?'danger':'critical';
-    $('monthly-summary').textContent=`${m.month} UTC • ${m.nickname} • ${m.tier||'No card yet'} • ${m.battle_count} battles\nSAVE ${m.heal_count} · +${fmt(m.heal_hp)} HP | KILL ${m.kill_count} · −${fmt(m.kill_hp)} HP`;
+    $('monthly-summary').textContent=`${m.month} UTC • ${m.nickname} • ${m.tier||'No card yet'} • ${m.battle_count} battles\nSAVE ${m.heal_count} · +${fmt(m.heal_hp)} HP | KILL ${m.kill_count} · −${fmt(m.kill_hp)} HP`+
+      (economy.enabled?'\nV2 WAR INFLUENCE SETTLES AT UTC WINDOW CLOSE • V1 HP ABOVE IS HISTORICAL':'' );
     const slots=evaluateWindows(state,now());
     for(let i=0;i<6;i++){
       const tile=$('battle-window-'+i),icon=$('battle-window-icon-'+i),
@@ -59,18 +72,31 @@ export async function initGlobalBattle({sb}) {
     $('tap-countdown').hidden=before<=0;
     $('tap-countdown').textContent=String(Math.max(1,Math.ceil(before/1000)));
     $('tap-target').hidden=before>0;
-    $('tap-target').disabled=before>0||remain<=0||refreshBusy||localTaps>=50;
-    $('tap-time').textContent=(Math.min(20000,Math.max(0,remain))/1000).toFixed(1);
-    $('tap-count').textContent=localTaps+' / 50';
-    $('tap-bonus').textContent='+'+(Math.floor(battle.counted_taps/10)*2)+'%';
-    $('tap-charge').style.width=(battle.counted_taps*2)+'%';
-    $('tap-combo').textContent=settling?'RECORDING RESULT…':battle.counted_taps===50?'MAX CHARGE VERIFIED':localTaps===50?'MAX TAPPED • VERIFYING '+battle.counted_taps+'/50':'SERVER CONFIRMED '+battle.counted_taps+'/50';
+    const isV2=battle.engine_version===2,max=isV2?24:50,duration=isV2?12000:20000;
+    $('tap-battle').setAttribute('aria-label',(duration/1000)+'-second Global Chaos Tap Battle');
+    $('tap-target').disabled=before>0||remain<=0||refreshBusy||localTaps>=max;
+    $('tap-hold').hidden=!isV2||before>0;
+    $('tap-hold').disabled=before>0||remain<=0||refreshBusy||localTaps>=max;
+    if(remain<=0||localTaps>=max)haltHold();
+    $('tap-instruction').textContent=isV2?'2 • 1 • GO! TAP OR HOLD TO CHARGE.':'3 • 2 • 1 • GO! THEN TAP AS FAST AS YOU CAN.';
+    $('tap-max-label').textContent='MAX '+max;
+    $('tap-bonus-label').textContent=isV2?'MAX +6%':'MAX +10%';
+    $('tap-safety').textContent=max+' TAPS = MAX CHARGE. THE ROUND LASTS '+duration/1000+' SECONDS.';
+    $('tap-charge-track').setAttribute('aria-label','Charge rises from zero to maximum at '+max+' taps');
+    $('tap-time').textContent=(Math.min(duration,Math.max(0,remain))/1000).toFixed(1);
+    $('tap-count').textContent=localTaps+' / '+max;
+    $('tap-bonus').textContent='+'+(isV2?Math.floor(battle.counted_taps/4):Math.floor(battle.counted_taps/10)*2)+'%';
+    $('tap-charge').style.width=(battle.counted_taps*100/max)+'%';
+    $('tap-combo').textContent=settling?'RECORDING RESULT…':battle.counted_taps===max?'MAX CHARGE VERIFIED':localTaps===max?'MAX TAPPED • VERIFYING '+battle.counted_taps+'/'+max:'SERVER CONFIRMED '+battle.counted_taps+'/'+max;
   }
   async function refresh() {
     if(refreshBusy||busy||tapBusy||settling||disposed)return;
     refreshBusy=true;
     try {
-      state=await rpc('status');const previousId=battle?.id;battle=state.active;syncOk=true;
+      state=await rpc('status');
+      // Economy status is server-owned. A failed optional fetch does not fabricate V2.
+      try{const response=await sb.rpc('iid_economy_status');if(!response.error&&response.data)economy=response.data;}catch{}
+      const previousId=battle?.id;battle=state.active;syncOk=true;
       localTaps=!battle?0:battle.id===previousId?Math.max(localTaps,battle.counted_taps):battle.counted_taps;
       if(!battle&&state.latest)showResult(state.latest);
       message(state.world.enabled?'GLOBAL BATTLE • RESULTS VERIFIED BY SERVER':'GLOBAL ENGINE PAUSED • YOUR PROFILE IS READY');
@@ -92,14 +118,14 @@ export async function initGlobalBattle({sb}) {
   // A phone can register touches immediately while bounded batches are in-flight.
   // Server alone decides which events count toward bonus; this is NOT bot protection.
   function tap() {
-    if(!battle||refreshBusy||settling||now()<Date.parse(battle.starts_at)||now()>=Date.parse(battle.ends_at)||localTaps>=50)return;
+    if(!battle||refreshBusy||settling||now()<Date.parse(battle.starts_at)||now()>=Date.parse(battle.ends_at)||localTaps>=maxTaps())return;
     localTaps+=1;render();
     void flushTaps();
   }
   async function flushTaps() {
     if(!battle||tapBusy||refreshBusy||settling||now()<tapRetryAfter||now()>=Date.parse(battle.ends_at))return;
     const confirmed=battle.counted_taps;
-    const next=Math.min(50,confirmed+10,localTaps);
+    const next=Math.min(maxTaps(),confirmed+10,localTaps);
     if(next<=confirmed)return;
     const id=battle.id;
     tapBusy=true;
@@ -123,6 +149,14 @@ export async function initGlobalBattle({sb}) {
   }
   choices.forEach(b=>b.addEventListener('click',()=>choose(b.dataset.arenaAction)));
   $('tap-target').addEventListener('click',tap);
+  const hold=$('tap-hold');
+  const beginHold=()=>{if(!battle||battle.engine_version!==2||holdLoop!==null||hold.disabled)return;
+    tap();holdLoop=setInterval(tap,500);};
+  hold.addEventListener('pointerdown',beginHold);
+  ['pointerup','pointercancel','pointerleave'].forEach(name=>hold.addEventListener(name,haltHold));
+  hold.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();beginHold();}});
+  hold.addEventListener('keyup',haltHold);
+  hold.addEventListener('blur',haltHold);
   $('battle-refresh').addEventListener('click',refresh);
   choices.forEach(b=>b.disabled=true);
   await refresh();
@@ -130,5 +164,5 @@ export async function initGlobalBattle({sb}) {
   const poll=setInterval(()=>{if(!battle)void refresh();},15000);
   const visibility=()=>{if(!document.hidden)void refresh();};
   document.addEventListener('visibilitychange',visibility);
-  window.addEventListener('pagehide',()=>{disposed=true;clearInterval(timer);clearInterval(poll);document.removeEventListener('visibilitychange',visibility);},{once:true});
+  window.addEventListener('pagehide',()=>{disposed=true;haltHold();clearInterval(timer);clearInterval(poll);document.removeEventListener('visibilitychange',visibility);},{once:true});
 }
