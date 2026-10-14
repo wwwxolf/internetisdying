@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="./tap-battle.css?v=1"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./flow.js?v=9"></script>
+  <script type="module" src="./flow.js?v=10"></script>
 </head>
 <body data-page="arena" data-battle-mode="global">
   <div class="preview-bar" role="note">GLOBAL BATTLE ENGINE • CONTROLLED ROLLOUT</div>
@@ -126,7 +126,7 @@
           <p class="tap-instruction">3 • 2 • 1 • GO! THEN TAP AS FAST AS YOU CAN.</p>
           <div class="tap-stats">
             <div class="tap-stat"><span>TIME LEFT</span><strong id="tap-time">20.0</strong><small>SECONDS</small></div>
-            <div class="tap-stat"><span>COUNTED TAPS</span><strong id="tap-count">0 / 50</strong><small>MAX 50</small></div>
+            <div class="tap-stat"><span>YOUR TAPS</span><strong id="tap-count">0 / 50</strong><small>MAX 50</small></div>
             <div class="tap-stat"><span>POWER BONUS</span><strong id="tap-bonus">+0%</strong><small>MAX +10%</small></div>
           </div>
           <div class="tap-charge-track" role="img" aria-label="Charge rises from zero to maximum at 50 taps">
@@ -140,7 +140,7 @@
           </button>
           <p class="tap-combo" id="tap-combo" aria-live="off">READY!</p>
           <p class="tap-safety">50 TAPS = MAX CHARGE. THE ROUND LASTS 20 SECONDS.</p>
-          <p class="tap-safety tap-disclaimer">ONLY SERVER-CONFIRMED TAPS COUNT. CONNECTION SPEED MAY AFFECT TAPS.</p>
+          <p class="tap-safety tap-disclaimer">BONUS COUNTS SERVER-CONFIRMED TAPS ONLY. THIS IS NOT BOT PROTECTION.</p>
         </section>
 
         <div id="arena-result" class="result arena-action-result" hidden role="status" aria-live="polite">
