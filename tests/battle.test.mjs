@@ -179,7 +179,7 @@ test('authenticated start path retains player-row serialization',async()=>{
   await db.exec('reset role');
   try{
     const q=await db.query("select pg_get_functiondef('iid_private.require_player()'::regprocedure) as source");
-    assert.match(q.rows[0].source,/from public\.iid_profiles[\\s\\S]*for update/i);
+    assert.match(q.rows[0].source,/from public\.iid_profiles[\s\S]*for update/i);
   }finally{await login();}
 });
 test('monthly general-card boundaries, UTC summary and heal/kill aggregation',async()=>{
