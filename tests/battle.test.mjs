@@ -378,3 +378,38 @@ test('Global Pulses counts only settled server-accepted taps, never pending or r
  await assert.rejects(db.query('select * from public.iid_battles'),/permission denied/);
  await login();
 });
+
+
+test('Breaking Internet share snapshot reads current settled ledgers without advancing presence cursor',async()=>{
+ await fresh();
+ await admin("truncate public.iid_player_presence,public.iid_decay_pulses,public.iid_chaos_results,public.iid_chaos_days cascade");
+ const share=async()=>(await db.query('select public.iid_share_snapshot() as result')).rows[0].result;
+ await assert.rejects(share(),/RETURN_REPORT_NOT_READY/);
+ await presence();
+ await admin("update public.iid_player_presence set last_active_at=clock_timestamp()-interval '5 hours',last_digest_at=clock_timestamp()-interval '10 minutes'");
+ await presence();
+ await db.exec('reset role');
+ const before=(await db.query("select last_active_at,last_digest_at from public.iid_player_presence where user_id=$1::uuid",[U])).rows[0];
+ await login();
+ const first=await share();
+ assert.equal(first.source,'SERVER_LEDGER');
+ assert.equal(first.net_hp,0);
+ assert.equal(first.world_hp,500000);
+ assert.equal(first.heal_hp,0);
+ await admin("insert into public.iid_battles(id,user_id,request_id,nickname,action,created_at,starts_at,ends_at,counted_taps,settled_at,base,critical,bonus,power,hp_before,hp_after,applied_hp,world_version) values "+
+ " (gen_random_uuid(),'"+U+"',gen_random_uuid(),'PlayerOne','HEAL',statement_timestamp()-interval '2 minutes',statement_timestamp()-interval '117 seconds',statement_timestamp()-interval '97 seconds',12,clock_timestamp(),180,1,0,180,500000,500180,180,1)");
+ await admin('update public.iid_world set hp=500180,version=1');
+ const second=await share();
+ assert.equal(second.heal_hp,180);
+ assert.equal(second.net_hp,180);
+ assert.equal(second.world_hp,500180);
+ assert.equal(second.heal_battles,1);
+ await db.exec('reset role');
+ const after=(await db.query("select last_active_at,last_digest_at from public.iid_player_presence where user_id=$1::uuid",[U])).rows[0];
+ await login();
+ assert.equal(String(before.last_active_at),String(after.last_active_at));
+ assert.equal(String(before.last_digest_at),String(after.last_digest_at));
+ await login({},'anon');
+ await assert.rejects(share(),/permission denied/);
+ await login();
+});

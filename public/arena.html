@@ -14,10 +14,10 @@
   <link rel="stylesheet" href="./arena.css?v=6"/>
   <link rel="stylesheet" href="./tap-battle.css?v=1"/>
   <link rel="stylesheet" href="./daily-chaos.css?v=2"/>
-  <link rel="stylesheet" href="./world-return.css?v=1"/>
+  <link rel="stylesheet" href="./world-return.css?v=2"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./flow.js?v=15"></script>
+  <script type="module" src="./flow.js?v=16"></script>
 </head>
 <body data-page="arena" data-battle-mode="global">
   <div class="preview-bar" role="note">GLOBAL BATTLE ENGINE • CONTROLLED ROLLOUT</div>
@@ -46,6 +46,27 @@
           <button type="button" id="signout" class="reset">SIGN OUT</button>
         </div>
 
+        <!-- A locked pixel template with fresh authenticated data when CREATE is clicked.
+             Native file share is invoked by a SECOND gesture to keep user activation. -->
+        <section id="share-card-modal" class="share-card-modal" role="dialog" aria-modal="true"
+                 aria-labelledby="share-card-heading" hidden>
+          <div class="share-card-shell">
+            <div class="share-card-heading-row">
+              <h2 id="share-card-heading">BREAKING INTERNET_</h2>
+              <button type="button" id="share-card-close" class="share-card-close" aria-label="Close share card">✕</button>
+            </div>
+            <p class="share-card-explanation">SERVER SNAPSHOT • STATIC PIXEL ART + VERIFIED LIVE DATA</p>
+            <img id="share-card-preview" class="share-card-preview" alt="Breaking Internet pixel-art world report ready for sharing"/>
+            <p class="share-card-feedback" id="share-card-feedback" role="status" aria-live="polite"></p>
+            <div class="share-card-actions">
+              <button type="button" id="share-card-native" class="share-card-native" hidden>SHARE IMAGE ↗</button>
+              <button type="button" id="share-card-download" class="share-card-download">SAVE PNG ↓</button>
+              <button type="button" id="share-card-whatsapp" class="share-card-whatsapp">WHATSAPP LINK ↗</button>
+            </div>
+            <p class="share-card-tip" id="share-card-tip">For WhatsApp on desktop: save the PNG, then attach it in your chat. The link alone does not attach the image.</p>
+          </div>
+        </section>
+
         <!-- Per-user server-ledger recap. No historical data is fabricated. -->
         <section id="world-return" class="world-return" aria-label="While you were gone world report" hidden>
           <div class="world-return-top">
@@ -70,7 +91,7 @@
           <p class="world-return-event" id="world-return-event"></p>
           <div class="world-return-bottom">
             <span class="world-return-verification" id="world-return-status" role="status">CONNECTING TO SERVER...</span>
-            <button type="button" id="world-return-share" class="world-return-share" disabled>SHARE TO WHATSAPP ↗</button>
+            <button type="button" id="world-return-share" class="world-return-share" disabled>CREATE PIXEL SHARE CARD ↗</button>
           </div>
         </section>
 
