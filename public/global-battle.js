@@ -1,3 +1,4 @@
+import {evaluateWindows} from "./wib-battle-windows.js?v=1";
 // Browser renders server facts. It never sends HP, bonus, RNG or a tap total.
 export async function initGlobalBattle({sb}) {
   const $=id=>document.getElementById(id);
@@ -29,11 +30,25 @@ export async function initGlobalBattle({sb}) {
     $('arena-status').textContent='● '+stage;
     $('heart-zone').dataset.stage=w.hp===0?'dead':w.hp<=250000?'danger':'critical';
     $('monthly-summary').textContent=`${m.month} UTC • ${m.nickname} • ${m.tier||'No card yet'} • ${m.battle_count} battles\nSAVE ${m.heal_count} · +${fmt(m.heal_hp)} HP | KILL ${m.kill_count} · −${fmt(m.kill_hp)} HP`;
-    const cooldown=Math.max(0,Date.parse(state.next_battle_at||0)-now());
-    choices.forEach(b=>{b.disabled=!syncOk||busy||refreshBusy||!!battle||!w.enabled||cooldown>0;});
-    $('arena-move-rule').textContent=!w.enabled?'GLOBAL BATTLES PAUSED FOR ROLLOUT CHECKS':cooldown>0
-      ?'NEXT BATTLE IN '+Math.ceil(cooldown/60000)+' MIN • '+state.rolling_count+'/6 IN LAST 24H'
-      :'4-HOUR COOLDOWN AFTER SETTLEMENT • MAX 6 / ROLLING 24H';
+    const slots=evaluateWindows(state,now());
+    for(let i=0;i<6;i++){
+      const tile=$('battle-window-'+i),icon=$('battle-window-icon-'+i),
+        title=$('battle-window-state-'+i);
+      const item=slots.ready?slots.windows[i]:null;
+      const kind=item?.state||'LOCKED';
+      tile.dataset.windowState=kind;
+      icon.textContent=kind==='USED'?'✓':kind==='MISSED'?'—':kind==='ACTIVE'?'◆':'■';
+      title.textContent=kind;
+      tile.setAttribute('aria-label',item
+        ?'Window '+(i+1)+', '+item.start+' to '+item.end+' WIB: '+kind
+        :'Window '+(i+1)+': server sync pending');
+    }
+    const allowed=slots.ready&&!slots.currentUsed;
+    choices.forEach(b=>{b.disabled=!syncOk||busy||refreshBusy||!!battle||!w.enabled||!allowed;});
+    $('arena-move-rule').textContent=!w.enabled?'GLOBAL BATTLES PAUSED':
+      !syncOk||!slots.ready?'SYNCING WIB BATTLE WINDOWS...':
+      slots.currentUsed?'SLOT USED · NEXT WINDOW IN '+slots.minutesLeft+' MIN':
+      'CURRENT WINDOW · '+slots.minutesLeft+' MIN LEFT';
     $('arena-decision').hidden=!!battle;
     $('tap-battle').hidden=!battle;
     if(!battle)return;
