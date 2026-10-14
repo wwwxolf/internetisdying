@@ -10,14 +10,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
-  <link rel="stylesheet" href="./styles.css?v=3"/>
-  <link rel="stylesheet" href="./arena.css?v=5"/>
+  <link rel="stylesheet" href="./styles.css?v=6"/>
+  <link rel="stylesheet" href="./arena.css?v=6"/>
   <link rel="stylesheet" href="./tap-battle.css?v=1"/>
   <link rel="stylesheet" href="./daily-chaos.css?v=2"/>
   <link rel="stylesheet" href="./world-return.css?v=1"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./flow.js?v=14"></script>
+  <script type="module" src="./flow.js?v=15"></script>
 </head>
 <body data-page="arena" data-battle-mode="global">
   <div class="preview-bar" role="note">GLOBAL BATTLE ENGINE • CONTROLLED ROLLOUT</div>
@@ -37,7 +37,7 @@
       <section id="arena-content" hidden aria-label="Player arena">
         <div class="arena-player">
           <div class="arena-player-left">
-            <div class="arena-player-icon" aria-hidden="true">P</div>
+            <div class="arena-player-icon" aria-hidden="true"><img id="arena-origin-avatar" class="arena-origin-avatar" src="./assets/avatar-human.svg" width="44" height="44" alt="" decoding="async"/></div>
             <div class="arena-player-copy">
               <span class="arena-tiny">YOUR IDENTITY</span>
               <span id="arena-identity">LOADING PLAYER</span>
