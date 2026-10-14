@@ -114,6 +114,7 @@ export function initTapBattle({userId, profile}) {
     battlePanel.hidden = false;
     $("tap-battle").dataset.side = side.toLowerCase();
     $("tap-side").textContent = side;
+    $("tap-target-mark").textContent = side === "HEAL" ? "+" : "×";
     $("tap-count").textContent = "0 / 50";
     $("tap-bonus").textContent = "+0%";
     $("tap-charge").style.width = "0%";
