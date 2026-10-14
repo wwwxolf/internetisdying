@@ -11,13 +11,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="./styles.css?v=6"/>
-  <link rel="stylesheet" href="./arena.css?v=6"/>
+  <link rel="stylesheet" href="./arena.css?v=7"/>
   <link rel="stylesheet" href="./tap-battle.css?v=1"/>
   <link rel="stylesheet" href="./daily-chaos.css?v=2"/>
   <link rel="stylesheet" href="./world-return.css?v=4"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./flow.js?v=18"></script>
+  <script type="module" src="./flow.js?v=19"></script>
 </head>
 <body data-page="arena" data-battle-mode="global">
   <div class="preview-bar" role="note">GLOBAL BATTLE ENGINE • CONTROLLED ROLLOUT</div>
@@ -162,9 +162,18 @@
               <span class="arena-choice-caption2">− RANDOM HP</span>
             </button>
           </div>
-          <p class="arena-move-rule" id="arena-move-rule">
-            WAITING FOR SERVER STATUS
-          </p>
+          <section class="battle-windows" aria-label="Six daily battle windows, Jakarta time">
+            <h3 class="battle-windows-title">BATTLE WINDOWS_</h3>
+            <div class="battle-windows-grid" id="battle-windows-grid" role="list" aria-label="Battle windows WIB">
+              <div class="battle-window" id="battle-window-0" data-window-state="LOCKED" role="listitem" aria-label="Window 1: locked"><span class="battle-window-hour">00–04</span><span class="battle-window-icon" id="battle-window-icon-0" aria-hidden="true">■</span><span class="battle-window-state" id="battle-window-state-0">LOCKED</span></div>
+              <div class="battle-window" id="battle-window-1" data-window-state="LOCKED" role="listitem" aria-label="Window 2: locked"><span class="battle-window-hour">04–08</span><span class="battle-window-icon" id="battle-window-icon-1" aria-hidden="true">■</span><span class="battle-window-state" id="battle-window-state-1">LOCKED</span></div>
+              <div class="battle-window" id="battle-window-2" data-window-state="LOCKED" role="listitem" aria-label="Window 3: locked"><span class="battle-window-hour">08–12</span><span class="battle-window-icon" id="battle-window-icon-2" aria-hidden="true">■</span><span class="battle-window-state" id="battle-window-state-2">LOCKED</span></div>
+              <div class="battle-window" id="battle-window-3" data-window-state="LOCKED" role="listitem" aria-label="Window 4: locked"><span class="battle-window-hour">12–16</span><span class="battle-window-icon" id="battle-window-icon-3" aria-hidden="true">■</span><span class="battle-window-state" id="battle-window-state-3">LOCKED</span></div>
+              <div class="battle-window" id="battle-window-4" data-window-state="LOCKED" role="listitem" aria-label="Window 5: locked"><span class="battle-window-hour">16–20</span><span class="battle-window-icon" id="battle-window-icon-4" aria-hidden="true">■</span><span class="battle-window-state" id="battle-window-state-4">LOCKED</span></div>
+              <div class="battle-window" id="battle-window-5" data-window-state="LOCKED" role="listitem" aria-label="Window 6: locked"><span class="battle-window-hour">20–00</span><span class="battle-window-icon" id="battle-window-icon-5" aria-hidden="true">■</span><span class="battle-window-state" id="battle-window-state-5">LOCKED</span></div>
+            </div>
+            <p class="arena-move-rule" id="arena-move-rule" role="status">SYNCING WIB BATTLE WINDOWS...</p>
+          </section>
         </section>
 
         <!-- Production never imports the local demo engine. -->
