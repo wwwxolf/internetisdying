@@ -1,0 +1,67 @@
+name: Test and Deploy Internet Is Dying
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: internetisdying-production
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Regression tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install test dependencies
+        run: npm install --no-audit --no-fund
+      - name: Test all application code and SQL migrations
+        run: npm test
+
+  deploy:
+    name: Deploy existing Cloudflare Worker
+    needs: test
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Cloudflare deployment credentials
+        shell: bash
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [[ -z "$CF_API_TOKEN" || -z "$CF_ACCOUNT_ID" ]]; then
+            echo "::error::Cloudflare deployment requires CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID repository secrets."
+            exit 1
+          fi
+      - name: Publish internetisdying Worker and static assets
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
+      - name: Verify published V2 assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="https://internetisdying.wwwxolf.workers.dev"
+          for i in 1 2 3 4 5 6; do
+            curl -fsSL --max-time 12 "$ROOT/arena.html" -o /tmp/iid-arena.html || true
+            if grep -q 'flow.js?v=22' /tmp/iid-arena.html 2>/dev/null; then
+              break
+            fi
+            sleep 5
+          done
+          grep -q 'flow.js?v=22' /tmp/iid-arena.html
+          curl -fsSL --max-time 15 "$ROOT/global-battle.js?v=7" -o /tmp/iid-battle.js
+          grep -q 'WAR INFLUENCE' /tmp/iid-battle.js
+          echo "Verified V2-compatible assets served from existing Workers domain."
