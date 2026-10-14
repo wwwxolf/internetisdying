@@ -362,6 +362,8 @@ test('Global Pulses counts only settled server-accepted taps, never pending or r
  await admin("update public.iid_battles set counted_taps=17 where id='"+started.id+"'");
  assert.equal((await read()).total_pulses,0,'pending taps must not be counted');
  await expire(started.id);
+ // The RNG boundary suite installs a deterministic roll fixture; seed it.
+ await admin("delete from iid_private.test_rolls; insert into iid_private.test_rolls(value) values (0),(0),(0)");
  await settle(started.id);
  assert.equal((await read()).total_pulses,17);
  await settle(started.id);
