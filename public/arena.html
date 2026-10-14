@@ -12,12 +12,12 @@
   <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="./styles.css?v=6"/>
   <link rel="stylesheet" href="./arena.css?v=8"/>
-  <link rel="stylesheet" href="./tap-battle.css?v=1"/>
+  <link rel="stylesheet" href="./tap-battle.css?v=2"/>
   <link rel="stylesheet" href="./daily-chaos.css?v=2"/>
   <link rel="stylesheet" href="./world-return.css?v=4"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./flow.js?v=20"></script>
+  <script type="module" src="./flow.js?v=21"></script>
 </head>
 <body data-page="arena" data-battle-mode="global">
   <div class="preview-bar" role="note">GLOBAL BATTLE ENGINE • CONTROLLED ROLLOUT</div>
@@ -182,13 +182,13 @@
             <span class="tap-heading">CHAOS TAP BATTLE</span>
             <span class="tap-side-label" id="tap-side">SAVE</span>
           </div>
-          <p class="tap-instruction">3 • 2 • 1 • GO! THEN TAP AS FAST AS YOU CAN.</p>
+          <p class="tap-instruction" id="tap-instruction">3 • 2 • 1 • GO! THEN TAP AS FAST AS YOU CAN.</p>
           <div class="tap-stats">
             <div class="tap-stat"><span>TIME LEFT</span><strong id="tap-time">20.0</strong><small>SECONDS</small></div>
-            <div class="tap-stat"><span>YOUR TAPS</span><strong id="tap-count">0 / 50</strong><small>MAX 50</small></div>
-            <div class="tap-stat"><span>POWER BONUS</span><strong id="tap-bonus">+0%</strong><small>MAX +10%</small></div>
+            <div class="tap-stat"><span>YOUR TAPS</span><strong id="tap-count">0 / 50</strong><small id="tap-max-label">MAX 50</small></div>
+            <div class="tap-stat"><span>POWER BONUS</span><strong id="tap-bonus">+0%</strong><small id="tap-bonus-label">MAX +10%</small></div>
           </div>
-          <div class="tap-charge-track" role="img" aria-label="Charge rises from zero to maximum at 50 taps">
+          <div class="tap-charge-track" id="tap-charge-track" role="img" aria-label="Charge rises from zero to maximum at 50 taps">
             <div class="tap-charge-fill" id="tap-charge"></div>
           </div>
           <div class="tap-countdown" id="tap-countdown" role="status" aria-live="assertive">3</div>
@@ -197,8 +197,9 @@
             <strong>TAP! TAP! TAP!</strong>
             <span>BUILD YOUR POWER</span>
           </button>
+          <button id="tap-hold" class="tap-hold" type="button" aria-label="Hold to charge, accessible alternative to tapping" hidden disabled>HOLD TO CHARGE</button>
           <p class="tap-combo" id="tap-combo" aria-live="off">READY!</p>
-          <p class="tap-safety">50 TAPS = MAX CHARGE. THE ROUND LASTS 20 SECONDS.</p>
+          <p class="tap-safety" id="tap-safety">50 TAPS = MAX CHARGE. THE ROUND LASTS 20 SECONDS.</p>
           <p class="tap-safety tap-disclaimer">BONUS COUNTS SERVER-CONFIRMED TAPS ONLY. THIS IS NOT BOT PROTECTION.</p>
         </section>
 
