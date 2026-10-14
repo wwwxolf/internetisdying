@@ -33,6 +33,43 @@ a:hover{color:var(--ink)}
 .heart-zone[data-stage="dead"] .pixel-heart{animation:none;filter:grayscale(1) drop-shadow(4px 5px 0 #252b35)}
 .crack{opacity:0}
 .heart-zone[data-stage="dead"] .crack{opacity:1}
+
+/* LANDING HERO V3: a broken pixel internet core, not a heart.
+ * SVG wraps an optimized 96px pixel PNG; image-rendering keeps hard edges.
+ * The Arena deliberately retains its separate heart indicator. */
+.world-core-zone{min-height:174px;margin:0 auto 8px;overflow:visible;isolation:isolate}
+.world-core-img{
+  display:block;width:160px;height:160px;max-width:100%;object-fit:contain;
+  image-rendering:pixelated;
+  filter:drop-shadow(0 0 5px #eb405044);
+  transform-origin:50% 50%;
+  animation:internet-core-flicker 3.1s steps(2,end) infinite;
+  will-change:transform;
+}
+@keyframes internet-core-flicker{
+  0%,18%,23%,49%,55%,100%{transform:translateX(0) scale(1)}
+  20%{transform:translateX(2px) scale(1.025)}
+  52%{transform:translateX(-2px) scale(1.01)}
+}
+.world-core-zone[data-stage="danger"] .world-core-img{
+  animation-duration:1.7s;
+  filter:drop-shadow(0 0 7px #ff657d77);
+}
+.world-core-zone[data-stage="dead"] .world-core-img{
+  animation:none;filter:grayscale(1) brightness(.65);
+}
+@media(max-width:640px){
+  .world-core-zone{min-height:150px;margin-bottom:7px}
+  .world-core-img{width:142px;height:142px}
+}
+@media(max-width:380px){
+  .world-core-zone{min-height:140px}
+  .world-core-img{width:132px;height:132px}
+}
+@media(prefers-reduced-motion:reduce){
+  .world-core-img{animation:none!important;will-change:auto}
+}
+
 .hud{max-width:650px;margin:0 auto;background:var(--panel);border:3px solid var(--line);padding:18px 17px;box-shadow:5px 5px #05080f;text-align:left;min-width:0}
 .hud-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;column-gap:12px;row-gap:8px}
 .hud-numbers{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
