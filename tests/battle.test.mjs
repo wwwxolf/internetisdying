@@ -192,7 +192,7 @@ test('V2 combat uses 2-second ready, 12-second play, 24 taps and compressed war 
  assert.equal(new Date(b.starts_at)-new Date(b.created_at),2000);
  assert.equal(new Date(b.ends_at)-new Date(b.starts_at),12000);
  await assert.rejects(rpc('tap_batch',[b.id,25],['uuid','integer']),/INVALID_TAP_TOTAL/);
- await admin("update public.iid_battles set created_at=clock_timestamp()-interval '16 seconds',starts_at=clock_timestamp()-interval '14 seconds',ends_at=clock_timestamp()-interval '2 seconds',counted_taps=24 where id='"+b.id+"'");
+ await admin("update public.iid_battles set created_at=statement_timestamp()-interval '16 seconds',starts_at=statement_timestamp()-interval '14 seconds',ends_at=statement_timestamp()-interval '2 seconds',counted_taps=24 where id='"+b.id+"'");
  const r=await settle(b.id);
  assert.ok(r.power>=100&&r.power<=5300);
  assert.ok([100,150,200].includes(r.critical));
