@@ -349,3 +349,32 @@ test('World Return heartbeat, refresh replay and security boundaries',async()=>{
  await assert.rejects(db.query('select * from public.iid_player_presence'),/permission denied/);
  await login();
 });
+
+
+test('Global Pulses counts only settled server-accepted taps, never pending or retries',async()=>{
+ await fresh();
+ const read=async()=>(await db.query('select public.iid_global_pulses() as result')).rows[0].result;
+ const blank=await read();
+ assert.equal(blank.total_pulses,0);
+ assert.equal(blank.settled_battles,0);
+ assert.equal(blank.world_active,true);
+ const started=await start('HEAL');
+ await admin("update public.iid_battles set counted_taps=17 where id='"+started.id+"'");
+ assert.equal((await read()).total_pulses,0,'pending taps must not be counted');
+ await expire(started.id);
+ // The RNG boundary suite installs a deterministic roll fixture; seed it.
+ await admin("delete from iid_private.test_rolls; insert into iid_private.test_rolls(value) values (0),(0),(0)");
+ await settle(started.id);
+ assert.equal((await read()).total_pulses,17);
+ await settle(started.id);
+ assert.equal((await read()).total_pulses,17,'idempotent settlement cannot increase Global Pulses');
+ await admin("insert into public.iid_battles(id,user_id,request_id,nickname,action,created_at,starts_at,ends_at,counted_taps,settled_at,base,critical,bonus,power,hp_before,hp_after,applied_hp,world_version) values (gen_random_uuid(),'"+V+"',gen_random_uuid(),'PlayerTwo','KILL',statement_timestamp()-interval '2 hours',statement_timestamp()-interval '2 hours'+interval '3 seconds',statement_timestamp()-interval '2 hours'+interval '23 seconds',9,clock_timestamp()-interval '90 minutes',200,1,0,200,500000,499800,200,2)");
+ assert.equal((await read()).total_pulses,26,'both HEAL and KILL count accepted taps');
+ assert.equal((await read()).settled_battles,2);
+ await login({},'anon');
+ const publicResult=await read();
+ assert.equal(publicResult.total_pulses,26);
+ assert.deepEqual(Object.keys(publicResult).sort(),['settled_battles','total_pulses','world_active']);
+ await assert.rejects(db.query('select * from public.iid_battles'),/permission denied/);
+ await login();
+});

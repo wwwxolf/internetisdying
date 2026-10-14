@@ -4,7 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <meta name="theme-color" content="#0b101b"/>
-  <meta name="description" content="THE INTERNET IS DYING — choose HEAL or KILL in the pixel Chaos Arena."/>
+  <meta name="description" content="THE INTERNET IS DYING — choose SAVE or KILL in the pixel Chaos Arena."/>
   <title>CHAOS ARENA — THE INTERNET IS DYING</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="./world-return.css?v=1"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./flow.js?v=13"></script>
+  <script type="module" src="./flow.js?v=14"></script>
 </head>
 <body data-page="arena" data-battle-mode="global">
   <div class="preview-bar" role="note">GLOBAL BATTLE ENGINE • CONTROLLED ROLLOUT</div>
@@ -57,7 +57,7 @@
           <p class="world-return-since" id="world-return-since">SYNCING SERVER HISTORY...</p>
           <p class="world-return-user">PLAYER: <span id="world-return-name">...</span></p>
           <div class="world-return-grid">
-            <div class="world-return-stat heal"><span>WORLD HEAL</span><strong id="world-return-heal">—</strong></div>
+            <div class="world-return-stat heal"><span>WORLD SAVE</span><strong id="world-return-heal">—</strong></div>
             <div class="world-return-stat kill"><span>WORLD KILL</span><strong id="world-return-kill">—</strong></div>
             <div class="world-return-stat decay"><span>WORLD DECAY</span><strong id="world-return-decay">—</strong></div>
             <div class="world-return-stat chaos"><span>DAILY CHAOS</span><strong id="world-return-chaos">—</strong></div>
@@ -122,11 +122,11 @@
           </div>
 
           <div class="choices arena-choices">
-            <button type="button" class="choice heal arena-choice" data-arena-action="HEAL" aria-label="Heal the internet" disabled>
+            <button type="button" class="choice heal arena-choice" data-arena-action="HEAL" aria-label="Save the internet" disabled>
               <span class="arena-choice-icon" aria-hidden="true">
                 <svg viewBox="0 0 12 12" shape-rendering="crispEdges"><path d="M4 0h4v4h4v4H8v4H4V8H0V4h4z"/></svg>
               </span>
-              <strong class="choice-title">HEAL</strong>
+              <strong class="choice-title">SAVE</strong>
               <span class="choice-caption">KEEP IT ALIVE</span>
               <span class="arena-choice-caption2">+ RANDOM HP</span>
             </button>
@@ -151,7 +151,7 @@
         <section id="tap-battle" class="tap-battle" data-side="heal" aria-label="20-second Global Chaos Tap Battle" hidden>
           <div class="tap-topline">
             <span class="tap-heading">CHAOS TAP BATTLE</span>
-            <span class="tap-side-label" id="tap-side">HEAL</span>
+            <span class="tap-side-label" id="tap-side">SAVE</span>
           </div>
           <p class="tap-instruction">3 • 2 • 1 • GO! THEN TAP AS FAST AS YOU CAN.</p>
           <div class="tap-stats">
