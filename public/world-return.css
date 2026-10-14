@@ -97,3 +97,58 @@ body[data-page="arena"] .world-return-share:enabled:active{
 @media(prefers-reduced-motion:reduce){
  body[data-page="arena"] .world-return-share{transition:none}
 }
+
+
+/* Locked 4:5 pixel card preview. Isolated from arena battle rendering. */
+body[data-page="arena"] .share-card-modal[hidden]{display:none}
+body[data-page="arena"] .share-card-modal{
+ position:fixed;inset:0;z-index:10000;
+ display:flex;justify-content:center;align-items:flex-start;
+ overflow-y:auto;padding:16px 12px 35px;background:#050916e8;
+}
+body[data-page="arena"] .share-card-shell{
+ width:min(100%,520px);background:#101b2e;color:#f4efe9;
+ border:3px solid #5b7491;box-shadow:5px 5px #030710;
+ padding:14px;min-width:0;
+}
+body[data-page="arena"] .share-card-heading-row{
+ display:flex;gap:10px;align-items:center;justify-content:space-between;
+}
+body[data-page="arena"] #share-card-heading{
+ color:#ff657d;font:clamp(10px,2.5vw,13px)/1.7 "Press Start 2P",monospace;margin:0;
+}
+body[data-page="arena"] .share-card-close{
+ background:#18283d;color:#f1ede8;border:2px solid #667b95;
+ padding:9px;font:13px "Press Start 2P",monospace;cursor:pointer;
+}
+body[data-page="arena"] .share-card-explanation{
+ font:12px/1.5 "Pixelify Sans",sans-serif;color:#b8c9dc;margin:10px 0;
+}
+body[data-page="arena"] .share-card-preview{
+ display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:contain;
+ image-rendering:auto;border:2px solid #4b607b;background:#0a1220;
+}
+body[data-page="arena"] .share-card-feedback{
+ color:#f3d17b;font:15px/1.5 "Pixelify Sans",sans-serif;min-height:22px;margin:9px 0;
+}
+body[data-page="arena"] .share-card-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+body[data-page="arena"] .share-card-actions button{
+ min-height:47px;padding:9px 6px;cursor:pointer;
+ font:clamp(7px,1.4vw,9px)/1.65 "Press Start 2P",monospace;
+}
+body[data-page="arena"] .share-card-native{
+ grid-column:1/-1;background:#75e1aa;color:#0d241e;border:3px solid #75e1aa;
+}
+body[data-page="arena"] .share-card-native[hidden]{display:none}
+body[data-page="arena"] .share-card-download{
+ background:#172b45;border:2px solid #92b3da;color:#e6f0fc;
+}
+body[data-page="arena"] .share-card-whatsapp{
+ background:#193f36;border:2px solid #75e1aa;color:#75e1aa;
+}
+body[data-page="arena"] .share-card-tip{font:14px/1.3 "Pixelify Sans",sans-serif;color:#bac9de;margin:10px 0 0}
+@media(max-width:380px){
+ body[data-page="arena"] .share-card-shell{padding:9px}
+ body[data-page="arena"] .share-card-actions{grid-template-columns:1fr}
+ body[data-page="arena"] .share-card-native{grid-column:1}
+}
