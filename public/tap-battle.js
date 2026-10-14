@@ -113,7 +113,7 @@ export function initTapBattle({userId, profile}) {
     choosePanel.hidden = true;
     battlePanel.hidden = false;
     $("tap-battle").dataset.side = side.toLowerCase();
-    $("tap-side").textContent = side;
+    $("tap-side").textContent = side === "HEAL" ? "SAVE" : side;
     $("tap-target-mark").textContent = side === "HEAL" ? "+" : "×";
     $("tap-count").textContent = "0 / 50";
     $("tap-bonus").textContent = "+0%";
@@ -193,8 +193,8 @@ export function initTapBattle({userId, profile}) {
     const title = taps === MAX_TAPS ? "MAX CHARGE! +10%"
       : roll.multiplier === 3 ? "SUPER CRITICAL ×3!"
       : roll.multiplier === 2 ? "CRITICAL ×2!"
-      : side + " POWER REVEALED!";
-    const line = side + " • " + taps + "/50 TAPS • BONUS +" + bonus
+      : (side === "HEAL" ? "SAVE" : side) + " POWER REVEALED!";
+    const line = (side === "HEAL" ? "SAVE" : side) + " • " + taps + "/50 TAPS • BONUS +" + bonus
       + "% • BASE " + fmt(roll.base) + " × CRIT " + roll.multiplier
       + " × TAP " + (1 + bonus / 100).toFixed(2)
       + " = " + fmt(final) + " HP";
