@@ -31,7 +31,7 @@ export async function initWorldReturn({sb,nickname}) {
    return [
      "THE INTERNET IS DYING_",
      headline,
-     "HEAL +"+fmt(data.heal_hp)+" HP | KILL −"+fmt(data.kill_hp)+" HP",
+     "SAVE +"+fmt(data.heal_hp)+" HP | KILL −"+fmt(data.kill_hp)+" HP",
      "WORLD DECAY −"+fmt(data.decay_hp)+" HP | DAILY CHAOS "+signed(data.chaos_hp)+" HP",
      "WORLD NET "+signed(net)+" HP",
      "CURRENT WORLD "+fmt(data.world_hp)+" / 1,000,000 HP",
@@ -60,7 +60,7 @@ export async function initWorldReturn({sb,nickname}) {
   text("world-return-world",fmt(data.world_hp)+" / 1,000,000 HP");
   text("world-return-activity",!visited?"COME BACK AFTER YOUR NEXT SESSION TO SEE REAL WORLD CHANGES."
     :quiet?(data.world_enabled?"NO VERIFIED WORLD CHANGES DURING THIS PERIOD.":"WORLD PAUSED • NO VERIFIED CHANGES.")
-    :fmt(data.heal_battles)+" HEAL / "+fmt(data.kill_battles)+" KILL BATTLES • "+fmt(data.chaos_events)+" DAILY EVENTS");
+    :fmt(data.heal_battles)+" SAVE / "+fmt(data.kill_battles)+" KILL BATTLES • "+fmt(data.chaos_events)+" DAILY EVENTS");
   text("world-return-event",data.latest_event
     ?"LATEST: "+data.latest_event.title+" • "+signed(data.latest_event.applied_hp)+" HP"
     :"NO DAILY CHAOS EVENT DURING THIS PERIOD");
