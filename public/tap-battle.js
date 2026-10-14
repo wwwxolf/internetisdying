@@ -135,7 +135,7 @@ export function initTapBattle({userId, profile}) {
     $("tap-countdown").hidden = true;
     tapTarget.hidden = false;
     tapTarget.disabled = false;
-    $("tap-combo").textContent = "TAP FAST!";
+    $("tap-combo").textContent = "GO! TAP! TAP! TAP!";
     $("tap-time").textContent = "20.0";
     if (Date.now() >= battleEnd) finish(); // background tab must not extend allotted time
   }
