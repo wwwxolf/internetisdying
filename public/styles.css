@@ -122,6 +122,35 @@ a:hover{color:var(--ink)}
 .demo-reset{display:flex;justify-content:center;margin:15px auto 0}
 .reset{font-size:8px;background:transparent;color:var(--muted);border:2px solid var(--line);padding:10px 14px;line-height:1.6}
 .reset:hover{border-color:var(--ink);color:var(--ink)}
+
+/* Server-confirmed Global Pulses below the single primary landing CTA. */
+.hero .global-pulses{
+  max-width:650px;margin:22px auto 0;padding:20px 10px 13px;
+  border-top:2px solid #3b4c65;text-align:center;min-width:0;
+}
+.hero .global-pulses h2{
+  margin:0 0 13px;color:#aebed1;
+  font:clamp(9px,2.4vw,12px)/1.8 "Press Start 2P",monospace;
+}
+.hero .global-pulses-total{
+  display:block;max-width:100%;
+  font:clamp(23px,6.5vw,38px)/1.5 "Press Start 2P",monospace;
+  color:#f4ede6;font-variant-numeric:tabular-nums;
+  overflow-wrap:anywhere;
+}
+.hero .global-pulses-tagline{
+  margin:6px 0 4px;color:#72dfa6;
+  font:clamp(9px,2.1vw,11px)/1.8 "Press Start 2P",monospace;
+}
+.hero .global-pulses-status{
+  margin:4px 0 0;font:14px/1.35 "Pixelify Sans",sans-serif;
+  color:#b6c1d2;
+}
+@media(max-width:380px){
+  .hero .global-pulses{margin-top:17px;padding:15px 7px 11px}
+  .hero .global-pulses-status{font-size:13px}
+}
+
 .below{margin:34px 0 26px;display:grid;grid-template-columns:1fr;gap:16px}
 .panel{border:3px solid var(--line);background:var(--panel);box-shadow:5px 5px #05080f;padding:20px;min-width:0}
 .panel-title{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
