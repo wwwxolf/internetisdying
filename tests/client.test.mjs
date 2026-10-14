@@ -1,0 +1,51 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import {readFile} from 'node:fs/promises';
+const source=await readFile('public/global-battle.js','utf8');
+const html=await readFile('public/arena.html','utf8');
+function fixture(handler) {
+  const nodes=new Map([...html.matchAll(/id="([^"]+)"/g)].map(m=>[m[1],{hidden:false,style:{},dataset:{},events:{},textContent:'',setAttribute(){},addEventListener(n,f){this.events[n]=f;}}]));
+  const choices=['HEAL','KILL'].map(action=>({dataset:{arenaAction:action},events:{},addEventListener(n,f){this.events[n]=f;}}));
+  const intervals=[];
+  const context={document:{getElementById:id=>{assert.ok(nodes.has(id),id+' exists in markup');return nodes.get(id);},querySelectorAll:()=>choices,addEventListener(){},removeEventListener(){}},
+    window:{addEventListener(){}},Date,Number,Math,crypto,setInterval:f=>intervals.push(f),clearInterval(){}};
+  const init=vm.runInNewContext(source.replace('export async function','async function')+';initGlobalBattle',context);
+  return {nodes,choices,intervals,init:()=>init({sb:{rpc:handler}})};
+}
+function state(extra={}) {return {server_now:new Date().toISOString(),world:{hp:500000,enabled:true},monthly:{month:'2026-10',nickname:'Tester',battle_count:0,heal_count:0,kill_count:0,heal_hp:0,kill_hp:0,tier:null},active:null,latest:null,rolling_count:0,next_battle_at:null,...extra};}
+const flush=()=>new Promise(r=>setImmediate(r));
+test('paused server disables production choices and displays no invented tier',async()=>{
+  const f=fixture(async()=>({data:state({world:{hp:500000,enabled:false}})}));await f.init();
+  assert.ok(f.choices.every(x=>x.disabled));assert.match(f.nodes.get('monthly-summary').textContent,/No card yet/);
+});
+test('failed status fails closed without loading local demo',async()=>{
+  const f=fixture(async()=>({error:{message:'network failure'}}));await f.init();f.intervals[0]();
+  assert.ok(f.choices.every(x=>x.disabled));assert.match(f.nodes.get('flow-status').textContent,/RETRY SYNC/);
+  assert.doesNotMatch(source,/localStorage|Math.random|tap-battle.js/);
+});
+test('lost start response keeps choices locked until a successful sync',async()=>{
+  const f=fixture(async name=>name.endsWith('status')?{data:state()}:{error:{message:'response lost'}});
+  await f.init();await f.choices[0].events.click();f.intervals[0]();assert.ok(f.choices.every(x=>x.disabled));
+});
+test('tap submits only ID and sequence; lost acknowledgement reuses sequence',async()=>{
+  const calls=[];let attempt=0;
+  const active={id:'battle',action:'HEAL',counted_taps:0,starts_at:new Date(Date.now()-1000).toISOString(),ends_at:new Date(Date.now()+19000).toISOString()};
+  const f=fixture(async(name,args)=>{
+    if(name.endsWith('status'))return {data:state({active})};
+    calls.push(JSON.parse(JSON.stringify(args)));return ++attempt===1?{error:{message:'lost'}}:{data:{counted_taps:1}};
+  });await f.init();await f.nodes.get('tap-target').events.click();await f.nodes.get('tap-target').events.click();
+  assert.deepEqual(calls,[{p_battle_id:'battle',p_seq:1},{p_battle_id:'battle',p_seq:1}]);
+  assert.equal(f.nodes.get('tap-count').textContent,'1 / 50');
+});
+test('expired session resumes settlement with same ID and displays server result',async()=>{
+  let finished=false;const calls=[];
+  const active={id:'same-battle',action:'HEAL',counted_taps:5,starts_at:new Date(Date.now()-25000).toISOString(),ends_at:new Date(Date.now()-5000).toISOString()};
+  const result={action:'HEAL',applied_hp:42,base:42,critical:1,bonus:0,power:42,hp_after:500042};
+  const f=fixture(async(name,args)=>{
+    if(name.endsWith('status'))return {data:state({active:finished?null:active,latest:finished?result:null})};
+    calls.push({name,args:JSON.parse(JSON.stringify(args))});finished=true;return {data:result};
+  });await f.init();f.intervals[0]();await flush();
+  assert.deepEqual(calls,[{name:'iid_battle_settle',args:{p_battle_id:'same-battle'}}]);
+  assert.match(f.nodes.get('arena-result-title').textContent,/42 HP APPLIED/);
+});

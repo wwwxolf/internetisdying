@@ -271,6 +271,9 @@ body[data-page="arena"] .arena-action-result h3{
   color:var(--arena-green);
   overflow-wrap:anywhere;
 }
+body[data-battle-mode="global"] #arena-result.arena-action-result:before{content:"PERMANENT BATTLE RECORD"}
+body[data-battle-mode="global"] .arena-test-tools .reset{margin:14px 8px 8px}
+body[data-battle-mode="global"] .arena-test-tools .navlink{display:inline-block;font-size:8px;line-height:1.8;margin:8px}
 body[data-page="arena"] .arena-action-result p{
   color:#e3ecf6;
   font-size:18px;

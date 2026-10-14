@@ -11,14 +11,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="./styles.css?v=3"/>
-  <link rel="stylesheet" href="./arena.css?v=4"/>
+  <link rel="stylesheet" href="./arena.css?v=5"/>
   <link rel="stylesheet" href="./tap-battle.css?v=1"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./flow.js?v=8"></script>
+  <script type="module" src="./flow.js?v=9"></script>
 </head>
-<body data-page="arena">
-  <div class="preview-bar" role="note">ALPHA PREVIEW • WORLD HP IS NOT LIVE YET</div>
+<body data-page="arena" data-battle-mode="global">
+  <div class="preview-bar" role="note">GLOBAL BATTLE ENGINE • CONTROLLED ROLLOUT</div>
   <div class="page">
     <header class="header">
       <a class="brand" href="./index.html" aria-label="Return to home">THE INTERNET<br><span>IS DYING_</span></a>
@@ -47,7 +47,7 @@
         <section class="arena-stage" aria-label="Internet life monitor">
           <div class="arena-stage-header">
             <span class="arena-stage-caption">◈ INTERNET VITALS</span>
-            <span class="arena-live-chip">● LOCAL TEST</span>
+            <span class="arena-live-chip">● SERVER DATA</span>
           </div>
 
           <div class="arena-heart-wrap">
@@ -64,24 +64,24 @@
           <p class="arena-heart-text">ONE INTERNET. ONE LIFE.</p>
 
           <div class="hud arena-hud">
-            <div class="arena-hud-label">WORLD HEALTH / SIMULATED</div>
+            <div class="arena-hud-label">SHARED WORLD HEALTH</div>
             <div class="hud-head">
               <div class="hud-numbers">
-                <strong class="hp-current" id="arena-hp">500,000</strong>
+                <strong class="hp-current" id="arena-hp">—</strong>
                 <span class="hp-max">/ 1,000,000 HP</span>
               </div>
               <span class="status" id="arena-status">● CRITICAL</span>
             </div>
-            <div class="hp-track" role="progressbar" aria-label="Simulated internet HP" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" id="arena-progress">
+            <div class="hp-track" role="progressbar" aria-label="Global internet HP" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="arena-progress">
               <div class="hp-fill" id="arena-fill"></div>
             </div>
             <div class="hud-foot">
               <span id="arena-percent">50.0% LIFE REMAINING</span>
-              <span class="demo-marker">LOCAL SIMULATION ONLY</span>
+              <span class="demo-marker">SERVER VERIFIED</span>
             </div>
           </div>
           <div class="arena-stage-footer">
-            <span>NO LIVE WORLD DATA</span><span aria-hidden="true">·</span><span>ALPHA TEST</span>
+            <span>SHARED HP</span><span aria-hidden="true">·</span><span>SYNC EVERY 15 SECONDS</span>
           </div>
         </section>
 
@@ -92,7 +92,7 @@
           </div>
 
           <div class="choices arena-choices">
-            <button type="button" class="choice heal arena-choice" data-arena-action="HEAL" aria-label="Heal the internet in this local demo">
+            <button type="button" class="choice heal arena-choice" data-arena-action="HEAL" aria-label="Heal the internet" disabled>
               <span class="arena-choice-icon" aria-hidden="true">
                 <svg viewBox="0 0 12 12" shape-rendering="crispEdges"><path d="M4 0h4v4h4v4H8v4H4V8H0V4h4z"/></svg>
               </span>
@@ -100,7 +100,7 @@
               <span class="choice-caption">KEEP IT ALIVE</span>
               <span class="arena-choice-caption2">+ RANDOM HP</span>
             </button>
-            <button type="button" class="choice kill arena-choice" data-arena-action="KILL" aria-label="Damage the internet in this local demo">
+            <button type="button" class="choice kill arena-choice" data-arena-action="KILL" aria-label="Damage the internet" disabled>
               <span class="arena-choice-icon" aria-hidden="true">
                 <svg viewBox="0 0 12 12" shape-rendering="crispEdges">
                   <path d="M2 1h8v1h1v5h-2v2H7v1H5V9H3V7H1V2h1z"/>
@@ -113,12 +113,12 @@
             </button>
           </div>
           <p class="arena-move-rule" id="arena-move-rule">
-            ONE LOCAL ACTION / UTC DAY <span class="arena-rule-separator">◆</span> POWER IS RANDOM
+            WAITING FOR SERVER STATUS
           </p>
         </section>
 
-        <!-- Tap Battle: visible only after choosing HEAL or KILL. Browser-only demo. -->
-        <section id="tap-battle" class="tap-battle" data-side="heal" aria-label="20-second Chaos Tap Battle (local preview only)" hidden>
+        <!-- Production never imports the local demo engine. -->
+        <section id="tap-battle" class="tap-battle" data-side="heal" aria-label="20-second Global Chaos Tap Battle" hidden>
           <div class="tap-topline">
             <span class="tap-heading">CHAOS TAP BATTLE</span>
             <span class="tap-side-label" id="tap-side">HEAL</span>
@@ -139,8 +139,8 @@
             <span>BUILD YOUR POWER</span>
           </button>
           <p class="tap-combo" id="tap-combo" aria-live="off">READY!</p>
-          <p class="tap-safety">50 TAPS = MAX CHARGE. THE ROUND ENDS AT 50 TAPS OR AFTER 20 SECONDS.</p>
-          <p class="tap-safety tap-disclaimer">SIMULATED POWER ONLY • NO BOT PROTECTION ACTIVE</p>
+          <p class="tap-safety">50 TAPS = MAX CHARGE. THE ROUND LASTS 20 SECONDS.</p>
+          <p class="tap-safety tap-disclaimer">ONLY SERVER-CONFIRMED TAPS COUNT. CONNECTION SPEED MAY AFFECT TAPS.</p>
         </section>
 
         <div id="arena-result" class="result arena-action-result" hidden role="status" aria-live="polite">
@@ -148,13 +148,12 @@
           <p id="arena-result-text"></p>
         </div>
 
-        <details class="arena-test-tools">
-          <summary>LOCAL DEMO CONTROLS</summary>
-          <p>Reset only your browser's test HP and action cooldown. This will not affect global players.</p>
-          <div class="demo-reset">
-            <button type="button" id="arena-reset" class="reset">↺ RESET LOCAL DEMO</button>
-          </div>
-        </details>
+        <section class="arena-test-tools" aria-label="Monthly battle summary">
+          <h2 class="arena-decision-title">YOUR MONTH_</h2>
+          <p id="monthly-summary" style="white-space:pre-line;overflow-wrap:anywhere">Waiting for server summary…</p>
+          <button type="button" id="battle-refresh" class="reset">RETRY SYNC</button>
+          <a href="./demo.html" class="navlink">SEPARATE LOCAL DEMO →</a>
+        </section>
 
         <aside class="arena-ad-slot" aria-label="Future advertisement space">
           <span class="ad-label">AD SPACE RESERVED • NOT ACTIVE</span>

@@ -1,80 +1,78 @@
 # THE INTERNET IS DYING
 
-**Internet Chaos** — a minimal retro pixel web game. Hosted via Cloudflare Workers Static Assets.
+Pixel browser game hosted with Cloudflare Workers Static Assets (`public/`).
 
-## Status: dedicated Supabase database connected; login providers NOT YET ENABLED
+## Status — 2026-10-14
 
-### Live code paths
-- `public/index.html` — public landing page, global-life preview, two **non-interactive** HEAL/KILL visual buttons, and sole active CTA **JOIN THE CHAOS**.
-- `public/auth.html` — real **Supabase Auth** Google OAuth and email sign-in wiring; until providers and redirect URLs are configured, buttons remain disabled with a clear notice.
-- `public/onboarding.html` — one-time nickname and character (HUMAN/BOT/ALIEN/GLITCH) flow.
-- `public/arena.html` — guarded player Arena; its HP changes are **LOCAL DEMO ONLY**, not global votes or purchases.
-- `public/flow.js` — routing and account/auth logic, plus unchanged weighted random and crit mechanics in the local Arena.
-- `public/styles.css` — NES.css + original full-pixel responsive custom styling.
-- `public/config.js` — dedicated game Supabase URL + **publishable** key, with separate provider readiness flags (both intentionally false until setup finishes).
-- `supabase/migrations/20261013_iid_profiles.sql` — private RLS profile table, case-insensitive unique nickname, immutable origin.
+- Supabase: `internet-is-dying` / `wywrahaqpocueddxmjjq`.
+- Migration **applied**: `20261014033444_global_battle_engine`.
+- Production world: **500,000 HP**, version **0**, **0 battles**, **paused** (`enabled=false`).
+- This branch adds the production client to `/arena.html` and preserves the old browser-only game at `/demo.html`. These frontend changes have **not been deployed** by this task.
+- Existing Cloudflare site still shows the old local demo. An existing Google-authenticated profile was observed; fresh OAuth and a real battle through the new client remain pending.
+- No ads, purchases or payments. Share-card rendering is deferred.
 
-### V3 user flow
+See [verification and rollout notes](docs/global-battle-verification.md).
 
-Landing → JOIN THE CHAOS → Google or email login → **first-time** nickname & character → Arena.
+## Production flow and rules
 
-Returning authenticated users with a profile go straight to Arena.
+Google sign-in → nickname/origin in `iid_profiles` → start RPC → 3-second countdown → **20-second** tapping window → settlement RPC → permanent history and UTC monthly summary.
 
-There is **no advertising SDK** yet. The Arena includes a labelled, passive placeholder below the gameplay area; monetization must not obstruct registration or play.
+The browser sends only action/request UUID, battle UUID, and the next tap sequence. It never supplies HP, random rolls, bonus, timestamps, or a tap total.
 
-### Dedicated backend (created)
+- One pending session per user. New requests/reloads resume it, even after its timer expires. No cancel/reroll endpoint.
+- Maximum 50 acknowledged taps. One request records at most one tap within server time bounds, with at least 50ms between newly accepted taps. Replayed sequences never increment the total. Reaching 50 does **not** shorten the battle.
+- Bonus 0/2/4/6/8/10% at 0/10/20/30/40/50 taps.
+- Base distribution: 60% inclusive 0–500; 30% 501–2,000; 9% 2,001–10,000; 1% 10,001–25,000.
+- Critical: 95% ×1, 4% ×2, 1% ×3. Power = `round(base * critical * (100 + bonus) / 100)`.
+- Server RNG uses random UUID v4 bits with rejection sampling; generated only inside settlement.
+- Shared HP clamps to 0…1,000,000. Both rolled power and actually applied HP are stored.
+- **4-hour cooldown from successful settlement**, at most 6 settlements in the preceding rolling 24 hours. A disconnected session settles on return; cooldown/monthly accounting begin then. No background settlement job is installed.
+- Calendar month is UTC, by settlement timestamp. No card at 0; Common 1–14, Rare 15–44, Legendary 45–89, Ancestral 90+.
+- Summary includes nickname, battle count, HEAL/KILL counts, and actually applied HEAL/KILL HP.
 
-- Supabase project: `internet-is-dying` in Olf Hub, region Singapore.
-- Project dashboard: https://supabase.com/dashboard/project/wywrahaqpocueddxmjjq
-- Browser URL/key: already connected in `public/config.js`. This is a **publishable** key only. NO secret/service-role key is committed.
-- Migration `supabase/migrations/20261013_iid_profiles.sql` applied successfully.
-- RLS audit: enabled, two policies, case-insensitive unique nickname index, no anonymous SELECT, no authenticated UPDATE; security/performance advisors returned no warnings.
+## Database API and security
 
-### Owner setup still required before real sign-in
+| Object | Purpose |
+|---|---|
+| `iid_profiles` | Existing owner-only profile table |
+| `iid_world` | Client-readable singleton HP, pause flag and version |
+| `iid_battles` | Owner-only SELECT; session and permanent result |
+| `iid_battle_start(p_request_id,p_action)` | Idempotent start/resume |
+| `iid_battle_tap(p_battle_id,p_seq)` | Acknowledge one tap |
+| `iid_battle_settle(p_battle_id)` | Atomic RNG, HP and history; retry returns original |
+| `iid_battle_status()` | World, active/latest battle, cooldown and monthly summary |
 
-1. In [Supabase Authentication URL Configuration](https://supabase.com/dashboard/project/wywrahaqpocueddxmjjq/auth/url-configuration), set:
-   - **Site URL:** `https://internetisdying.wwwxolf.workers.dev`
-   - **Redirect URL allow-list:** `https://internetisdying.wwwxolf.workers.dev/onboarding.html`
-2. In Authentication → Providers → Email, review email sign-in availability and configure a production SMTP sender (the built-in sender is restricted for public launch). The current flow supports **magic links** and optional **6-digit OTP** if the email template produces codes.
-3. In Google Cloud, configure a Web OAuth application. Add the authorized redirect URI `https://wywrahaqpocueddxmjjq.supabase.co/auth/v1/callback`. Configure the OAuth consent screen and allowed test users/publishing status as required.
-4. In Supabase Authentication → Providers → Google, enable Google and enter the OAuth client ID/secret **in Supabase Dashboard**, never GitHub/chat.
-5. When email delivery & redirect URLs have been tested, set `emailAuthReady: true` in `public/config.js`. Once Google OAuth is tested, set `googleAuthReady: true` there independently.
-6. Confirm latest Cloudflare Workers deployment is Ready; test both login methods, unique nickname rejection, returning-player routing and security policies end to end.
+Public RPCs are security-invoker wrappers. Checked implementations live in unexposed `iid_private`, with empty search paths and explicit EXECUTE grants. Every entry checks Google app metadata, a Google identity, an active auth session, a non-deleted/non-banned user and a profile. Internal identity/RNG helpers are not client-callable.
 
-**Security:** Do not commit or share Supabase secret/service-role keys, DB passwords, Google OAuth client secrets or mail SMTP credentials in the public repository.
+Lock order is profile → battle → world. A unique partial index enforces one pending session. Clients have no INSERT/UPDATE/DELETE rights on game tables. Battle user IDs have no cascading auth foreign key, so account deletion cannot erase history.
 
-### IMPORTANT: features not yet live
+Tap caps/timing are **not proof of a human**: scripts can submit valid paced requests. External throttling, abuse monitoring and realistic latency tests remain rollout considerations. The client waits for each acknowledgement, so slow connections can reduce attainable taps. Network failure never produces fabricated success or a fallback to demo mode.
 
-- No production sign-in until redirect URLs, provider settings, mail delivery and provider readiness flags are configured.
-- No live HP, shared global votes, founder power, premium, payment, ad network, server-side RNG, or Hall of Fame ranking.
-- Clicking HEAL/KILL on the landing page **does nothing**. When account setup is complete, the Arena shows a clearly labelled browser-local simulation.
-- Local browser random, localStorage and local daily limits must never be trusted for competitive game security.
+## Development
 
-## Chaos Arena V5.1 — Tap Battle (local demo)
+```sh
+pnpm install --frozen-lockfile
+pnpm test
+node tests/qa-server.mjs
+```
 
-The Arena now features **HEAL / KILL → 3, 2, 1 countdown → 20-second tap battle → power reveal**.
+Local visual fixtures: `http://127.0.0.1:4387/__qa` (paused) and `/__qa?mode=ready` (simulated server). They do not call Supabase and are outside the deployed assets. SQL tests execute actual migrations in PGlite with synthetic auth fixtures and real PostgreSQL roles/RLS.
 
-- **50 counted taps maximum.** Reaching 50 ends the battle early; otherwise it ends after 20 actual elapsed seconds.
-- **Tap bonus:** 0–9 → 0%; 10–19 → 2%; 20–29 → 4%; 30–39 → 6%; 40–49 → 8%; 50 → **10% max**.
-- **Final simulated power:** `Math.round(basePower * criticalMultiplier * (1 + tapBonus / 100))`.
-- **Weighted random distribution and crit odds unchanged:** base power 60% (0–500), 30% (501–2,000), 9% (2,001–10,000), 1% (10,001–25,000); crit 95% ×1, 4% ×2, 1% ×3.
-- Preserves per-account browser-local HP/UTC cooldown using existing key `iid-arena-demo-v3:<user id>`. The expandable **LOCAL DEMO CONTROLS** panel allows reset for testing.
-- **This is NOT anti-bot protection.** The browser can be manipulated to fake clicks, time, localStorage or requests. **No production world votes or global HP updates are performed.**
-- **For real launch:** server-authoritative timed sessions, one accepted vote per verified account/day, transaction-safe global HP settlement, and explicit bot/rate-limit controls are required.
-- Files: `public/tap-battle.js` (pure bonus/roll helpers + interactive flow), `public/tap-battle.css` (responsive battle UI), `public/arena.html` (screen markup). Authentication remains in `public/flow.js`.
-- The ad slot remains a visual placeholder. No advertisements run during gameplay.
+## Deployment and rollback
 
-### Deployment
+`wrangler.jsonc` serves `public/`. Existing project documentation identifies GitHub `main` as Cloudflare's production branch. Keep this implementation on a review branch until readiness checks are complete. Local migration filenames are aligned to the recorded live migration versions.
 
-This is **Cloudflare Workers Static Assets**. `wrangler.jsonc` points to `public/`.
-The Cloudflare Worker is connected to the GitHub `main` branch.
+Operator-only pause/resume:
 
-Existing deploy command: `npx wrangler deploy`; build command: `exit 0`. After committing, check that the latest Cloudflare build is Ready.
+```sql
+-- Pause NEW sessions; existing sessions remain settleable:
+update public.iid_world set enabled=false where id=1;
+-- Only after deployment and authenticated end-to-end checks:
+-- update public.iid_world set enabled=true where id=1;
+```
 
-### Fonts and visuals
+Never reset HP or delete real history for rollback: pause or roll back the client. Public configuration is in `public/config.js`; never commit service-role keys, OAuth secrets or database passwords.
 
-Press Start 2P for prominent headings/buttons; Pixelify Sans for readable pixel body text; NES.css for retro components; original pixel-heart SVG and heartbeat.
+## License
 
-### License
-
-No license chosen for this repository; third-party dependencies keep their respective licenses.
+No repository license chosen. Third-party packages retain their licenses.
