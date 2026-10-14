@@ -173,63 +173,7 @@ test('HP clamps at both boundaries and stores applied versus rolled power',async
 
 
 async function crpc(name,args=[],types=[]) {
- const placeholders=args.map((_,i)=>' digital event pairs with pixel prompts',async()=>{
- await login();
- const d=await db.query("select count(*)::int as n,min(day_rotation) as first,max(day_rotation) as last from public.iid_chaos_catalog");
- assert.equal(d.rows[0].n,30);assert.equal(d.rows[0].first,1);assert.equal(d.rows[0].last,30);
- const first=(await db.query('select * from public.iid_chaos_catalog where day_rotation=1')).rows[0];
- assert.equal(first.damage_title,'BOT INVASION');assert.equal(first.recovery_title,'GLOBAL FIREWALL');
- assert.equal(first.damage_hp,-6000);assert.equal(first.recovery_hp,6000);
- assert.match(first.damage_pixel_prompt,/pixel art/i);
-});
-test('Daily Chaos is paused by default and cannot accept user votes',async()=>{
- await fresh();
- const s=await crpc('status');assert.equal(s.enabled,false);
- assert.equal(s.event.damage_title,'BOT INVASION');
- await assert.rejects(crpc('vote',['damage'],['text']),/CHAOS_PAUSED/);
- assert.equal((await db.query('select count(*)::int as n from public.iid_chaos_votes')).rows[0].n,0);
-});
-test('Daily Chaos voting is one per verified user per UTC day, non-editable',async()=>{
- await fresh();
- await admin("update public.iid_chaos_control set enabled=true, anchor_utc=(clock_timestamp() at time zone 'UTC')::date");
- const v=await crpc('vote',['damage'],['text']);assert.equal(v.recorded,true);
- assert.equal((await crpc('vote',['damage'],['text'])).choice,'damage');
- await assert.rejects(crpc('vote',['recovery'],['text']),/VOTE_ALREADY_CAST/);
- const st=await crpc('status');
- assert.equal(st.voted_for,'damage');assert.equal(Number(st.damage_votes),1);
- assert.equal(Number(st.recovery_votes),0);
- await login({},'anon');
- await assert.rejects(crpc('vote',['damage'],['text']),/permission denied/);
- await login();
-});
-test('World Decay is 800..1000 HP, idempotent per 3-hour slot and paused when disabled',async()=>{
- await fresh();
- await admin("delete from public.iid_decay_pulses; update public.iid_chaos_control set enabled=false,decay_anchor_at=clock_timestamp()-interval '3 hours 10 minutes'");
- assert.match(String((await db.query("select iid_private.process_decay() as result")).rows[0].result.status),/PAUSED/);
- await admin('update public.iid_chaos_control set enabled=true');
- const first=(await db.query("select iid_private.process_decay() as result")).rows[0].result;
- assert.equal(first.processed,1);assert.ok(first.hp<=499200&&first.hp>=499000);
- assert.equal((await db.query("select iid_private.process_decay() as result")).rows[0].result.processed,0);
- const pulses=(await db.query('select * from public.iid_decay_pulses')).rows;
- assert.equal(pulses.length,1);assert.ok(pulses[0].rolled_hp>=800&&pulses[0].rolled_hp<=1000);
- await admin('update public.iid_chaos_control set enabled=false');
- assert.equal((await db.query("select iid_private.process_decay() as result")).rows[0].result.status,'PAUSED');
-});
-test('Daily Chaos 20-vote result executes once and applies exactly +6000 HP',async()=>{
- await fresh();
- await admin("delete from public.iid_chaos_votes; delete from public.iid_chaos_results; delete from public.iid_chaos_days; update public.iid_chaos_control set enabled=true,anchor_utc=(clock_timestamp() at time zone 'UTC')::date-1");
- await admin("insert into public.iid_chaos_days(day_utc,rotation_day) values((clock_timestamp() at time zone 'UTC')::date-1,1)");
- await admin("insert into public.iid_chaos_votes(day_utc,user_id,choice) select (clock_timestamp() at time zone 'UTC')::date-1,gen_random_uuid(),'recovery' from generate_series(1,20)");
- const a=(await db.query("select iid_private.resolve_previous_chaos() as result")).rows[0].result;
- assert.equal(a.winner,'recovery');assert.equal(a.applied_hp,6000);
- assert.equal(a.damage_votes,0);assert.equal(a.recovery_votes,20);
- assert.equal(a.hp_after,506000);
- const b=(await db.query("select iid_private.resolve_previous_chaos() as result")).rows[0].result;
- assert.deepEqual(b,a);
- assert.equal((await rpc('status')).world.version,1);
- assert.equal((await db.query('select count(*)::int as n from public.iid_chaos_results')).rows[0].n,1);
-});
-+(i+1)+'::'+types[i]).join(',');
+ const placeholders=args.map((_,i)=>'$'+(i+1)+'::'+types[i]).join(',');
  return (await db.query('select public.iid_chaos_'+name+'('+placeholders+') as result',args)).rows[0].result;
 }
 
