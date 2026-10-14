@@ -166,7 +166,7 @@ if(page==="arena"){
    const {initGlobalBattle}=await import("./global-battle.js?v=2");
    await initGlobalBattle({sb});
    // NEXT CHAOS reads server-only votes; failure never blocks the battle arena.
-   void import("./daily-chaos.js?v=1").then(({initDailyChaos})=>initDailyChaos({sb})).catch(e=>show("DAILY CHAOS PREVIEW COULD NOT LOAD: "+e.message,"warning"));
+   void import("./daily-chaos.js?v=2").then(({initDailyChaos})=>initDailyChaos({sb})).catch(e=>show("DAILY CHAOS PREVIEW COULD NOT LOAD: "+e.message,"warning"));
   }
  }catch(e){show("Could not open Arena: "+e.message,"error");}
 }

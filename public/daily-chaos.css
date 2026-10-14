@@ -119,3 +119,32 @@ body[data-page="arena"] .chaos-foot p{margin:2px 0;overflow-wrap:anywhere}
 @media(prefers-reduced-motion:reduce){
  body[data-page="arena"] .chaos-event{transition:none}
 }
+
+/* Hybrid impact, defense-first ordering and signed projected HP. */
+body[data-page="arena"] .chaos-formula-note{
+  margin:12px 0 4px;
+  text-align:center;
+  font:8px/1.8 "Press Start 2P",monospace;
+  color:#d3bf8d;
+}
+body[data-page="arena"] .chaos-event-impact{
+  font-size:clamp(7px,1.5vw,9px);
+  line-height:1.9;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  text-align:center;
+}
+body[data-page="arena"] .chaos-projection{
+  text-align:center;
+  color:#e1d5b2;
+  font:9px/1.9 "Press Start 2P",monospace;
+  margin:8px 0 14px;
+  overflow-wrap:anywhere;
+}
+body[data-page="arena"] .chaos-projection[data-side="recovery"]{color:#72dfa6}
+body[data-page="arena"] .chaos-projection[data-side="damage"]{color:#ff657d}
+@media(max-width:540px){
+ body[data-page="arena"] .chaos-event-impact{font-size:7px}
+ body[data-page="arena"] .chaos-projection,
+ body[data-page="arena"] .chaos-formula-note{font-size:7px}
+}

@@ -189,7 +189,7 @@ test('Daily Chaos catalog contains 30 digital event pairs with pixel prompts',as
  assert.equal(d.rows[0].n,30);assert.equal(d.rows[0].first,1);assert.equal(d.rows[0].last,30);
  const first=(await db.query('select * from public.iid_chaos_catalog where day_rotation=1')).rows[0];
  assert.equal(first.damage_title,'BOT INVASION');assert.equal(first.recovery_title,'GLOBAL FIREWALL');
- assert.equal(first.damage_hp,-6000);assert.equal(first.recovery_hp,6000);
+ assert.equal(first.damage_hp,0);assert.equal(first.recovery_hp,0);
  assert.match(first.damage_pixel_prompt,/pixel art/i);
 });
 test('Daily Chaos is paused by default and cannot accept user votes',async()=>{
@@ -227,17 +227,54 @@ test('World Decay is 800..1000 HP, idempotent per 3-hour slot and paused when di
  await admin('update public.iid_chaos_control set enabled=false');
  assert.equal((await cronRpc('process_decay')).status,'PAUSED');
 });
-test('Daily Chaos 20-vote result executes once and applies exactly +6000 HP',async()=>{
+test('Daily Chaos 20-vote result executes once and applies Hybrid Vote Power +1333 HP',async()=>{
  await fresh();
  await admin("delete from public.iid_chaos_votes; delete from public.iid_chaos_results; delete from public.iid_chaos_days; update public.iid_chaos_control set enabled=true,anchor_utc=(statement_timestamp() at time zone 'UTC')::date-1");
  await admin("insert into public.iid_chaos_days(day_utc,rotation_day) values((statement_timestamp() at time zone 'UTC')::date-1,1)");
  await admin("insert into public.iid_chaos_votes(day_utc,user_id,choice) select (statement_timestamp() at time zone 'UTC')::date-1,gen_random_uuid(),'recovery' from generate_series(1,20)");
  const a=await cronRpc('resolve_previous_chaos');
- assert.equal(a.winner,'recovery');assert.equal(a.applied_hp,6000);
+ assert.equal(a.winner,'recovery');assert.equal(a.applied_hp,1333);assert.equal(a.nominal_hp,1333);
  assert.equal(a.damage_votes,0);assert.equal(a.recovery_votes,20);
- assert.equal(a.hp_after,506000);
+ assert.equal(a.hp_after,501333);
  const b=await cronRpc('resolve_previous_chaos');
  assert.deepEqual(b,a);
  assert.equal((await rpc('status')).world.version,1);
  assert.equal((await db.query('select count(*)::int as n from public.iid_chaos_results')).rows[0].n,1);
+});
+
+async function expectedHybrid(damage,recovery,quorum=20) {
+ await db.exec('reset role');
+ try {
+  const q=await db.query('select iid_private.chaos_impact($1::bigint,$2::bigint,$3::integer) as value',[damage,recovery,quorum]);
+  return q.rows[0].value;
+ } finally {await login();}
+}
+test('Hybrid Vote Power: turnout + margin formula, tie and quorum',async()=>{
+ for(const [h,k,v] of [
+  [100,20,3872],[10000,9920,250],[200,1000,-7972],
+  [500,250,4584],[10000,0,11811],[0,20,-1333],
+  [10,10,0],[10,9,0],[1,0,0],[0,0,0],[1999999,1,11999]
+ ]) assert.equal(await expectedHybrid(k,h),v,h+' HEAL vs '+k+' KILL');
+});
+test('Hybrid Vote Power output always within ±12000 and has anti-spike bounds',async()=>{
+ for(const [h,k] of [[1e8,0],[0,1e8],[250000,249999],[10000,9920],[50,50]]) {
+  const impact=await expectedHybrid(k,h);
+  assert.ok(Math.abs(impact)<=12000);
+  if(h>k)assert.ok(impact>=0);
+  if(h<k)assert.ok(impact<=0);
+ }
+ await db.exec('reset role');
+ try{
+  await assert.rejects(db.query("select iid_private.chaos_impact(-1,1,20)"),/INVALID_VOTE_COUNTS/);
+ }finally{await login();}
+});
+test('Hybrid Vote Power server status exposes projection but cannot bypass pause',async()=>{
+ await fresh();
+ await admin('update public.iid_chaos_control set enabled=false, anchor_utc=null');
+ const st=await crpc('status');
+ assert.equal(st.enabled,false);
+ assert.equal(st.maximum_impact_hp,12000);
+ assert.equal(st.formula_version,'HYBRID_V1');
+ assert.equal(st.projected_impact_hp,0);
+ await assert.rejects(crpc('vote',['recovery'],['text']),/CHAOS_PAUSED/);
 });

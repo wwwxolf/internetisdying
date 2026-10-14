@@ -13,10 +13,10 @@
   <link rel="stylesheet" href="./styles.css?v=3"/>
   <link rel="stylesheet" href="./arena.css?v=5"/>
   <link rel="stylesheet" href="./tap-battle.css?v=1"/>
-  <link rel="stylesheet" href="./daily-chaos.css?v=1"/>
+  <link rel="stylesheet" href="./daily-chaos.css?v=2"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./flow.js?v=11"></script>
+  <script type="module" src="./flow.js?v=12"></script>
 </head>
 <body data-page="arena" data-battle-mode="global">
   <div class="preview-bar" role="note">GLOBAL BATTLE ENGINE • CONTROLLED ROLLOUT</div>
@@ -161,26 +161,28 @@
             <div class="chaos-timer"><span class="chaos-tiny">NEXT DECAY</span><strong id="chaos-decay-time">PAUSED</strong></div>
           </div>
           <div class="chaos-options">
-            <button type="button" class="chaos-event damage" data-chaos-choice="damage" aria-pressed="false" disabled>
-              <span class="chaos-event-label">⚠ CHAOS EVENT</span>
-              <span class="chaos-pixel-art" id="chaos-damage-art" aria-hidden="true"></span>
-              <strong class="chaos-event-name" id="chaos-damage-title">BOT INVASION</strong>
-              <span class="chaos-event-desc" id="chaos-damage-desc">Loading event…</span>
-              <strong class="chaos-event-impact" id="chaos-damage-impact">−6,000 HP</strong>
-            </button>
-            <button type="button" class="chaos-event recovery" data-chaos-choice="recovery" aria-pressed="false" disabled>
+            <button type="button" class="chaos-event recovery" data-chaos-choice="recovery" aria-pressed="false" aria-label="Vote for the defense event" disabled>
               <span class="chaos-event-label">✦ DEFENSE EVENT</span>
               <span class="chaos-pixel-art" id="chaos-recovery-art" aria-hidden="true"></span>
               <strong class="chaos-event-name" id="chaos-recovery-title">GLOBAL FIREWALL</strong>
               <span class="chaos-event-desc" id="chaos-recovery-desc">Loading event…</span>
-              <strong class="chaos-event-impact" id="chaos-recovery-impact">+6,000 HP</strong>
+              <strong class="chaos-event-impact" id="chaos-recovery-impact">IMPACT SCALES WITH VOTES</strong>
+            </button>
+            <button type="button" class="chaos-event damage" data-chaos-choice="damage" aria-pressed="false" aria-label="Vote for the chaos event" disabled>
+              <span class="chaos-event-label">⚠ CHAOS EVENT</span>
+              <span class="chaos-pixel-art" id="chaos-damage-art" aria-hidden="true"></span>
+              <strong class="chaos-event-name" id="chaos-damage-title">BOT INVASION</strong>
+              <span class="chaos-event-desc" id="chaos-damage-desc">Loading event…</span>
+              <strong class="chaos-event-impact" id="chaos-damage-impact">IMPACT SCALES WITH VOTES</strong>
             </button>
           </div>
-          <div class="chaos-vote-meter" aria-label="Current voting distribution">
-            <div id="chaos-vote-meter-damage" style="width:50%"></div>
+          <p class="chaos-formula-note">HYBRID VOTE POWER • MAX ±12,000 HP / DAY</p>
+          <div class="chaos-vote-meter" aria-label="Votes for Defense on the left versus Chaos on the right">
             <div id="chaos-vote-meter-recovery" style="width:50%"></div>
+            <div id="chaos-vote-meter-damage" style="width:50%"></div>
           </div>
           <p class="chaos-vote-count" id="chaos-vote-count">0 VOTES</p>
+          <p class="chaos-projection" id="chaos-projected-impact" aria-live="polite">PROJECTED WORLD IMPACT: 0 HP</p>
           <p class="chaos-system-status" id="chaos-status" role="status" aria-live="polite">CONNECTING TO CHAOS ENGINE…</p>
           <div class="chaos-foot">
             <p>ONE GOOGLE ACCOUNT • ONE VOTE / UTC DAY</p>

@@ -82,8 +82,8 @@ export async function initDailyChaos({sb}) {
    text("chaos-recovery-title",p.recovery_title);
    text("chaos-damage-desc",p.damage_description);
    text("chaos-recovery-desc",p.recovery_description);
-   text("chaos-damage-impact","−"+fmt(Math.abs(p.damage_hp))+" HP");
-   text("chaos-recovery-impact","+"+fmt(p.recovery_hp)+" HP");
+   text("chaos-damage-impact","IMPACT SCALES WITH VOTES");
+   text("chaos-recovery-impact","IMPACT SCALES WITH VOTES");
    $("chaos-damage-art").innerHTML=pixelIcon(p.damage_title,"damage");
    $("chaos-recovery-art").innerHTML=pixelIcon(p.recovery_title,"recovery");
    const cast=!!data.voted_for,open=data.enabled&&now()<Date.parse(data.closes_at);
@@ -93,10 +93,19 @@ export async function initDailyChaos({sb}) {
      button.setAttribute("aria-pressed",String(choice===data.voted_for));
    });
    const total=Number(data.damage_votes||0)+Number(data.recovery_votes||0);
-   const damagePct=total?Math.round(Number(data.damage_votes)*100/total):50;
-   $("chaos-vote-meter-damage").style.width=damagePct+"%";
-   $("chaos-vote-meter-recovery").style.width=(100-damagePct)+"%";
-   text("chaos-vote-count",fmt(total)+" VOTES • "+fmt(data.damage_votes)+" CHAOS / "+fmt(data.recovery_votes)+" DEFENSE");
+   const recoveryPct=total?Math.round(Number(data.recovery_votes)*100/total):50;
+   $("chaos-vote-meter-recovery").style.width=recoveryPct+"%";
+   $("chaos-vote-meter-damage").style.width=(100-recoveryPct)+"%";
+   text("chaos-vote-count",fmt(total)+" VOTES • "+fmt(data.recovery_votes)+" DEFENSE / "+fmt(data.damage_votes)+" CHAOS");
+   const projection=Number(data.projected_impact_hp||0);
+   const projectionEl=$("chaos-projected-impact");
+   projectionEl.dataset.side=projection>0?"recovery":projection<0?"damage":"tie";
+   text("chaos-projected-impact",
+     !data.enabled?"HYBRID VOTE POWER • PREVIEW ONLY"
+     :total<Number(data.min_votes)?"MINIMUM "+fmt(data.min_votes)+" VOTES REQUIRED • CURRENT "+fmt(total)
+     :projection===0?"PROJECTED IMPACT: 0 HP • TIE / TOO CLOSE"
+     :"CURRENT PROJECTED IMPACT: "+(projection>0?"+":"−")+fmt(Math.abs(projection))+" HP");
+
    textStatus(!data.enabled?"CHAOS VOTING IS PAUSED • PIXEL PREVIEW ONLY"
     :cast?"YOUR VOTE IS LOCKED: "+data.voted_for.toUpperCase()
     :open?"CHOOSE ONE EVENT • ONE VOTE PER UTC DAY"
