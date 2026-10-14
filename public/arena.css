@@ -367,7 +367,7 @@ body[data-page="arena"] .arena-ad-slot p{
 
 
 /* Pixel battle windows: all six stay on one row, including mobile.
- * States are computed from authoritative server history, timezone WIB. */
+ * States are computed from authoritative server history, timezone UTC. */
 body[data-page="arena"] .battle-windows{
  margin:19px auto 0;padding:15px 12px 13px;
  border-top:2px solid #344a64;max-width:740px;
@@ -420,4 +420,9 @@ body[data-page="arena"] .battle-windows .arena-move-rule{
  body[data-page="arena"] .battle-window-hour{font-size:9px}
  body[data-page="arena"] .battle-window-icon{font-size:13px}
  body[data-page="arena"] .battle-window-state{font-size:5px;letter-spacing:-.2px}
+}
+
+body[data-page="arena"] .battle-windows-title .battle-timezone{
+ display:inline-block;vertical-align:baseline;margin-left:6px;
+ color:#82b8d2;font:clamp(7px,1.55vw,9px)/1.6 "Press Start 2P",monospace;
 }
