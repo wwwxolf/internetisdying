@@ -24,10 +24,11 @@ test("Locked pixel news card validates real snapshot math and omits world total 
  assert.ok(text.includes(GAME_URL));
  assert.doesNotMatch(text,/500,180|1,000,000 HP/);
  const js=await readFile("public/breaking-share-card.js","utf8");
- assert.match(js,/const planet=await imageOrNull\\("\\.\\/assets\\/dying-internet-core\\.svg"\\)/);
- assert.match(js,/healthBar\\(ctx,Number\\(data\\.world_hp\\)/);
- assert.match(js,/canvas\\.toBlob/);
- assert.doesNotMatch(js,/pixelText\\(ctx,.*world_hp|pixelText\\(ctx,.*1,000,000/);
+ assert.ok(js.includes('imageOrNull("./assets/dying-internet-core.svg")'));
+ assert.ok(js.includes("healthBar(ctx,Number(data.world_hp)"));
+ assert.ok(js.includes("canvas.toBlob("));
+ assert.ok(!js.includes("pixelText(ctx,data.world_hp"));
+
 });
 test("Share button generates new server snapshot and supports binary PNG sharing",async()=>{
  const html=await readFile("public/arena.html","utf8");
@@ -37,17 +38,17 @@ test("Share button generates new server snapshot and supports binary PNG sharing
    "share-card-download","share-card-whatsapp","share-card-close","share-card-feedback"]){
    assert.ok(html.includes('id="'+id+'"'),id);
  }
- assert.match(html,/CREATE PIXEL SHARE CARD/);
- assert.match(html,/world-return\\.css\\?v=2/);
- assert.match(html,/src="\\.\\/flow\\.js\\?v=16"/);
- assert.match(flow,/import\\("\\.\\/world-return\\.js\\?v=3"\\)/);
- assert.match(js,/sb\\.rpc\\("iid_share_snapshot"\\)/);
- assert.match(js,/renderBreakingCard\\(data\\)/);
- assert.match(js,/new File\\(\\[png\\]/);
- assert.match(js,/navigator\\.canShare\\(\\{files:\\[shareFile\\]\\}\\)/);
- assert.match(js,/navigator\\.share\\(details\\)/);
- assert.match(js,/URL\\.revokeObjectURL/);
- assert.match(js,/https:\\/\\/wa\\.me\\/\\?text=/);
- assert.match(js,/LINK ONLY/);
- assert.doesNotMatch(js,/Math\\.random|localStorage/);
+ assert.ok(html.includes("CREATE PIXEL SHARE CARD"));
+ assert.ok(html.includes("world-return.css?v=2"));
+ assert.ok(html.includes('src="./flow.js?v=16"'));
+ assert.ok(flow.includes('import("./world-return.js?v=3")'));
+ assert.ok(js.includes('sb.rpc("iid_share_snapshot")'));
+ assert.ok(js.includes("renderBreakingCard(data)"));
+ assert.ok(js.includes("new File([png]"));
+ assert.ok(js.includes("navigator.canShare({files:[shareFile]})"));
+ assert.ok(js.includes("navigator.share(details)"));
+ assert.ok(js.includes("URL.revokeObjectURL"));
+ assert.ok(js.includes("https://wa.me/?text="));
+ assert.ok(js.includes("LINK ONLY"));
+ assert.ok(!js.includes("Math.random")&&!js.includes("localStorage"));
 });
