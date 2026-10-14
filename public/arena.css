@@ -1,0 +1,362 @@
+/* CHAOS ARENA V4 — PRESENTATION ONLY.
+   Scope: body[data-page="arena"]; all game/auth/database behavior stays in flow.js. */
+body[data-page="arena"]{
+  --arena-bg:#0b101b;
+  --arena-panel:#111c2b;
+  --arena-raised:#182638;
+  --arena-border:#344359;
+  --arena-green:#72dfa6;
+  --arena-pink:#ff657d;
+  --arena-gold:#f4ca73;
+  background-image:radial-gradient(#253347 1px,transparent 1px);
+  background-size:24px 24px;
+}
+body[data-page="arena"] .preview-bar{
+  background:#1b2230;
+  color:#dcc6a5;
+  font-size:12px;
+  letter-spacing:.15px;
+  padding:6px 10px;
+}
+body[data-page="arena"] .page{width:min(calc(100% - 32px),900px)}
+body[data-page="arena"] .header{padding:15px 0}
+body[data-page="arena"] .arena-shell{
+  max-width:800px;
+  padding:21px 0 50px;
+  min-height:calc(100vh - 140px);
+  text-align:center;
+}
+body[data-page="arena"] .arena-shell > .eyebrow{
+  font-size:9px;
+  color:#a8bad0;
+  letter-spacing:.8px;
+}
+body[data-page="arena"] .arena-shell > .flow-title{
+  margin:9px 0 6px;
+  font-size:clamp(16px,3.3vw,25px);
+  line-height:1.8;
+}
+body[data-page="arena"] .flow-message{
+  max-width:800px;
+  margin:10px 0 15px;
+  background:transparent;
+  border:0;
+  padding:0;
+  color:#b3bdcb;
+  font-size:14px;
+  text-align:center;
+  line-height:1.35;
+}
+body[data-page="arena"] .flow-message[data-kind="error"]{
+  background:#281c28;
+  border:2px solid #bf5367;
+  padding:10px 12px;
+  color:#ffacb4;
+}
+body[data-page="arena"] .arena-player{
+  background:#121d2b;
+  margin:8px 0 16px;
+  padding:12px 15px;
+  gap:12px;
+  border:2px solid #41536a;
+  box-shadow:4px 4px 0 #03060b;
+  justify-content:space-between;
+}
+body[data-page="arena"] .arena-player-left{display:flex;align-items:center;gap:12px;min-width:0}
+body[data-page="arena"] .arena-player-icon{
+  display:grid;
+  place-items:center;
+  flex:none;
+  background:#263c4a;
+  border:2px solid var(--arena-green);
+  color:var(--arena-green);
+  width:40px;
+  height:40px;
+  font:16px/1 "Press Start 2P",monospace;
+  box-shadow:3px 3px #070d15;
+}
+body[data-page="arena"] .arena-player-copy{display:flex;flex-direction:column;gap:5px;text-align:left;min-width:0}
+body[data-page="arena"] .arena-tiny{
+  font-family:"Press Start 2P",monospace;
+  font-size:8px;
+  line-height:1.7;
+  color:#889bb4;
+}
+body[data-page="arena"] #arena-identity{
+  font:10px/1.65 "Press Start 2P",monospace;
+  color:#f4ca73;
+  overflow-wrap:anywhere;
+}
+body[data-page="arena"] .arena-player #signout{
+  flex:none;
+  font-size:8px;
+  padding:10px 9px;
+  background:#192435;
+  color:#c5cede;
+  box-shadow:2px 2px #080d13;
+}
+/* Stage */
+body[data-page="arena"] .arena-stage{
+  overflow:hidden;
+  position:relative;
+  border:3px solid #475a71;
+  box-shadow:6px 6px 0 #04080f;
+  background:linear-gradient(180deg,#172437 0%,#101724 100%);
+  padding:19px 22px 20px;
+  margin-bottom:22px;
+}
+body[data-page="arena"] .arena-stage:before,
+body[data-page="arena"] .arena-stage:after{
+  content:"";
+  position:absolute;
+  width:11px;height:11px;
+  border:3px solid var(--arena-green);
+  pointer-events:none;
+}
+body[data-page="arena"] .arena-stage:before{top:8px;left:8px;border-right:0;border-bottom:0}
+body[data-page="arena"] .arena-stage:after{bottom:8px;right:8px;border-left:0;border-top:0}
+body[data-page="arena"] .arena-stage-header{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;flex-wrap:wrap;
+  border-bottom:1px solid #3a4b60;
+  padding-bottom:10px;
+}
+body[data-page="arena"] .arena-stage-caption{
+  font:9px/1.8 "Press Start 2P",monospace;
+  color:#b5c4da;
+}
+body[data-page="arena"] .arena-live-chip{
+  color:#ffd6b2;
+  border:1px solid #7f5f4c;
+  padding:6px 7px;
+  background:#30271f;
+  font:8px/1.4 "Press Start 2P",monospace;
+}
+body[data-page="arena"] .arena-heart-wrap{
+  position:relative;
+  min-height:148px;
+  display:grid;place-items:center;
+}
+body[data-page="arena"] .arena-heart-wrap:before{
+  content:"";
+  position:absolute;
+  width:150px;height:125px;
+  background:radial-gradient(ellipse,#a22b4530 0%,transparent 72%);
+  pointer-events:none;
+}
+body[data-page="arena"] .arena-heart-wrap .heart-zone{
+  min-height:141px;
+  width:100%;
+  margin:0;
+  position:relative;
+}
+body[data-page="arena"] .arena-heart-wrap .pixel-heart{
+  width:134px;height:134px;
+  filter:drop-shadow(6px 7px 0 #431a2f);
+}
+body[data-page="arena"] .arena-heart-wrap .heart-zone[data-stage="danger"] .pixel-heart{animation-duration:.8s}
+body[data-page="arena"] .arena-heart-wrap .heart-zone[data-stage="dead"] .pixel-heart{filter:grayscale(1)}
+body[data-page="arena"] .arena-heart-text{
+  color:#91a3be;
+  font:9px/1.8 "Press Start 2P",monospace;
+  margin:0 0 13px;
+}
+body[data-page="arena"] .hud.arena-hud{
+  background:#0d1724;
+  border:2px solid #394b62;
+  box-shadow:none;
+  max-width:none;
+  padding:16px;
+  margin:0 auto;
+}
+body[data-page="arena"] .arena-hud-label{
+  text-align:left;
+  color:#92a8c4;
+  font:8px/1.7 "Press Start 2P",monospace;
+  margin-bottom:8px;
+}
+body[data-page="arena"] .arena-hud .hud-head{align-items:center;gap:8px}
+body[data-page="arena"] .arena-hud .hp-current{font-size:clamp(15px,3.3vw,24px);line-height:1.75}
+body[data-page="arena"] .arena-hud .hp-max{font-size:9px}
+body[data-page="arena"] .arena-hud .status{font-size:8px}
+body[data-page="arena"] .arena-hud .hp-track{
+  height:32px;
+  border:3px solid #566780;
+  background:#080f18;
+  margin:11px 0 9px;
+  padding:4px;
+}
+body[data-page="arena"] .arena-hud .hp-fill{min-height:100%;transition:width .55s steps(20,end)}
+body[data-page="arena"] .arena-hud .hud-foot{font-size:15px;line-height:1.2;align-items:center}
+body[data-page="arena"] .arena-stage-footer{
+  display:flex;justify-content:center;gap:7px;
+  flex-wrap:wrap;align-items:center;
+  margin:14px 0 0;
+  color:#a0b1c6;
+  font:8px/1.8 "Press Start 2P",monospace;
+}
+/* Choice */
+body[data-page="arena"] .arena-decision-header{margin:0 0 14px;text-align:center}
+body[data-page="arena"] .arena-decision-title{
+  font:clamp(13px,2.8vw,17px)/1.8 "Press Start 2P",monospace;
+  margin:0 0 5px;
+  color:#fff8ee;
+}
+body[data-page="arena"] .arena-decision-sub{
+  font-size:18px;
+  line-height:1.3;
+  color:#aebbd0;
+  margin:0;
+}
+body[data-page="arena"] .arena-choices{
+  max-width:none;
+  gap:15px;
+  margin:0 auto;
+}
+body[data-page="arena"] .arena-choice{
+  padding:18px 8px 16px;
+  min-height:150px;
+  border:3px solid #0d151c;
+  box-shadow:6px 6px 0 #04080e;
+  gap:10px;
+  position:relative;
+}
+body[data-page="arena"] .arena-choice:hover{
+  filter:brightness(1.06);
+  transform:translateY(-2px);
+}
+body[data-page="arena"] .arena-choice:active{
+  transform:translate(4px,4px);
+  box-shadow:2px 2px 0 #04080e;
+}
+body[data-page="arena"] .arena-choice-icon{
+  width:35px;height:35px;
+  display:grid;place-items:center;
+}
+body[data-page="arena"] .arena-choice-icon svg{
+  width:34px;height:34px;display:block;fill:currentColor;shape-rendering:crispEdges
+}
+body[data-page="arena"] .arena-choice .choice-title{font-size:clamp(13px,2.6vw,17px);line-height:1.5}
+body[data-page="arena"] .arena-choice .choice-caption{font-size:17px;line-height:1.15}
+body[data-page="arena"] .arena-choice-caption2{
+  font:8px/1.6 "Press Start 2P",monospace;
+  opacity:.75;
+}
+body[data-page="arena"] .arena-move-rule{
+  margin:18px auto 14px;
+  color:#99a9bf;
+  line-height:1.6;
+  font-size:16px;
+}
+body[data-page="arena"] .arena-rule-separator{color:#60748b;display:inline-block;margin:0 8px}
+body[data-page="arena"] #arena-result.arena-action-result{
+  max-width:none;
+  margin:17px 0 0;
+  background:#182639;
+  border:2px solid #617d95;
+  padding:19px 18px;
+  box-shadow:5px 5px #03070d;
+  position:relative;
+}
+body[data-page="arena"] #arena-result.arena-action-result:before{
+  content:"ACTION LOG / LOCAL";
+  display:block;
+  margin-bottom:9px;
+  font:8px/1.8 "Press Start 2P",monospace;
+  color:#b7c6da;
+}
+body[data-page="arena"] .arena-action-result h3{
+  font-size:12px;
+  line-height:1.9;
+  color:var(--arena-green);
+  overflow-wrap:anywhere;
+}
+body[data-page="arena"] .arena-action-result p{
+  color:#e3ecf6;
+  font-size:18px;
+  line-height:1.3;
+}
+body[data-page="arena"] .arena-test-tools{
+  margin:21px auto 0;
+  max-width:510px;
+  color:#9cacbe;
+  text-align:center;
+}
+body[data-page="arena"] .arena-test-tools summary{
+  cursor:pointer;
+  list-style:none;
+  display:inline-block;
+  padding:9px 11px;
+  border:1px solid #43536a;
+  font:8px/1.6 "Press Start 2P",monospace;
+}
+body[data-page="arena"] .arena-test-tools summary::-webkit-details-marker{display:none}
+body[data-page="arena"] .arena-test-tools summary:before{content:"+ ";color:#a4b6c9}
+body[data-page="arena"] .arena-test-tools[open] summary:before{content:"- "}
+body[data-page="arena"] .arena-test-tools p{font-size:16px;margin:11px auto 0}
+body[data-page="arena"] .arena-test-tools .demo-reset{margin-top:11px}
+body[data-page="arena"] .arena-test-tools .reset{font-size:8px}
+body[data-page="arena"] .arena-ad-slot{
+  margin:30px auto 0;
+  padding:13px 12px;
+  border:1px dashed #35475a;
+  background:#101826;
+  min-height:0;
+  max-width:none;
+  box-shadow:none;
+}
+body[data-page="arena"] .arena-ad-slot .ad-label{
+  font-size:8px;
+  letter-spacing:.2px;
+}
+body[data-page="arena"] .arena-ad-slot p{
+  color:#8293a9;font-size:14px;margin:4px auto 0;
+}
+/* Phone-first: maintain two large action targets but avoid pixel-font wrapping */
+@media(max-width:640px){
+ body[data-page="arena"] .page{width:calc(100% - 24px)}
+ body[data-page="arena"] .arena-shell{padding-top:18px}
+ body[data-page="arena"] .arena-shell > .eyebrow{font-size:8px}
+ body[data-page="arena"] .arena-shell > .flow-title{font-size:16px}
+ body[data-page="arena"] .arena-player{padding:9px 11px;gap:6px}
+ body[data-page="arena"] .arena-player-icon{width:34px;height:34px;font-size:12px}
+ body[data-page="arena"] #arena-identity{font-size:8px}
+ body[data-page="arena"] .arena-stage{padding:15px 12px 15px}
+ body[data-page="arena"] .arena-stage-caption{font-size:8px}
+ body[data-page="arena"] .arena-live-chip{font-size:7px}
+ body[data-page="arena"] .arena-heart-wrap{min-height:127px}
+ body[data-page="arena"] .arena-heart-wrap .heart-zone{min-height:123px}
+ body[data-page="arena"] .arena-heart-wrap .pixel-heart{width:117px;height:117px}
+ body[data-page="arena"] .arena-heart-text{font-size:8px}
+ body[data-page="arena"] .hud.arena-hud{padding:11px}
+ body[data-page="arena"] .arena-hud .hp-current{font-size:14px}
+ body[data-page="arena"] .arena-hud .hp-max{font-size:7px}
+ body[data-page="arena"] .arena-hud .status{font-size:7px}
+ body[data-page="arena"] .arena-hud .hp-track{height:29px}
+ body[data-page="arena"] .arena-hud .hud-foot{font-size:13px}
+ body[data-page="arena"] .arena-decision-title{font-size:13px}
+ body[data-page="arena"] .arena-decision-sub{font-size:16px}
+ body[data-page="arena"] .arena-choices{gap:11px}
+ body[data-page="arena"] .arena-choice{min-height:134px;gap:7px;padding:14px 5px}
+ body[data-page="arena"] .arena-choice-icon svg{width:31px;height:31px}
+ body[data-page="arena"] .arena-choice .choice-title{font-size:12px}
+ body[data-page="arena"] .arena-choice .choice-caption{font-size:14px}
+ body[data-page="arena"] .arena-choice-caption2{font-size:7px}
+ body[data-page="arena"] .arena-move-rule{font-size:14px}
+ body[data-page="arena"] .arena-action-result p{font-size:16px}
+}
+@media(max-width:380px){
+ body[data-page="arena"] .page{width:calc(100% - 20px)}
+ body[data-page="arena"] .arena-stage{padding:12px 9px 13px}
+ body[data-page="arena"] .arena-stage-caption{font-size:7px}
+ body[data-page="arena"] .arena-hud .hp-current{font-size:12px}
+ body[data-page="arena"] .arena-hud .hp-max{font-size:7px}
+ body[data-page="arena"] .arena-choices{gap:9px}
+ body[data-page="arena"] .arena-choice .choice-title{font-size:11px}
+ body[data-page="arena"] .arena-choice .choice-caption{font-size:13px}
+ body[data-page="arena"] .arena-choice-caption2{font-size:6px}
+ body[data-page="arena"] .arena-player #signout{font-size:7px}
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-page="arena"] .arena-choice:hover{transform:none}
+}
