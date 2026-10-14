@@ -4,60 +4,135 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <meta name="theme-color" content="#0b101b"/>
+  <meta name="description" content="THE INTERNET IS DYING — choose HEAL or KILL in the pixel Chaos Arena."/>
   <title>CHAOS ARENA — THE INTERNET IS DYING</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="./styles.css?v=3"/>
+  <link rel="stylesheet" href="./arena.css?v=4"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="./flow.js?v=6"></script>
 </head>
 <body data-page="arena">
-  <div class="preview-bar">DESIGN PREVIEW • GAME SYSTEM AND ADS ARE NOT LIVE</div>
+  <div class="preview-bar" role="note">ALPHA PREVIEW • WORLD HP IS NOT LIVE YET</div>
   <div class="page">
     <header class="header">
-      <a class="brand" href="./index.html">THE INTERNET<br><span>IS DYING_</span></a>
-      <nav class="header-right"><a class="navlink" href="./index.html">← HOME</a><span class="tiny-pill">V3</span></nav>
+      <a class="brand" href="./index.html" aria-label="Return to home">THE INTERNET<br><span>IS DYING_</span></a>
+      <nav class="header-right" aria-label="Arena navigation">
+        <a class="navlink" href="./index.html">← HOME</a>
+        <span class="tiny-pill">ALPHA</span>
+      </nav>
     </header>
     <main class="flow-shell arena-shell">
-      <p class="eyebrow">WORLD_001 / CHAOS ARENA</p>
-      <h1 class="flow-title">CHOOSE YOUR <span>SIDE_</span></h1>
+      <p class="eyebrow">WORLD_001 / INTERNET CHAOS</p>
+      <h1 class="flow-title">CHAOS <span>ARENA_</span></h1>
       <p id="flow-status" class="flow-message" role="status" aria-live="polite">Checking your account...</p>
-      <section id="arena-content" hidden>
+
+      <section id="arena-content" hidden aria-label="Player arena">
         <div class="arena-player">
-          <span id="arena-identity"></span>
+          <div class="arena-player-left">
+            <div class="arena-player-icon" aria-hidden="true">P</div>
+            <div class="arena-player-copy">
+              <span class="arena-tiny">YOUR IDENTITY</span>
+              <span id="arena-identity">LOADING PLAYER</span>
+            </div>
+          </div>
           <button type="button" id="signout" class="reset">SIGN OUT</button>
         </div>
-        <div class="heart-zone small-heart" data-stage="critical" id="heart-zone">
-          <svg viewBox="0 0 16 16" class="pixel-heart" role="img" aria-label="Heart representing the internet" shape-rendering="crispEdges">
+
+        <section class="arena-stage" aria-label="Internet life monitor">
+          <div class="arena-stage-header">
+            <span class="arena-stage-caption">◈ INTERNET VITALS</span>
+            <span class="arena-live-chip">● LOCAL TEST</span>
+          </div>
+
+          <div class="arena-heart-wrap">
+            <div class="heart-zone small-heart" data-stage="critical" id="heart-zone">
+              <svg viewBox="0 0 16 16" class="pixel-heart" role="img" aria-label="Heart representing the internet" shape-rendering="crispEdges">
             <path fill="#8e2f49" d="M3 2h3v1H3z M10 2h3v1h-3z M2 3h5v1H2z M9 3h5v1H9z M1 4h14v4H1z M2 8h12v1H2z M3 9h10v1H3z M4 10h8v1H4z M5 11h6v1H5z M6 12h4v1H6z M7 13h2v1H7z"/>
             <path fill="#ff657d" d="M3 3h3v1H3z M10 3h3v1h-3z M2 4h12v4H2z M3 8h10v1H3z M4 9h8v1H4z M5 10h6v1H5z M6 11h4v1H6z M7 12h2v1H7z"/>
             <path fill="#ffb4c0" d="M3 4h3v1H3z M2 5h5v1H2z M2 6h3v1H2z M4 7h2v1H4z"/>
             <path fill="#db3c59" d="M12 5h2v3h-2z M10 8h3v1h-3z M9 9h3v1H9z M8 10h3v1H8z"/>
             <path class="crack" fill="#0b101b" d="M8 3h1v2H8z M7 5h2v1H7z M8 6h1v2H8z M7 8h2v1H7z M7 9h1v2H7z M8 11h1v2H8z"/>
           </svg>
-        </div>
-        <div class="hud">
-          <div class="hud-head">
-            <div class="hud-numbers"><strong class="hp-current" id="arena-hp">500,000</strong><span class="hp-max">/ 1,000,000 HP</span></div>
-            <span class="status" id="arena-status">● CRITICAL</span>
+            </div>
           </div>
-          <div class="hp-track" role="progressbar" aria-label="Simulated internet HP" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" id="arena-progress"><div class="hp-fill" id="arena-fill"></div></div>
-          <div class="hud-foot"><span id="arena-percent">50.0% LIFE REMAINING</span><span class="demo-marker">LOCAL SIMULATION ONLY</span></div>
+          <p class="arena-heart-text">ONE INTERNET. ONE LIFE.</p>
+
+          <div class="hud arena-hud">
+            <div class="arena-hud-label">WORLD HEALTH / SIMULATED</div>
+            <div class="hud-head">
+              <div class="hud-numbers">
+                <strong class="hp-current" id="arena-hp">500,000</strong>
+                <span class="hp-max">/ 1,000,000 HP</span>
+              </div>
+              <span class="status" id="arena-status">● CRITICAL</span>
+            </div>
+            <div class="hp-track" role="progressbar" aria-label="Simulated internet HP" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" id="arena-progress">
+              <div class="hp-fill" id="arena-fill"></div>
+            </div>
+            <div class="hud-foot">
+              <span id="arena-percent">50.0% LIFE REMAINING</span>
+              <span class="demo-marker">LOCAL SIMULATION ONLY</span>
+            </div>
+          </div>
+          <div class="arena-stage-footer">
+            <span>NO LIVE WORLD DATA</span><span aria-hidden="true">·</span><span>ALPHA TEST</span>
+          </div>
+        </section>
+
+        <section class="arena-decision" aria-labelledby="arena-decision-title">
+          <div class="arena-decision-header">
+            <h2 class="arena-decision-title" id="arena-decision-title">CHOOSE YOUR SIDE_</h2>
+            <p class="arena-decision-sub">Save the internet, or help finish it?</p>
+          </div>
+
+          <div class="choices arena-choices">
+            <button type="button" class="choice heal arena-choice" data-arena-action="HEAL" aria-label="Heal the internet in this local demo">
+              <span class="arena-choice-icon" aria-hidden="true">
+                <svg viewBox="0 0 12 12" shape-rendering="crispEdges"><path d="M4 0h4v4h4v4H8v4H4V8H0V4h4z"/></svg>
+              </span>
+              <strong class="choice-title">HEAL</strong>
+              <span class="choice-caption">KEEP IT ALIVE</span>
+              <span class="arena-choice-caption2">+ RANDOM HP</span>
+            </button>
+            <button type="button" class="choice kill arena-choice" data-arena-action="KILL" aria-label="Damage the internet in this local demo">
+              <span class="arena-choice-icon" aria-hidden="true">
+                <svg viewBox="0 0 12 12" shape-rendering="crispEdges">
+                  <path d="M2 1h8v1h1v5h-2v2H7v1H5V9H3V7H1V2h1z"/>
+                  <path fill="#310f19" d="M3 4h2v2H3z M7 4h2v2H7z M5 7h2v1H5z"/>
+                </svg>
+              </span>
+              <strong class="choice-title">KILL</strong>
+              <span class="choice-caption">FINISH THE JOB</span>
+              <span class="arena-choice-caption2">− RANDOM HP</span>
+            </button>
+          </div>
+          <p class="arena-move-rule">
+            ONE LOCAL ACTION / UTC DAY <span class="arena-rule-separator">◆</span> POWER IS RANDOM
+          </p>
+        </section>
+
+        <div id="arena-result" class="result arena-action-result" hidden role="status" aria-live="polite">
+          <h3 id="arena-result-title"></h3>
+          <p id="arena-result-text"></p>
         </div>
-        <p class="flow-intro">HEAL OR KILL — ONE LOCAL DEMO ACTION PER UTC DAY</p>
-        <div class="choices">
-          <button type="button" class="choice heal" data-arena-action="HEAL"><span class="choice-title">♥ HEAL</span><span class="choice-caption">KEEP IT ALIVE</span></button>
-          <button type="button" class="choice kill" data-arena-action="KILL"><span class="choice-title">☠ KILL</span><span class="choice-caption">FINISH THE JOB</span></button>
-        </div>
-        <div id="arena-result" class="result" hidden role="status" aria-live="polite"><h3 id="arena-result-title"></h3><p id="arena-result-text"></p></div>
-        <div class="demo-reset"><button type="button" id="arena-reset" class="reset">↺ RESET LOCAL DEMO</button></div>
-        <div class="panel ad-panel" aria-label="Future advertisement placement">
-          <span class="ad-label">ADVERTISEMENT • PLACEHOLDER</span>
-          <p>Ad placement reserved for a future approved network. No advertisement is served here.</p>
-        </div>
+
+        <details class="arena-test-tools">
+          <summary>LOCAL DEMO CONTROLS</summary>
+          <p>Reset only your browser's test HP and action cooldown. This will not affect global players.</p>
+          <div class="demo-reset">
+            <button type="button" id="arena-reset" class="reset">↺ RESET LOCAL DEMO</button>
+          </div>
+        </details>
+
+        <aside class="arena-ad-slot" aria-label="Future advertisement space">
+          <span class="ad-label">AD SPACE RESERVED • NOT ACTIVE</span>
+          <p>No ads or purchases in this alpha.</p>
+        </aside>
       </section>
     </main>
   </div>
