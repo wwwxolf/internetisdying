@@ -14,9 +14,10 @@
   <link rel="stylesheet" href="./arena.css?v=5"/>
   <link rel="stylesheet" href="./tap-battle.css?v=1"/>
   <link rel="stylesheet" href="./daily-chaos.css?v=2"/>
+  <link rel="stylesheet" href="./world-return.css?v=1"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./flow.js?v=12"></script>
+  <script type="module" src="./flow.js?v=13"></script>
 </head>
 <body data-page="arena" data-battle-mode="global">
   <div class="preview-bar" role="note">GLOBAL BATTLE ENGINE • CONTROLLED ROLLOUT</div>
@@ -44,6 +45,34 @@
           </div>
           <button type="button" id="signout" class="reset">SIGN OUT</button>
         </div>
+
+        <!-- Per-user server-ledger recap. No historical data is fabricated. -->
+        <section id="world-return" class="world-return" aria-label="While you were gone world report" hidden>
+          <div class="world-return-top">
+            <span class="world-return-tag">◈ INCOMING SIGNAL</span>
+            <button type="button" id="world-return-dismiss" class="world-return-dismiss" aria-label="Dismiss this world report">✕</button>
+          </div>
+          <p class="world-return-eyebrow">WHILE YOU WERE GONE_</p>
+          <h2 class="world-return-title" id="world-return-title">CHECKING THE INTERNET...</h2>
+          <p class="world-return-since" id="world-return-since">SYNCING SERVER HISTORY...</p>
+          <p class="world-return-user">PLAYER: <span id="world-return-name">...</span></p>
+          <div class="world-return-grid">
+            <div class="world-return-stat heal"><span>WORLD HEAL</span><strong id="world-return-heal">—</strong></div>
+            <div class="world-return-stat kill"><span>WORLD KILL</span><strong id="world-return-kill">—</strong></div>
+            <div class="world-return-stat decay"><span>WORLD DECAY</span><strong id="world-return-decay">—</strong></div>
+            <div class="world-return-stat chaos"><span>DAILY CHAOS</span><strong id="world-return-chaos">—</strong></div>
+          </div>
+          <div class="world-return-final">
+            <div><span>NET WORLD CHANGE</span><strong id="world-return-net">—</strong></div>
+            <div><span>WORLD HP NOW</span><strong id="world-return-world">—</strong></div>
+          </div>
+          <p class="world-return-activity" id="world-return-activity">ONLY VERIFIED WORLD EVENTS ARE SHOWN.</p>
+          <p class="world-return-event" id="world-return-event"></p>
+          <div class="world-return-bottom">
+            <span class="world-return-verification" id="world-return-status" role="status">CONNECTING TO SERVER...</span>
+            <button type="button" id="world-return-share" class="world-return-share" disabled>SHARE TO WHATSAPP ↗</button>
+          </div>
+        </section>
 
         <section class="arena-stage" aria-label="Internet life monitor">
           <div class="arena-stage-header">
