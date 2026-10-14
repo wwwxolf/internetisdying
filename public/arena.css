@@ -364,3 +364,60 @@ body[data-page="arena"] .arena-ad-slot p{
 @media(prefers-reduced-motion:reduce){
  body[data-page="arena"] .arena-choice:hover{transform:none}
 }
+
+
+/* Pixel battle windows: all six stay on one row, including mobile.
+ * States are computed from authoritative server history, timezone WIB. */
+body[data-page="arena"] .battle-windows{
+ margin:19px auto 0;padding:15px 12px 13px;
+ border-top:2px solid #344a64;max-width:740px;
+}
+body[data-page="arena"] .battle-windows-title{
+ margin:0 0 13px;text-align:left;color:#d9e8fa;
+ font:clamp(9px,2.1vw,11px)/1.7 "Press Start 2P",monospace;
+}
+body[data-page="arena"] .battle-windows-grid{
+ display:grid;grid-template-columns:repeat(6,minmax(0,1fr));
+ gap:6px;width:100%;
+}
+body[data-page="arena"] .battle-window{
+ min-width:0;min-height:79px;padding:9px 2px 7px;
+ display:flex;flex-direction:column;justify-content:space-between;
+ align-items:center;gap:5px;border:2px solid #394a61;
+ background:#121d2b;color:#788ba4;text-align:center;
+}
+body[data-page="arena"] .battle-window-hour{
+ white-space:nowrap;font:600 clamp(9px,1.8vw,12px)/1.4 "Pixelify Sans",monospace;
+}
+body[data-page="arena"] .battle-window-icon{
+ font:18px/1 "Press Start 2P",monospace;
+}
+body[data-page="arena"] .battle-window-state{
+ font:clamp(6px,1.05vw,8px)/1.7 "Press Start 2P",monospace;
+ white-space:nowrap;
+}
+body[data-page="arena"] .battle-window[data-window-state="USED"]{
+ background:#17322e;color:#7ddbb7;border-color:#4e9f82;
+}
+body[data-page="arena"] .battle-window[data-window-state="MISSED"]{
+ background:#121923;color:#7a899c;border-color:#354152;
+}
+body[data-page="arena"] .battle-window[data-window-state="ACTIVE"]{
+ background:#173d30;color:#81e7b6;border-color:#71dfac;
+ box-shadow:0 0 0 2px #152a25,2px 2px 0 #71dfac;
+}
+body[data-page="arena"] .battle-window[data-window-state="LOCKED"]{
+ background:#101925;color:#6c7c94;border-color:#30415b;
+}
+body[data-page="arena"] .battle-windows .arena-move-rule{
+ margin:13px 0 0;font:clamp(9px,2vw,13px)/1.7 "Pixelify Sans",monospace;
+ color:#78dfad;text-align:center;
+}
+@media(max-width:420px){
+ body[data-page="arena"] .battle-windows{padding:14px 2px 12px;margin-top:15px}
+ body[data-page="arena"] .battle-windows-grid{gap:3px}
+ body[data-page="arena"] .battle-window{border-width:1px;min-height:70px;padding:8px 1px 6px;gap:4px}
+ body[data-page="arena"] .battle-window-hour{font-size:9px}
+ body[data-page="arena"] .battle-window-icon{font-size:13px}
+ body[data-page="arena"] .battle-window-state{font-size:5px;letter-spacing:-.2px}
+}
