@@ -133,13 +133,13 @@ test('batched taps are idempotent, capped, paced and tied to server timestamps',
   assert.equal((await batch(18)).counted_taps,18);
 });
 
-test('six WIB slots are server-owned and one battle per current slot',async()=>{
+test('six UTC slots are server-owned and one battle per current slot',async()=>{
  await fresh();
  const initial=await rpc('status');
- assert.equal(initial.window_timezone,'Asia/Jakarta');
+ assert.equal(initial.window_timezone,'UTC');
  assert.equal(initial.window_used.length,6);
  assert.ok(initial.window_used.every(v=>v===false));
- assert.equal(initial.window_day,new Date(Date.now()+7*3600000).toISOString().slice(0,10));
+ assert.equal(initial.window_day,new Date().toISOString().slice(0,10));
  const slot=initial.window_slot;
  const b=await start('HEAL');await expire(b.id);await settle(b.id);
  const used=await rpc('status');
