@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import {evaluateWindows,wibDay,activeSlot} from '../public/wib-battle-windows.js';
+import {evaluateWindows,utcDay,activeSlot} from '../public/utc-battle-windows.js';
 import {readFile} from 'node:fs/promises';
 const source=await readFile('public/global-battle.js','utf8');
 const html=await readFile('public/arena.html','utf8');
@@ -14,7 +14,7 @@ function fixture(handler) {
   const init=vm.runInNewContext(source.replace(/^import[^\n]*\n/,'').replace('export async function','async function')+';initGlobalBattle',context);
   return {nodes,choices,intervals,init:()=>init({sb:{rpc:handler}})};
 }
-function state(extra={}) {return {server_now:new Date().toISOString(),world:{hp:500000,enabled:true},monthly:{month:'2026-10',nickname:'Tester',battle_count:0,heal_count:0,kill_count:0,heal_hp:0,kill_hp:0,tier:null},active:null,latest:null,rolling_count:0,next_battle_at:null,window_day:wibDay(Date.now()),window_slot:activeSlot(Date.now()),window_timezone:'Asia/Jakarta',window_used:[false,false,false,false,false,false],...extra};}
+function state(extra={}) {return {server_now:new Date().toISOString(),world:{hp:500000,enabled:true},monthly:{month:'2026-10',nickname:'Tester',battle_count:0,heal_count:0,kill_count:0,heal_hp:0,kill_hp:0,tier:null},active:null,latest:null,rolling_count:0,next_battle_at:null,window_day:utcDay(Date.now()),window_slot:activeSlot(Date.now()),window_timezone:'UTC',window_used:[false,false,false,false,false,false],...extra};}
 const flush=()=>new Promise(r=>setImmediate(r));
 test('paused server disables production choices and displays no invented tier',async()=>{
   const f=fixture(async()=>({data:state({world:{hp:500000,enabled:false}})}));await f.init();
