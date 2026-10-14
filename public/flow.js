@@ -55,10 +55,11 @@ if(page==="auth"){
  const emailReady=conf.emailAuthReady===true;
  $("google-login").disabled=!googleReady;
  $("email-send").disabled=!emailReady;
+ $("email").disabled=!emailReady;
  if(!googleReady&&!emailReady){
   show("DATABASE CONNECTED. SIGN-IN NOT READY: configure Auth redirect URLs, production email delivery and Google OAuth, then enable providers. No emails are being collected yet.","warning");return;
  }
- try{const u=await user();if(u){await route(u);return;}show("Sign in with Google or email.");}
+ try{const u=await user();if(u){await route(u);return;}show(googleReady&&!emailReady?"GOOGLE SIGN-IN IS READY TO TEST. Email sign-in is not available yet.":"Choose your available sign-in method.","note");}
  catch(e){show("Sign-in setup error: "+e.message,"error");}
  $("google-login").addEventListener("click",async()=>{
   const btn=$("google-login");btn.disabled=true;show("Redirecting to Google...");
