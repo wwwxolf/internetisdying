@@ -12,12 +12,12 @@
   <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="./styles.css?v=6"/>
   <link rel="stylesheet" href="./arena.css?v=8"/>
-  <link rel="stylesheet" href="./tap-battle.css?v=2"/>
+  <link rel="stylesheet" href="./tap-battle.css?v=3"/>
   <link rel="stylesheet" href="./daily-chaos.css?v=2"/>
   <link rel="stylesheet" href="./world-return.css?v=4"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./flow.js?v=21"></script>
+  <script type="module" src="./flow.js?v=22"></script>
 </head>
 <body data-page="arena" data-battle-mode="global">
   <div class="preview-bar" role="note">GLOBAL BATTLE ENGINE • CONTROLLED ROLLOUT</div>
@@ -148,7 +148,7 @@
               </span>
               <strong class="choice-title">SAVE</strong>
               <span class="choice-caption">KEEP IT ALIVE</span>
-              <span class="arena-choice-caption2">+ RANDOM HP</span>
+              <span class="arena-choice-caption2" id="save-impact-caption">+ RANDOM HP</span>
             </button>
             <button type="button" class="choice kill arena-choice" data-arena-action="KILL" aria-label="Damage the internet" disabled>
               <span class="arena-choice-icon" aria-hidden="true">
@@ -159,7 +159,7 @@
               </span>
               <strong class="choice-title">KILL</strong>
               <span class="choice-caption">FINISH THE JOB</span>
-              <span class="arena-choice-caption2">− RANDOM HP</span>
+              <span class="arena-choice-caption2" id="kill-impact-caption">− RANDOM HP</span>
             </button>
           </div>
           <section class="battle-windows" aria-label="Six daily battle windows in UTC">
@@ -174,6 +174,18 @@
             </div>
             <p class="arena-move-rule" id="arena-move-rule" role="status">SYNCING BATTLE WINDOWS...</p>
           </section>
+        </section>
+
+        <section class="v2-war" id="v2-war" hidden aria-label="Current four hour faction war">
+          <div class="v2-war-head"><h3>FACTION WAR_</h3><span>4-HOUR UTC WINDOW</span></div>
+          <div class="v2-war-score"><strong class="v2-war-save">SAVE <span id="v2-save-influence">0</span></strong>
+            <strong class="v2-war-kill">KILL <span id="v2-kill-influence">0</span></strong></div>
+          <div class="v2-war-meter" role="img" aria-label="Provisional current SAVE versus KILL influence">
+            <div class="v2-war-save-fill" id="v2-war-save-fill"></div>
+            <div class="v2-war-kill-fill" id="v2-war-kill-fill"></div>
+          </div>
+          <p id="v2-war-status" class="v2-war-note">SYNCING SERVER FACTION INFLUENCE...</p>
+          <p id="v2-war-latest" class="v2-war-note">WORLD HP CHANGES AFTER THE UTC WINDOW CLOSES.</p>
         </section>
 
         <!-- Production never imports the local demo engine. -->
