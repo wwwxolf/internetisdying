@@ -22,7 +22,7 @@ export async function initGlobalBattle({sb}) {
     $('arena-result').hidden=false;
     const side=r.action==='HEAL'?'SAVE':r.action;
     if(r.engine_version===2){
-      const crit=(r.critical/100).toFixed(2).replace(/0+$/,'').replace(/\\.$/,'');
+      const crit=(r.critical/100).toFixed(2).replace(/0+$/,'').replace(/\.$/,'');
       $('arena-result-title').textContent=side+' • '+fmt(r.power)+' PERSONAL POWER';
       $('arena-result-text').textContent='CRIT ×'+crit+' • TAP BONUS +'+r.bonus+'% • '+
         fmt(r.war_influence)+' WAR INFLUENCE. Faction impact settles after the UTC window closes. Your result is verified and recorded.';
