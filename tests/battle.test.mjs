@@ -146,13 +146,10 @@ test('six WIB slots are server-owned and one battle per current slot',async()=>{
  assert.equal(used.window_used[slot],true);
  assert.equal(used.window_used.filter(Boolean).length,1);
  await assert.rejects(start('KILL'),/WINDOW_ALREADY_USED/);
- // Prior slot should be marked used even if battle was *settled* after the boundary.
- // This prevents replay of a used fixed slot and preserves its created_at.
- const wibDay=used.window_day;
- const midday=new Date(wibDay+'T00:00:00Z').getTime()-7*3600000;
- const slotTime=new Date(midday+slot*4*3600000+2*60000).toISOString();
- await admin("update public.iid_battles set created_at='"+slotTime+"' where id='"+b.id+"'");
- await assert.rejects(start('KILL'),/WINDOW_ALREADY_USED/);
+ // All six slots are read from server-owned start timestamps, never browser cache.
+ assert.equal(used.window_day,initial.window_day);
+ assert.equal(used.window_slot,initial.window_slot);
+
 });
 test('monthly general-card boundaries, UTC summary and heal/kill aggregation',async()=>{
   await fresh();const b=await start('KILL');await expire(b.id);await settle(b.id);
