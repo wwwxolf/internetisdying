@@ -28,12 +28,12 @@
         <h2 class="flow-heading">REGISTER / SIGN IN</h2>
         <p id="flow-status" class="flow-message" role="status" aria-live="polite">Checking authentication...</p>
         <div id="auth-controls" hidden>
-          <button type="button" class="auth-google" id="google-login">CONTINUE WITH GOOGLE</button>
+          <button type="button" class="auth-google" id="google-login" disabled>CONTINUE WITH GOOGLE</button>
           <div class="divider-text">OR CONTINUE WITH EMAIL</div>
           <form id="email-form">
             <label class="field-label" for="email">EMAIL ADDRESS</label>
             <input type="email" id="email" placeholder="you@example.com" required autocomplete="email"/>
-            <button class="dialog-button" type="submit" id="email-send">SEND SIGN-IN EMAIL →</button>
+            <button class="dialog-button" type="submit" id="email-send" disabled>SEND SIGN-IN EMAIL →</button>
           </form>
           <form id="otp-form" class="otp-form" hidden>
             <label class="field-label" for="otp">SIX-DIGIT EMAIL CODE (IF PROVIDED)</label>
