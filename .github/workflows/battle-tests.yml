@@ -40,4 +40,4 @@ jobs:
       - name: Confirm production battle stays paused by default in schema
         run: |
           grep -F "enabled boolean not null default false" supabase/migrations/20261014033444_global_battle_engine.sql
-          grep -F "grant execute on function public.iid_battle_tap_batch" supabase/migrations/20261014060500_batch_tap_acknowledgements.sql
+          grep -F "grant execute on function public.iid_battle_tap_batch" supabase/migrations/20261014042237_batch_tap_acknowledgements.sql
