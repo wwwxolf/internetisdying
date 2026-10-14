@@ -151,11 +151,66 @@ test('six UTC slots are server-owned and one battle per current slot',async()=>{
  assert.equal(used.window_slot,initial.window_slot);
 
 });
+test('UTC unique constraint blocks replayed slots but permits slot/day rollover',async()=>{
+  await fresh();
+  const insertAt=t=>`insert into public.iid_battles
+    (user_id,request_id,nickname,action,created_at,starts_at,ends_at,
+     settled_at,base,critical,bonus,power,hp_before,hp_after,applied_hp,world_version)
+    select '${U}'::uuid,gen_random_uuid(),'PlayerOne','HEAL',t,
+     t+interval '3 seconds',t+interval '23 seconds',t+interval '30 seconds',
+     100,1,0,100,500000,500100,100,1
+    from (select '${t}'::timestamptz as t) fixture`;
+  // Same UTC date, two adjacent four-hour windows are allowed.
+  await admin(insertAt('2026-10-14T03:59:30Z'));
+  await admin(insertAt('2026-10-14T04:00:00Z'));
+  // The next UTC day resets slot zero.
+  await admin(insertAt('2026-10-15T00:00:00Z'));
+  // UTC+7 midnight is NOT a reset: both fall in 16:00–19:59 UTC.
+  await admin(insertAt('2026-10-14T16:59:30Z'));
+  await db.exec('reset role');
+  try {
+    await assert.rejects(db.exec(insertAt('2026-10-14T03:59:31Z')),
+      /iid_one_battle_per_utc_window/);
+    await assert.rejects(db.exec(insertAt('2026-10-14T17:00:00Z')),
+      /iid_one_battle_per_utc_window/);
+  } finally {await login();}
+});
+test('authenticated start path retains player-row serialization',async()=>{
+  await db.exec('reset role');
+  try{
+    const q=await db.query("select pg_get_functiondef('iid_private.require_player()'::regprocedure) as source");
+    assert.match(q.rows[0].source,/from public\.iid_profiles[\\s\\S]*for update/i);
+  }finally{await login();}
+});
 test('monthly general-card boundaries, UTC summary and heal/kill aggregation',async()=>{
   await fresh();const b=await start('KILL');await expire(b.id);await settle(b.id);
   for(const [n,tier] of [[1,'Common'],[14,'Common'],[15,'Rare'],[44,'Rare'],[45,'Legendary'],[89,'Legendary'],[90,'Ancestral']]) {
+    // Synthetic month history must respect the production one-per-UTC-window
+    // invariant. Allocate each simulated battle a distinct four-hour slot.
     await admin(`delete from public.iid_battles where id<>'${b.id}';
-      insert into public.iid_battles select gen_random_uuid(),user_id,gen_random_uuid(),nickname,action,created_at,starts_at,ends_at,counted_taps,last_tap_at,settled_at,base,critical,bonus,power,hp_before,hp_after,applied_hp,world_version from public.iid_battles cross join generate_series(1,${n-1});`);
+      with month_clock as (
+        select date_trunc('month',statement_timestamp() at time zone 'UTC')
+          at time zone 'UTC' as month_start
+      ), possible as (
+        select month_start + g.i * interval '4 hours' as t
+        from month_clock cross join generate_series(0,167) g(i)
+      ), available as (
+        select p.t from possible p
+        where not exists (
+          select 1 from public.iid_battles x
+          where x.user_id='${U}'::uuid
+            and x.created_at>=p.t and x.created_at<p.t+interval '4 hours'
+        ) order by p.t limit ${n-1}
+      )
+      insert into public.iid_battles
+      (id,user_id,request_id,nickname,action,created_at,starts_at,ends_at,
+       counted_taps,last_tap_at,settled_at,base,critical,bonus,power,
+       hp_before,hp_after,applied_hp,world_version)
+      select gen_random_uuid(),b.user_id,gen_random_uuid(),b.nickname,b.action,
+       a.t,a.t+interval '3 seconds',a.t+interval '23 seconds',
+       b.counted_taps,null,a.t+interval '30 seconds',b.base,b.critical,b.bonus,
+       b.power,b.hp_before,b.hp_after,b.applied_hp,b.world_version
+      from public.iid_battles b cross join available a where b.id='${b.id}';`);
     const s=await rpc('status');assert.equal(s.monthly.tier,tier);assert.equal(s.monthly.kill_count,n);assert.equal(s.monthly.heal_count,0);
     assert.equal(s.monthly.timezone,'UTC');assert.equal(s.monthly.nickname,'PlayerOne');
   }
