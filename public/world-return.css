@@ -146,9 +146,13 @@ body[data-page="arena"] .share-card-download{
 body[data-page="arena"] .share-card-whatsapp{
  background:#193f36;border:2px solid #75e1aa;color:#75e1aa;
 }
+body[data-page="arena"] .share-card-copy{
+ grid-column:1/-1;background:#212d44;border:2px solid #c6b379;color:#f0dc9f;
+}
 body[data-page="arena"] .share-card-tip{font:14px/1.3 "Pixelify Sans",sans-serif;color:#bac9de;margin:10px 0 0}
 @media(max-width:380px){
  body[data-page="arena"] .share-card-shell{padding:9px}
  body[data-page="arena"] .share-card-actions{grid-template-columns:1fr}
  body[data-page="arena"] .share-card-native{grid-column:1}
+ body[data-page="arena"] .share-card-copy{grid-column:1}
 }

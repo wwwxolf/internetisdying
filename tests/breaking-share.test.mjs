@@ -20,7 +20,7 @@ test("Locked pixel news card validates real snapshot math and omits world total 
  assert.throws(()=>validateSnapshot({...sample,source:"LOCAL_DEMO"}),/Unverified/);
  assert.throws(()=>validateSnapshot({...sample,world_hp:-1}),/Invalid world health/);
  const text=shareCaption(sample);
- assert.match(text,/SAVE IT OR KILL IT/);
+ assert.equal(text,"🚨 THE INTERNET IS DYING.\n\nWill you SAVE it or KILL it? 💀\n\n🌐 JOIN THE CHAOS:\n"+GAME_URL);
  assert.ok(text.includes(GAME_URL));
  assert.doesNotMatch(text,/500,180|1,000,000 HP/);
  const js=await readFile("public/breaking-share-card.js","utf8");
@@ -39,9 +39,9 @@ test("Share button generates new server snapshot and supports binary PNG sharing
    assert.ok(html.includes('id="'+id+'"'),id);
  }
  assert.ok(html.includes("CREATE PIXEL SHARE CARD"));
- assert.ok(html.includes("world-return.css?v=2"));
- assert.ok(html.includes('src="./flow.js?v=16"'));
- assert.ok(flow.includes('import("./world-return.js?v=3")'));
+ assert.ok(html.includes("world-return.css?v=3"));
+ assert.ok(html.includes('src="./flow.js?v=17"'));
+ assert.ok(flow.includes('import("./world-return.js?v=4")'));
  assert.ok(js.includes('sb.rpc("iid_share_snapshot")'));
  assert.ok(js.includes("renderBreakingCard(data)"));
  assert.ok(js.includes("new File([png]"));
@@ -50,5 +50,9 @@ test("Share button generates new server snapshot and supports binary PNG sharing
  assert.ok(js.includes("URL.revokeObjectURL"));
  assert.ok(js.includes("https://wa.me/?text="));
  assert.ok(js.includes("LINK ONLY"));
+ assert.ok(js.includes('id="share-card-copy"') === false); // IDs live in HTML
+ assert.ok(html.includes('id="share-card-copy"'));
+ assert.ok(js.includes("navigator.clipboard.writeText(invite)"));
+ assert.ok(js.includes('breaking-share-card.js?v=2'));
  assert.ok(!js.includes("Math.random")&&!js.includes("localStorage"));
 });
