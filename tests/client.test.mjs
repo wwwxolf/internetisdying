@@ -28,16 +28,23 @@ test('lost start response keeps choices locked until a successful sync',async()=
   const f=fixture(async name=>name.endsWith('status')?{data:state()}:{error:{message:'response lost'}});
   await f.init();await f.choices[0].events.click();f.intervals[0]();assert.ok(f.choices.every(x=>x.disabled));
 });
-test('tap submits only ID and sequence; lost acknowledgement reuses sequence',async()=>{
-  const calls=[];let attempt=0;
+test('lost batch acknowledgement never fabricates a server-confirmed tap',async()=>{
+  const calls=[];
   const active={id:'battle',action:'HEAL',counted_taps:0,starts_at:new Date(Date.now()-1000).toISOString(),ends_at:new Date(Date.now()+19000).toISOString()};
   const f=fixture(async(name,args)=>{
     if(name.endsWith('status'))return {data:state({active})};
-    calls.push(JSON.parse(JSON.stringify(args)));return ++attempt===1?{error:{message:'lost'}}:{data:{counted_taps:1}};
-  });await f.init();await f.nodes.get('tap-target').events.click();await f.nodes.get('tap-target').events.click();
-  assert.deepEqual(calls,[{p_battle_id:'battle',p_seq:1},{p_battle_id:'battle',p_seq:1}]);
-  assert.equal(f.nodes.get('tap-count').textContent,'1 / 50');
+    calls.push(JSON.parse(JSON.stringify(args)));
+    return {error:{message:'response lost'}};
+  });
+  await f.init();
+  f.nodes.get('tap-target').events.click();
+  await flush(); // request failed; backoff now prevents a tight retry loop
+  f.nodes.get('tap-target').events.click();
+  assert.deepEqual(calls,[{p_battle_id:'battle',p_total:1}]);
+  assert.equal(f.nodes.get('tap-count').textContent,'2 / 50'); // instant local feedback
+  assert.match(f.nodes.get('tap-combo').textContent,/SERVER CONFIRMED 0\/50/);
 });
+
 test('rapid taps remain responsive while the first mobile network acknowledgement is pending',async()=>{
   const requests=[];
   let finishFirst;
