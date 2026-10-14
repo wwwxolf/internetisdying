@@ -166,7 +166,7 @@ if(page==="arena"){
   });
   if(demoMode)demo(u.id,p);
   else {
-   const {initGlobalBattle}=await import("./global-battle.js?v=6");
+   const {initGlobalBattle}=await import("./global-battle.js?v=7");
    await initGlobalBattle({sb});
    // Verified return brief is independent from Tap Battle and NEXT CHAOS.
    void import("./world-return.js?v=5")
