@@ -157,5 +157,9 @@ export function filenameFor(data){
 }
 export function shareCaption(data){
  validateSnapshot(data);
- return headlineFor(data).join(" ")+" — SAVE IT OR KILL IT.\n"+GAME_URL;
+ // One short global invite across native image shares, WA links and copy fallback.
+ // The PNG already shows the current world stats; avoid repeating them here.
+ return "🚨 THE INTERNET IS DYING.\n\n"+
+   "Will you SAVE it or KILL it? 💀\n\n"+
+   "🌐 JOIN THE CHAOS:\n"+GAME_URL;
 }
