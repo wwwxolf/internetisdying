@@ -86,7 +86,7 @@ begin
 end $$;
 
 create or replace function iid_private.chaos_status() returns jsonb
-language plpgsql security definer set search_path='' as $
+language plpgsql security definer set search_path='' as $$
 declare u uuid:=iid_private.require_player(); c public.iid_chaos_control;
  t timestamptz:=clock_timestamp(); d date:=(t at time zone 'UTC')::date;
  rotation smallint; vote_choice text; votes_d bigint; votes_r bigint;
@@ -117,7 +117,7 @@ begin
   'next_decay_at',next_pulse,'last_decay',last_pulse,'latest_result',last_result,
   'min_votes',c.min_votes,'preview',not c.enabled
  );
-end $;
+end $$;
 
 create or replace function iid_private.process_decay() returns jsonb
 language plpgsql security definer set search_path='' as $$
