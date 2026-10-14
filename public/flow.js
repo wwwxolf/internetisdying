@@ -163,7 +163,7 @@ if(page==="arena"){
   });
   if(demoMode)demo(u.id,p);
   else {
-   const {initGlobalBattle}=await import("./global-battle.js?v=1");
+   const {initGlobalBattle}=await import("./global-battle.js?v=2");
    await initGlobalBattle({sb});
   }
  }catch(e){show("Could not open Arena: "+e.message,"error");}
