@@ -169,7 +169,7 @@ if(page==="arena"){
    const {initGlobalBattle}=await import("./global-battle.js?v=3");
    await initGlobalBattle({sb});
    // Verified return brief is independent from Tap Battle and NEXT CHAOS.
-   void import("./world-return.js?v=4")
+   void import("./world-return.js?v=5")
      .then(({initWorldReturn})=>initWorldReturn({sb,nickname:p.nickname}))
      .catch(err=>console.warn("WORLD RETURN LOAD FAILED",err));
    // NEXT CHAOS reads server-only votes; failure never blocks the battle arena.
