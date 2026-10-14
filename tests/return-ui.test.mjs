@@ -25,7 +25,7 @@ test('While You Were Gone is authenticated and never invents offline world stati
  assert.match(js,/data\.decay_hp/);
  assert.match(js,/data\.chaos_hp/);
  assert.match(js,/data\.net_hp/);
- assert.match(js,/!visited\|\|quiet/);
+ assert.match(js,/share\.disabled=false/);
  assert.match(js,/https:\/\/wa\.me\/\?text=/);
  assert.doesNotMatch(js,/Math\.random|localStorage/);
 });
