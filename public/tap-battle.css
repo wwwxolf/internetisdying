@@ -157,3 +157,9 @@ body[data-page="arena"] .arena-choice:disabled{
  body[data-page="arena"] .tap-target.tap-punch{transform:none}
  body[data-page="arena"] .tap-charge-fill{transition:none}
 }
+
+/* V2 accessibility: holding charges at the same capped bonus as tapping. */
+body[data-page="arena"] .tap-hold{display:block;margin:12px auto;min-height:48px;width:min(100%,340px);padding:10px 16px;background:#14302a;color:#affad0;border:2px solid #60d8a7;box-shadow:3px 3px 0 #07130f;font:9px/1.6 "Press Start 2P",monospace;touch-action:none;user-select:none}
+body[data-page="arena"] .tap-hold[hidden]{display:none}
+body[data-page="arena"] .tap-hold:disabled{opacity:.45;cursor:not-allowed}
+body[data-page="arena"] .tap-hold:not(:disabled):active{transform:translate(2px,2px);box-shadow:1px 1px 0 #07130f}
