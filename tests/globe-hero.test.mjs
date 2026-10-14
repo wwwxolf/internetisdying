@@ -2,14 +2,16 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 
-test("Landing features pixel globe instead of heart without changing HP demo",async()=>{
+test("Landing uses pixel globe and compact demo HP bar without numeric text",async()=>{
  const html=await readFile("public/index.html","utf8");
  assert.match(html,/src="\.\/assets\/dying-internet-core\.svg"/);
  assert.match(html,/class="heart-zone world-core-zone"/);
+ assert.match(html,/class="world-core-signal"/);
  assert.doesNotMatch(html,/class="pixel-heart"/);
- assert.match(html,/id="hp-label"/);
- assert.match(html,/JOIN THE CHAOS/);
+ assert.doesNotMatch(html,/id="hp-label"|id="hp-percent"|50\.0% LIFE REMAINING|500,000|\/ 1,000,000 HP/);
+ assert.match(html,/aria-valuenow="50"/);
  assert.match(html,/LOCAL DEMO ONLY/);
+ assert.match(html,/JOIN THE CHAOS/);
 });
 test("Pixel globe SVG embeds a compact self-contained PNG",async()=>{
  const svg=await readFile("public/assets/dying-internet-core.svg","utf8");
@@ -22,12 +24,17 @@ test("Pixel globe SVG embeds a compact self-contained PNG",async()=>{
  assert.ok(png.byteLength < 10000,"Keep asset small for mobile");
  assert.match(svg,/image-rendering="pixelated"/);
 });
-test("Globe scales on mobile and respects reduced motion; Arena heart is unchanged",async()=>{
+test("Only red core pulses, HP bar scans inside 50 percent; mobile and reduced motion",async()=>{
  const css=await readFile("public/styles.css","utf8");
  const arena=await readFile("public/arena.html","utf8");
  assert.match(css,/\.world-core-img\{[\s\S]*image-rendering:pixelated/);
- assert.match(css,/@media\(max-width:640px\)[\s\S]*\.world-core-img/);
- assert.match(css,/@media\(max-width:380px\)[\s\S]*\.world-core-img/);
- assert.match(css,/@media\(prefers-reduced-motion:reduce\)[\s\S]*\.world-core-img\{animation:none!important/);
+ assert.match(css,/@media\(max-width:640px\)[\s\S]*\.world-core-visual/);
+ assert.match(css,/@media\(max-width:380px\)[\s\S]*\.world-core-visual/);
+ assert.match(css,/\.world-core-signal\{[\s\S]*animation:internet-core-pulse/);
+ assert.doesNotMatch(css,/@keyframes internet-core-flicker/);
+ assert.match(css,/\.hero \.hud-minimal \.hp-fill\{position:relative;overflow:hidden\}/);
+ assert.match(css,/\.hero \.hud-minimal \.hp-fill::after\{/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)[\s\S]*\.world-core-signal\{animation:none!important/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)[\s\S]*\.hero \.hud-minimal \.hp-fill::after\{animation:none!important/);
  assert.match(arena,/class="pixel-heart"/);
 });

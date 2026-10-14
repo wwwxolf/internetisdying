@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
-  <link href="./styles.css?v=3" rel="stylesheet"/>
+  <link href="./styles.css?v=4" rel="stylesheet"/>
   <script src="./config.js?v=5"></script>
   
   <script type="module" src="./flow.js?v=6"></script>
@@ -31,16 +31,18 @@
         <h1 id="main-title">THE INTERNET <span>IS DYING_</span></h1>
         <p class="tagline">ONE INTERNET. TWO SIDES. ONE LIFE.</p>
         <div class="heart-zone world-core-zone" id="heart-zone" data-stage="critical">
-          <img class="world-core-img" src="./assets/dying-internet-core.svg" width="96" height="96" alt="Glitching pixel globe, an internet core breaking apart with a red critical pulse" decoding="async" fetchpriority="high"/>
+          <div class="world-core-visual">
+            <img class="world-core-img" src="./assets/dying-internet-core.svg" width="96" height="96" alt="Glitched pixel internet globe with a damaged, glowing red core" decoding="async" fetchpriority="high"/>
+            <span class="world-core-signal" aria-hidden="true"></span>
+          </div>
         </div>
 
-        <div class="hud" aria-label="Local preview internet HP">
+        <div class="hud hud-minimal" aria-label="Local demo internet health">
           <div class="hud-head">
-            <div class="hud-numbers"><strong class="hp-current" id="hp-label">500,000</strong><span class="hp-max">/ 1,000,000 HP</span></div>
             <span class="status" id="state-label">● CRITICAL</span>
           </div>
-          <div class="hp-track" role="progressbar" aria-label="Internet HP" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" id="hp-progress"><div class="hp-fill" id="hp-fill"></div></div>
-          <div class="hud-foot"><span id="hp-percent">50.0% LIFE REMAINING</span><span class="demo-marker">LOCAL DEMO ONLY</span></div>
+          <div class="hp-track" role="progressbar" aria-label="Local demo internet health, 50 percent, critical" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" id="hp-progress"><div class="hp-fill" id="hp-fill"></div></div>
+          <div class="hud-foot"><span class="demo-marker">LOCAL DEMO ONLY</span></div>
         </div>
 
         <div class="prompt"><h2 id="story-title">THE INTERNET IS HALF DEAD.</h2><p>Will you save it — or finish it?</p></div>
