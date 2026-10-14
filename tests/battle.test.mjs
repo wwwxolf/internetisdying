@@ -215,15 +215,15 @@ test('Daily Chaos voting is one per verified user per UTC day, non-editable',asy
 test('World Decay is 800..1000 HP, idempotent per 3-hour slot and paused when disabled',async()=>{
  await fresh();
  await admin("delete from public.iid_decay_pulses; update public.iid_chaos_control set enabled=false,decay_anchor_at=clock_timestamp()-interval '3 hours 10 minutes'");
- assert.match(String(await cronRpc('process_decay').status),/PAUSED/);
+ assert.match(String((await cronRpc('process_decay')).status),/PAUSED/);
  await admin('update public.iid_chaos_control set enabled=true');
  const first=await cronRpc('process_decay');
  assert.equal(first.processed,1);assert.ok(first.hp<=499200&&first.hp>=499000);
- assert.equal(await cronRpc('process_decay').processed,0);
+ assert.equal((await cronRpc('process_decay')).processed,0);
  const pulses=(await db.query('select * from public.iid_decay_pulses')).rows;
  assert.equal(pulses.length,1);assert.ok(pulses[0].rolled_hp>=800&&pulses[0].rolled_hp<=1000);
  await admin('update public.iid_chaos_control set enabled=false');
- assert.equal(await cronRpc('process_decay').status,'PAUSED');
+ assert.equal((await cronRpc('process_decay')).status,'PAUSED');
 });
 test('Daily Chaos 20-vote result executes once and applies exactly +6000 HP',async()=>{
  await fresh();
