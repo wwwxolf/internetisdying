@@ -12,9 +12,10 @@
   <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="./styles.css?v=3"/>
   <link rel="stylesheet" href="./arena.css?v=4"/>
+  <link rel="stylesheet" href="./tap-battle.css?v=1"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./flow.js?v=6"></script>
+  <script type="module" src="./flow.js?v=7"></script>
 </head>
 <body data-page="arena">
   <div class="preview-bar" role="note">ALPHA PREVIEW • WORLD HP IS NOT LIVE YET</div>
@@ -84,7 +85,7 @@
           </div>
         </section>
 
-        <section class="arena-decision" aria-labelledby="arena-decision-title">
+        <section id="arena-decision" class="arena-decision" aria-labelledby="arena-decision-title">
           <div class="arena-decision-header">
             <h2 class="arena-decision-title" id="arena-decision-title">CHOOSE YOUR SIDE_</h2>
             <p class="arena-decision-sub">Save the internet, or help finish it?</p>
@@ -111,9 +112,35 @@
               <span class="arena-choice-caption2">− RANDOM HP</span>
             </button>
           </div>
-          <p class="arena-move-rule">
+          <p class="arena-move-rule" id="arena-move-rule">
             ONE LOCAL ACTION / UTC DAY <span class="arena-rule-separator">◆</span> POWER IS RANDOM
           </p>
+        </section>
+
+        <!-- Tap Battle: visible only after choosing HEAL or KILL. Browser-only demo. -->
+        <section id="tap-battle" class="tap-battle" data-side="heal" aria-label="20-second Chaos Tap Battle" hidden>
+          <div class="tap-topline">
+            <span class="tap-heading">CHAOS TAP BATTLE</span>
+            <span class="tap-side-label" id="tap-side">HEAL</span>
+          </div>
+          <p class="tap-instruction">3 • 2 • 1 • GO! THEN TAP AS FAST AS YOU CAN.</p>
+          <div class="tap-stats">
+            <div class="tap-stat"><span>TIME LEFT</span><strong id="tap-time">20.0</strong><small>SECONDS</small></div>
+            <div class="tap-stat"><span>VALID TAPS</span><strong id="tap-count">0 / 50</strong><small>MAX 50</small></div>
+            <div class="tap-stat"><span>POWER BONUS</span><strong id="tap-bonus">+0%</strong><small>MAX +10%</small></div>
+          </div>
+          <div class="tap-charge-track" role="img" aria-label="Charge rises from zero to maximum at 50 taps">
+            <div class="tap-charge-fill" id="tap-charge"></div>
+          </div>
+          <div class="tap-countdown" id="tap-countdown" role="status" aria-live="assertive">3</div>
+          <button id="tap-target" class="tap-target" type="button" aria-label="Tap repeatedly to charge power" hidden disabled>
+            <span class="tap-target-mark" aria-hidden="true">+</span>
+            <strong>TAP! TAP! TAP!</strong>
+            <span>BUILD YOUR POWER</span>
+          </button>
+          <p class="tap-combo" id="tap-combo" aria-live="off">READY!</p>
+          <p class="tap-safety">50 TAPS = MAX CHARGE. THE ROUND ENDS AT 50 TAPS OR AFTER 20 SECONDS.</p>
+          <p class="tap-safety tap-disclaimer">SIMULATED POWER ONLY • NO BOT PROTECTION ACTIVE</p>
         </section>
 
         <div id="arena-result" class="result arena-action-result" hidden role="status" aria-live="polite">
