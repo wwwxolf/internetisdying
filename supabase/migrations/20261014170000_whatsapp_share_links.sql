@@ -38,15 +38,12 @@ $$select iid_private.publish_share_card()$$;
 revoke all on function public.iid_publish_share_card() from public,anon,authenticated;
 grant execute on function public.iid_publish_share_card() to authenticated;
 
--- Public link reader. Returns only the permitted anonymous game snapshot.
-create function iid_private.read_shared_card(p_id uuid) returns jsonb
+-- Public link reader. A narrow SECURITY DEFINER reads only the
+-- anonymous snapshot selected by an unguessable UUID; no player data.
+-- Keep iid_private schema inaccessible to anonymous visitors.
+create function public.iid_public_share_card(p_id uuid) returns jsonb
 language sql stable security definer set search_path='' as $$
  select c.snapshot from public.iid_share_cards c where c.id=p_id
 $$;
-revoke all on function iid_private.read_shared_card(uuid) from public,anon,authenticated;
-grant execute on function iid_private.read_shared_card(uuid) to anon,authenticated;
-create function public.iid_public_share_card(p_id uuid) returns jsonb
-language sql stable security invoker set search_path='' as
-$$select iid_private.read_shared_card(p_id)$$;
 revoke all on function public.iid_public_share_card(uuid) from public,anon,authenticated;
 grant execute on function public.iid_public_share_card(uuid) to anon,authenticated;
