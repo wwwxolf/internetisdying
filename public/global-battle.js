@@ -15,7 +15,7 @@ export async function initGlobalBattle({sb}) {
   }
   function showResult(r) {
     $('arena-result').hidden=false;
-    $('arena-result-title').textContent=r.action+' • '+fmt(r.applied_hp)+' HP APPLIED';
+    $('arena-result-title').textContent=(r.action==='HEAL'?'SAVE':r.action)+' • '+fmt(r.applied_hp)+' HP APPLIED';
     $('arena-result-text').textContent=`Base ${fmt(r.base)} × critical ${r.critical} + ${r.bonus}% bonus = ${fmt(r.power)} HP. World after this battle: ${fmt(r.hp_after)}. Permanently recorded.`;
   }
   function render() {
@@ -28,7 +28,7 @@ export async function initGlobalBattle({sb}) {
     const stage=w.hp===0?'DEAD':w.hp<=250000?'NEAR DEATH':w.hp<=500000?'CRITICAL':w.hp<=750000?'STABLE':'RECOVERING';
     $('arena-status').textContent='● '+stage;
     $('heart-zone').dataset.stage=w.hp===0?'dead':w.hp<=250000?'danger':'critical';
-    $('monthly-summary').textContent=`${m.month} UTC • ${m.nickname} • ${m.tier||'No card yet'} • ${m.battle_count} battles\nHEAL ${m.heal_count} · +${fmt(m.heal_hp)} HP | KILL ${m.kill_count} · −${fmt(m.kill_hp)} HP`;
+    $('monthly-summary').textContent=`${m.month} UTC • ${m.nickname} • ${m.tier||'No card yet'} • ${m.battle_count} battles\nSAVE ${m.heal_count} · +${fmt(m.heal_hp)} HP | KILL ${m.kill_count} · −${fmt(m.kill_hp)} HP`;
     const cooldown=Math.max(0,Date.parse(state.next_battle_at||0)-now());
     choices.forEach(b=>{b.disabled=!syncOk||busy||refreshBusy||!!battle||!w.enabled||cooldown>0;});
     $('arena-move-rule').textContent=!w.enabled?'GLOBAL BATTLES PAUSED FOR ROLLOUT CHECKS':cooldown>0
@@ -39,7 +39,7 @@ export async function initGlobalBattle({sb}) {
     if(!battle)return;
     const before=Date.parse(battle.starts_at)-now(), remain=Date.parse(battle.ends_at)-now();
     $('tap-battle').dataset.side=battle.action.toLowerCase();
-    $('tap-side').textContent=battle.action;
+    $('tap-side').textContent=battle.action==='HEAL'?'SAVE':battle.action;
     $('tap-target-mark').textContent=battle.action==='HEAL'?'+':'×';
     $('tap-countdown').hidden=before<=0;
     $('tap-countdown').textContent=String(Math.max(1,Math.ceil(before/1000)));
