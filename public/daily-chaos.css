@@ -1,0 +1,121 @@
+/* NEXT CHAOS • dark pixel arcade. Independent from existing Arena game controls. */
+body[data-page="arena"] .chaos-daily {
+  --chaos-green:#72dfa6;--chaos-red:#ff657d;
+  margin:30px 0 22px;padding:19px 17px;
+  background:#121e2e;border:3px solid #445773;box-shadow:6px 6px #05080e;
+  text-align:left;min-width:0;
+}
+body[data-page="arena"] .chaos-heading{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;margin:0 0 10px;
+}
+body[data-page="arena"] .chaos-heading h2{
+  font:clamp(12px,2.8vw,17px)/1.7 "Press Start 2P",monospace;
+  color:#f7f3ee;margin:0;
+}
+body[data-page="arena"] .chaos-tiny{
+  font:9px/1.6 "Press Start 2P",monospace;color:#b6c7de;
+}
+body[data-page="arena"] .chaos-intro{
+  font:18px/1.3 "Pixelify Sans",sans-serif;color:#bbc7d5;
+  margin:0 0 16px;text-align:center;
+}
+body[data-page="arena"] .chaos-timers{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;
+  margin-bottom:16px;
+}
+body[data-page="arena"] .chaos-timer{
+  border:2px solid #415472;background:#0a1421;padding:12px 10px;
+  display:flex;align-items:center;justify-content:space-between;gap:7px;flex-wrap:wrap;
+}
+body[data-page="arena"] .chaos-timer strong{
+  font:clamp(11px,2.3vw,15px)/1.6 "Press Start 2P",monospace;
+  color:#f4d57d;font-variant-numeric:tabular-nums;
+}
+body[data-page="arena"] .chaos-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+body[data-page="arena"] .chaos-event {
+  touch-action:manipulation;min-width:0;min-height:310px;cursor:pointer;
+  border:3px solid #fa6d7c;background:#241923;color:#fff3ef;
+  padding:15px 11px 13px;display:flex;flex-direction:column;
+  align-items:center;gap:11px;box-shadow:5px 5px #060b12;
+  -webkit-tap-highlight-color:transparent;
+}
+body[data-page="arena"] .chaos-event.recovery{
+  border-color:#72dfa6;background:#112921;color:#edfff3;
+}
+body[data-page="arena"] .chaos-event:enabled:active{transform:translate(3px,3px);box-shadow:2px 2px #060b12}
+body[data-page="arena"] .chaos-event:disabled{cursor:not-allowed;opacity:.84}
+body[data-page="arena"] .chaos-event[aria-pressed="true"]{
+  outline:3px solid #f4d57d;outline-offset:3px;opacity:1;
+}
+body[data-page="arena"] .chaos-event-label{
+  font:9px/1.6 "Press Start 2P",monospace;
+  text-align:center;letter-spacing:.2px;color:#ffd3d8;
+}
+body[data-page="arena"] .chaos-event.recovery .chaos-event-label{color:#b8f6d7}
+body[data-page="arena"] .chaos-pixel-art{
+  width:100px;height:100px;display:grid;place-items:center;
+  background-image:radial-gradient(#ffffff1c 1px,transparent 1px);
+  background-size:11px 11px;image-rendering:pixelated;
+  border:2px solid #ffffff32;flex-shrink:0;
+}
+body[data-page="arena"] .chaos-pixel-art svg{
+  width:92px;height:92px;image-rendering:pixelated;
+  filter:drop-shadow(4px 4px 0 #080e18);
+}
+body[data-page="arena"] .chaos-event-name{
+  font:clamp(9px,2vw,12px)/1.9 "Press Start 2P",monospace;
+  color:#fff7f0;text-align:center;overflow-wrap:anywhere;margin:0;
+  min-height:39px;
+}
+body[data-page="arena"] .chaos-event-desc{
+  font:16px/1.25 "Pixelify Sans",sans-serif;
+  margin:0;text-align:center;color:#c2c5cb;flex:1;
+}
+body[data-page="arena"] .chaos-event-impact{
+  font:12px/1.6 "Press Start 2P",monospace;color:#ff657d;
+  white-space:nowrap;
+}
+body[data-page="arena"] .chaos-event.recovery .chaos-event-impact{color:#72dfa6}
+body[data-page="arena"] .chaos-vote-meter{
+  width:100%;height:14px;border:2px solid #445672;
+  display:flex;background:#141c2b;margin:16px 0 8px;overflow:hidden;
+}
+body[data-page="arena"] .chaos-vote-meter > div{height:100%;min-width:0}
+body[data-page="arena"] #chaos-vote-meter-damage{background:#ff657d}
+body[data-page="arena"] #chaos-vote-meter-recovery{background:#72dfa6}
+body[data-page="arena"] .chaos-vote-count{
+  text-align:center;color:#abbad1;font:9px/2 "Press Start 2P",monospace;
+}
+body[data-page="arena"] .chaos-system-status{
+  text-align:center;padding:13px 9px;
+  border:2px solid #51617a;background:#0e1825;
+  color:#f4d57d;font:9px/1.9 "Press Start 2P",monospace;
+}
+body[data-page="arena"] .chaos-foot{
+  border-top:1px solid #40516b;margin-top:16px;padding-top:12px;
+  text-align:center;color:#a4b8c9;
+  font:8px/2 "Press Start 2P",monospace;
+}
+body[data-page="arena"] .chaos-foot p{margin:2px 0;overflow-wrap:anywhere}
+@media(max-width:540px){
+ body[data-page="arena"] .chaos-daily{padding:15px 10px;}
+ body[data-page="arena"] .chaos-timers{gap:6px}
+ body[data-page="arena"] .chaos-timer{padding:9px 6px;gap:5px;}
+ body[data-page="arena"] .chaos-timer .chaos-tiny{font-size:7px}
+ body[data-page="arena"] .chaos-timer strong{font-size:10px}
+ body[data-page="arena"] .chaos-options{gap:8px;}
+ body[data-page="arena"] .chaos-event{padding:12px 6px;min-height:290px;gap:9px;}
+ body[data-page="arena"] .chaos-pixel-art{width:76px;height:76px;}
+ body[data-page="arena"] .chaos-pixel-art svg{width:70px;height:70px;}
+ body[data-page="arena"] .chaos-event-label{font-size:8px}
+ body[data-page="arena"] .chaos-event-name{font-size:9px;min-height:40px;}
+ body[data-page="arena"] .chaos-event-desc{font-size:15px;}
+ body[data-page="arena"] .chaos-event-impact{font-size:10px}
+ body[data-page="arena"] .chaos-vote-count{font-size:7px}
+ body[data-page="arena"] .chaos-system-status{font-size:7px}
+ body[data-page="arena"] .chaos-foot{font-size:7px}
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-page="arena"] .chaos-event{transition:none}
+}
