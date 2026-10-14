@@ -23,22 +23,6 @@ export async function initWorldReturn({sb,nickname}) {
   const {data,error}=await sb.rpc("iid_return_digest",{p_mode:mode});
   if(error)throw error;return data;
  }
- function buildShare(data) {
-   const href=new URL("./index.html",location.href).href;
-   const net=Number(data.net_hp||0);
-   const headline=net<0?"THE INTERNET GOT WORSE WHILE I WAS GONE."
-     :net>0?"THE INTERNET IS FIGHTING BACK.":"THE INTERNET IS HOLDING ITS BREATH.";
-   return [
-     "THE INTERNET IS DYING_",
-     headline,
-     "SAVE +"+fmt(data.heal_hp)+" HP | KILL −"+fmt(data.kill_hp)+" HP",
-     "WORLD DECAY −"+fmt(data.decay_hp)+" HP | DAILY CHAOS "+signed(data.chaos_hp)+" HP",
-     "WORLD NET "+signed(net)+" HP",
-     "CURRENT WORLD "+fmt(data.world_hp)+" / 1,000,000 HP",
-     "Will you SAVE it or KILL it?",
-     href
-   ].join("\n");
- }
  function render(data) {
   report=data;
   text("world-return-name",nickname||"PLAYER");
@@ -79,13 +63,88 @@ export async function initWorldReturn({sb,nickname}) {
   finally{busy=false;}
  }
  const btn=$("world-return-share");
- btn.addEventListener("click",()=>{
-  if(!report||btn.disabled)return;
-  const text=buildShare(report);
-  // WhatsApp deep link: share a text-first verified world report, with no
-  // fabricated player counts or images.
-  const url="https://wa.me/?text="+encodeURIComponent(text);
-  window.open(url,"_blank","noopener,noreferrer");
+ const modal=$("share-card-modal");
+ const preview=$("share-card-preview");
+ const feedback=$("share-card-feedback");
+ const native=$("share-card-native");
+ const download=$("share-card-download");
+ const whatsapp=$("share-card-whatsapp");
+ let shareFile=null,shareData=null,shareUrl=null,shareLib=null,preparing=false;
+ const clearShare=()=>{
+  if(shareUrl){URL.revokeObjectURL(shareUrl);shareUrl=null;}
+  shareFile=null;shareData=null;
+ };
+ const closeShare=()=>{
+  modal.hidden=true;clearShare();btn.focus();
+ };
+ $("share-card-close").addEventListener("click",closeShare);
+ modal.addEventListener("click",e=>{if(e.target===modal)closeShare();});
+ document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"&&!modal.hidden)closeShare();
+ });
+ async function prepareCard(){
+  if(preparing||!report||btn.disabled)return;
+  preparing=true;btn.disabled=true;
+  message("FETCHING CURRENT SERVER SNAPSHOT…");
+  try{
+   // A fresh RPC is mandatory: never reuse the cached 'While You Were Gone'
+   // panel values or a previous PNG for a newly requested share.
+   const {data,error}=await sb.rpc("iid_share_snapshot");
+   if(error)throw error;
+   shareLib??=await import("./breaking-share-card.js?v=1");
+   shareLib.validateSnapshot(data);
+   const png=await shareLib.renderBreakingCard(data);
+   if(png.type!=="image/png")throw Error("PNG unavailable");
+   clearShare();
+   shareData=data;
+   shareFile=new File([png],shareLib.filenameFor(data),{type:"image/png"});
+   shareUrl=URL.createObjectURL(shareFile);
+   preview.src=shareUrl;
+   preview.alt="BREAKING INTERNET pixel card, "+shareLib.headlineFor(data).join(" ")+
+    ". World health "+shareLib.worldStage(data.world_hp)+
+    ". Verified snapshot "+data.snapshot_at+".";
+   feedback.textContent="LIVE DATA CAPTURED • "+new Date(data.snapshot_at).toLocaleString();
+   native.hidden=!(typeof navigator.share==="function"&&
+     typeof navigator.canShare==="function"&&
+     navigator.canShare({files:[shareFile]}));
+   $("share-card-tip").textContent=native.hidden
+     ?"SAVE PNG, then attach it in WhatsApp. WHATSAPP LINK sends only the game link."
+     :"SHARE IMAGE opens your device's share menu. Choose WhatsApp to attach the PNG.";
+   modal.hidden=false;
+   $("share-card-close").focus();
+   message("PIXEL SHARE CARD READY • SERVER VERIFIED");
+  }catch(e){
+   clearShare();
+   message("SHARE CARD UNAVAILABLE • RETRY");
+   console.warn("Share snapshot or image failed:",e);
+  }finally{preparing=false;btn.disabled=false;}
+ }
+ btn.addEventListener("click",()=>{void prepareCard();});
+ native.addEventListener("click",()=>{
+  if(!shareFile||!shareData||!shareLib||typeof navigator.share!=="function")return;
+  // MUST invoke navigator.share synchronously from this user tap.
+  const details={files:[shareFile],title:"BREAKING INTERNET",
+   text:shareLib.shareCaption(shareData)};
+  navigator.share(details).then(()=>{
+   feedback.textContent="SHARE SHEET COMPLETED";
+  }).catch(e=>{
+   feedback.textContent=e?.name==="AbortError"?"SHARE CANCELED":
+     "SHARING UNAVAILABLE. USE SAVE PNG BELOW.";
+  });
+ });
+ download.addEventListener("click",()=>{
+  if(!shareFile||!shareUrl)return;
+  const a=document.createElement("a");
+  a.href=shareUrl;a.download=shareFile.name;
+  document.body.append(a);a.click();a.remove();
+  feedback.textContent="PNG READY • ATTACH IT IN WHATSAPP";
+ });
+ whatsapp.addEventListener("click",()=>{
+  if(!shareData||!shareLib)return;
+  // wa.me supports a message and URL, NOT a binary image attachment.
+  window.open("https://wa.me/?text="+encodeURIComponent(shareLib.shareCaption(shareData)),
+   "_blank","noopener,noreferrer");
+  feedback.textContent="LINK ONLY. ATTACH YOUR SAVED PNG IN WHATSAPP.";
  });
  const close=$("world-return-dismiss");
  close.addEventListener("click",()=>{root.hidden=true;});
@@ -102,7 +161,7 @@ export async function initWorldReturn({sb,nickname}) {
  };
  document.addEventListener("visibilitychange",onVisibility);
  window.addEventListener("pagehide",()=>{
-  disposed=true;clearInterval(interval);
+  disposed=true;clearShare();clearInterval(interval);
   document.removeEventListener("visibilitychange",onVisibility);
  },{once:true});
 }
