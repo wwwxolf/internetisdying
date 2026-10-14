@@ -10,10 +10,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
-  <link href="./styles.css?v=4" rel="stylesheet"/>
+  <link href="./styles.css?v=5" rel="stylesheet"/>
   <script src="./config.js?v=5"></script>
   
   <script type="module" src="./flow.js?v=6"></script>
+  <script type="module" src="./global-pulses.js?v=1"></script>
 </head>
 <body>
   <div class="preview-bar" role="note">DESIGN DEMO • NO LIVE HP, REAL ACCOUNTS, OR PAYMENTS</div>
@@ -46,13 +47,19 @@
         </div>
 
         <div class="prompt"><h2 id="story-title">THE INTERNET IS HALF DEAD.</h2><p>Will you save it — or finish it?</p></div>
-        <div class="choices" aria-label="HEAL and KILL available after registration">
-          <div class="choice heal preview-only"><span class="choice-title"><span class="icon-square" aria-hidden="true">♥</span> HEAL</span><span class="choice-caption">KEEP IT ALIVE</span></div>
+        <div class="choices" aria-label="SAVE and KILL available after registration">
+          <div class="choice heal preview-only"><span class="choice-title"><span class="icon-square" aria-hidden="true">♥</span> SAVE</span><span class="choice-caption">KEEP IT ALIVE</span></div>
           <div class="choice kill preview-only"><span class="choice-title"><span class="icon-square" aria-hidden="true">☠</span> KILL</span><span class="choice-caption">FINISH THE JOB</span></div>
         </div>
         <button type="button" class="cta" id="join-btn">JOIN THE CHAOS →</button>
         <p class="mini" id="landing-status" role="status" aria-live="polite"></p>
         <p class="hero-note">JOIN FIRST. CREATE YOUR IDENTITY. THEN PICK A SIDE.</p>
+        <section class="global-pulses" aria-labelledby="global-pulses-title">
+          <h2 id="global-pulses-title">◈ GLOBAL PULSES_</h2>
+          <strong class="global-pulses-total" id="global-pulses-total" aria-live="polite" aria-atomic="true">—</strong>
+          <p class="global-pulses-tagline">EVERY PULSE COUNTS.</p>
+          <p class="global-pulses-status" id="global-pulses-status" role="status">CONNECTING TO WORLD LEDGER...</p>
+        </section>
       </section>
 
       <section class="below" aria-label="Countdown and Hall of Fame preview">
@@ -75,7 +82,7 @@
         <h2 id="how-title">HOW TO PLAY_</h2>
         <div class="steps">
           <article class="step"><div class="step-id">01 / EXIST</div><h4>CHOOSE YOUR ORIGIN</h4><p>Human, Bot, Alien, or Glitch. Create your nickname.</p></article>
-          <article class="step"><div class="step-id">02 / DECIDE</div><h4>HEAL OR KILL</h4><p>Choose a side. Then reveal your random power.</p></article>
+          <article class="step"><div class="step-id">02 / DECIDE</div><h4>SAVE OR KILL</h4><p>Choose a side. Then reveal your random power.</p></article>
           <article class="step"><div class="step-id">03 / BECOME LEGEND</div><h4>MAKE HISTORY</h4><p>One day, join the global Hall of Fame.</p></article>
         </div>
       </section>
