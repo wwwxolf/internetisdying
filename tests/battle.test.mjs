@@ -413,3 +413,30 @@ test('Breaking Internet share snapshot reads current settled ledgers without adv
  await assert.rejects(share(),/permission denied/);
  await login();
 });
+
+
+test('Share links publish live snapshots, are immutable, and reveal no private account data',async()=>{
+ await fresh();
+ await admin("truncate public.iid_share_cards,public.iid_player_presence cascade");
+ const publish=async()=>(await db.query('select public.iid_publish_share_card() as data')).rows[0].data;
+ const publicRead=async id=>(await db.query('select public.iid_public_share_card($1::uuid) as data',[id])).rows[0].data;
+ await assert.rejects(publish(),/RETURN_REPORT_NOT_READY/);
+ await presence();
+ const first=await publish();
+ assert.match(first.id,/^[a-f0-9-]{36}$/);
+ assert.equal(first.snapshot.world_hp,500000);
+ assert.equal(first.snapshot.net_hp,0);
+ assert.equal((await publicRead(first.id)).world_hp,500000);
+ await admin("update public.iid_world set hp=500180,version=1");
+ const next=await publish();
+ assert.notEqual(next.id,first.id);
+ assert.equal(next.snapshot.world_hp,500180);
+ assert.equal((await publicRead(first.id)).world_hp,500000,'already-shared preview must stay immutable');
+ assert.equal((await publicRead(next.id)).world_hp,500180);
+ assert.deepEqual(Object.keys(await publicRead(first.id)).includes("email"),false);
+ await login({},'anon');
+ assert.equal((await publicRead(first.id)).world_hp,500000);
+ await assert.rejects(publish(),/permission denied/);
+ await assert.rejects(db.query('select * from public.iid_share_cards'),/permission denied/);
+ await login();
+});
