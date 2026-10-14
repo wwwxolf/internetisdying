@@ -4,7 +4,7 @@
 create function public.iid_global_pulses() returns jsonb
 language sql stable security definer set search_path = '' as $$
   select pg_catalog.jsonb_build_object(
-    'total_pulses',pg_catalog.coalesce(pg_catalog.sum(b.counted_taps),0)::bigint,
+    'total_pulses',coalesce(pg_catalog.sum(b.counted_taps),0)::bigint,
     'settled_battles',pg_catalog.count(*)::bigint,
     'world_active',(select w.enabled from public.iid_world w where w.id=1)
   )
