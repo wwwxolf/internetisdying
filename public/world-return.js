@@ -67,14 +67,12 @@ export async function initWorldReturn({sb,nickname}) {
  const modal=$("share-card-modal");
  const preview=$("share-card-preview");
  const feedback=$("share-card-feedback");
- const native=$("share-card-native");
  const download=$("share-card-download");
  const whatsapp=$("share-card-whatsapp");
- const copyInvite=$("share-card-copy");
- let shareFile=null,shareData=null,shareUrl=null,shareLib=null,preparing=false;
+ let shareFile=null,shareData=null,shareLink=null,shareUrl=null,shareLib=null,preparing=false;
  const clearShare=()=>{
   if(shareUrl){URL.revokeObjectURL(shareUrl);shareUrl=null;}
-  shareFile=null;shareData=null;
+  shareFile=null;shareData=null;shareLink=null;
  };
  const closeShare=()=>{
   modal.hidden=true;clearShare();btn.focus();
@@ -91,27 +89,28 @@ export async function initWorldReturn({sb,nickname}) {
   try{
    // A fresh RPC is mandatory: never reuse the cached 'While You Were Gone'
    // panel values or a previous PNG for a newly requested share.
-   const {data,error}=await sb.rpc("iid_share_snapshot");
+   const {data,error}=await sb.rpc("iid_publish_share_card");
    if(error)throw error;
-   shareLib??=await import("./breaking-share-card.js?v=2");
-   shareLib.validateSnapshot(data);
-   const png=await shareLib.renderBreakingCard(data);
+   if(!data||!data.id||!data.snapshot)throw Error("Share link unavailable");
+   const snapshot=data.snapshot;
+   const id=String(data.id);
+   if(!/^[a-f0-9-]{36}$/i.test(id))throw Error("Unexpected share ID");
+   shareLib??=await import("./breaking-share-card.js?v=3");
+   shareLib.validateSnapshot(snapshot);
+   const png=await shareLib.renderBreakingCard(snapshot);
    if(png.type!=="image/png")throw Error("PNG unavailable");
    clearShare();
-   shareData=data;
-   shareFile=new File([png],shareLib.filenameFor(data),{type:"image/png"});
+   shareData=snapshot;
+   shareLink="https://internetisdying.wwwxolf.workers.dev/share/"+id;
+   shareFile=new File([png],shareLib.filenameFor(snapshot),{type:"image/png"});
    shareUrl=URL.createObjectURL(shareFile);
    preview.src=shareUrl;
-   preview.alt="BREAKING INTERNET pixel card, "+shareLib.headlineFor(data).join(" ")+
-    ". World health "+shareLib.worldStage(data.world_hp)+
-    ". Verified snapshot "+data.snapshot_at+".";
-   feedback.textContent="LIVE DATA CAPTURED • "+new Date(data.snapshot_at).toLocaleString();
-   native.hidden=!(typeof navigator.share==="function"&&
-     typeof navigator.canShare==="function"&&
-     navigator.canShare({files:[shareFile]}));
-   $("share-card-tip").textContent=native.hidden
-     ?"SAVE PNG, then attach it in WhatsApp. WHATSAPP LINK sends only the game link."
-     :"SHARE IMAGE opens your device's share menu. Choose WhatsApp to attach the PNG.";
+   preview.alt="BREAKING INTERNET pixel card, "+shareLib.headlineFor(snapshot).join(" ")+
+    ". World health "+shareLib.worldStage(snapshot.world_hp)+
+    ". Verified snapshot "+snapshot.snapshot_at+".";
+   feedback.textContent="LIVE DATA CAPTURED • "+new Date(snapshot.snapshot_at).toLocaleString();
+   $("share-card-tip").textContent=
+     "SHARE TO WHATSAPP sends the short invite and an immutable pixel preview link. SAVE PNG is optional.";
    modal.hidden=false;
    $("share-card-close").focus();
    message("PIXEL SHARE CARD READY • SERVER VERIFIED");
@@ -122,18 +121,6 @@ export async function initWorldReturn({sb,nickname}) {
   }finally{preparing=false;btn.disabled=false;}
  }
  btn.addEventListener("click",()=>{void prepareCard();});
- native.addEventListener("click",()=>{
-  if(!shareFile||!shareData||!shareLib||typeof navigator.share!=="function")return;
-  // MUST invoke navigator.share synchronously from this user tap.
-  const details={files:[shareFile],title:"BREAKING INTERNET",
-   text:shareLib.shareCaption(shareData)};
-  navigator.share(details).then(()=>{
-   feedback.textContent="SHARE SHEET COMPLETED";
-  }).catch(e=>{
-   feedback.textContent=e?.name==="AbortError"?"SHARE CANCELED":
-     "SHARING UNAVAILABLE. USE SAVE PNG BELOW.";
-  });
- });
  download.addEventListener("click",()=>{
   if(!shareFile||!shareUrl)return;
   const a=document.createElement("a");
@@ -141,22 +128,12 @@ export async function initWorldReturn({sb,nickname}) {
   document.body.append(a);a.click();a.remove();
   feedback.textContent="PNG READY • ATTACH IT IN WHATSAPP";
  });
- copyInvite.addEventListener("click",async()=>{
-  if(!shareData||!shareLib)return;
-  const invite=shareLib.shareCaption(shareData);
-  try{
-   await navigator.clipboard.writeText(invite);
-   feedback.textContent="INVITE + WEBSITE LINK COPIED • PASTE IN WHATSAPP";
-  }catch{
-   feedback.textContent="COPY NOT AVAILABLE • USE WHATSAPP LINK BELOW";
-  }
- });
  whatsapp.addEventListener("click",()=>{
-  if(!shareData||!shareLib)return;
-  // wa.me supports a message and URL, NOT a binary image attachment.
-  window.open("https://wa.me/?text="+encodeURIComponent(shareLib.shareCaption(shareData)),
+  if(!shareData||!shareLib||!shareLink)return;
+  // Link previews contain OG image, supplied by Cloudflare Worker.
+  window.open("https://wa.me/?text="+encodeURIComponent(shareLib.shareCaption(shareData,shareLink)),
    "_blank","noopener,noreferrer");
-  feedback.textContent="LINK ONLY. ATTACH YOUR SAVED PNG IN WHATSAPP.";
+  feedback.textContent="WHATSAPP LINK SENT • PIXEL PREVIEW IS GENERATED FROM THIS SNAPSHOT";
  });
  const close=$("world-return-dismiss");
  close.addEventListener("click",()=>{root.hidden=true;});

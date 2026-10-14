@@ -155,11 +155,11 @@ export async function renderBreakingCard(data){
 export function filenameFor(data){
  return "breaking-internet-"+new Date(data.snapshot_at).toISOString().replace(/[:.]/g,"-")+".png";
 }
-export function shareCaption(data){
+export function shareCaption(data,inviteUrl=GAME_URL){
  validateSnapshot(data);
  // One short global invite across native image shares, WA links and copy fallback.
  // The PNG already shows the current world stats; avoid repeating them here.
  return "🚨 THE INTERNET IS DYING.\n\n"+
    "Will you SAVE it or KILL it? 💀\n\n"+
-   "🌐 JOIN THE CHAOS:\n"+GAME_URL;
+   "🌐 JOIN THE CHAOS:\n"+inviteUrl;
 }
