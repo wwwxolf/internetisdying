@@ -1,7 +1,6 @@
-// Public browser configuration. This file MUST contain only publishable values.
-// Set these after creating a dedicated Supabase project for THE INTERNET IS DYING.
-// Do NOT put service_role keys, database passwords, or OAuth client secrets here.
+// Public Supabase configuration (publishable key ONLY; NEVER add secrets).
+// Google OAuth and Auth redirect URLs still require owner setup in dashboard.
 window.IID_CONFIG = Object.freeze({
-  supabaseUrl: "",
-  supabasePublishableKey: ""
+  supabaseUrl: "https://wywrahaqpocueddxmjjq.supabase.co",
+  supabasePublishableKey: "sb_publishable_F8_CrtwDngDwWJ_Pda8oUw_-vMMOlYh"
 });
