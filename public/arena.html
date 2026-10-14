@@ -14,10 +14,10 @@
   <link rel="stylesheet" href="./arena.css?v=6"/>
   <link rel="stylesheet" href="./tap-battle.css?v=1"/>
   <link rel="stylesheet" href="./daily-chaos.css?v=2"/>
-  <link rel="stylesheet" href="./world-return.css?v=3"/>
+  <link rel="stylesheet" href="./world-return.css?v=4"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./flow.js?v=17"></script>
+  <script type="module" src="./flow.js?v=18"></script>
 </head>
 <body data-page="arena" data-battle-mode="global">
   <div class="preview-bar" role="note">GLOBAL BATTLE ENGINE • CONTROLLED ROLLOUT</div>
@@ -58,13 +58,11 @@
             <p class="share-card-explanation">SERVER SNAPSHOT • STATIC PIXEL ART + VERIFIED LIVE DATA</p>
             <img id="share-card-preview" class="share-card-preview" alt="Breaking Internet pixel-art world report ready for sharing"/>
             <p class="share-card-feedback" id="share-card-feedback" role="status" aria-live="polite"></p>
-            <div class="share-card-actions">
-              <button type="button" id="share-card-native" class="share-card-native" hidden>SHARE IMAGE ↗</button>
+            <div class="share-card-actions share-card-actions-simple">
+              <button type="button" id="share-card-whatsapp" class="share-card-whatsapp">SHARE TO WHATSAPP ↗</button>
               <button type="button" id="share-card-download" class="share-card-download">SAVE PNG ↓</button>
-              <button type="button" id="share-card-whatsapp" class="share-card-whatsapp">WHATSAPP LINK ↗</button>
-              <button type="button" id="share-card-copy" class="share-card-copy">COPY INVITE + LINK</button>
             </div>
-            <p class="share-card-tip" id="share-card-tip">If WhatsApp omits the caption, use COPY INVITE + LINK and paste it into the chat.</p>
+            <p class="share-card-tip" id="share-card-tip">WhatsApp receives a short invitation and a unique link with a dynamic pixel preview. SAVE PNG is optional.</p>
           </div>
         </section>
 
