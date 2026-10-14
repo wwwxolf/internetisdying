@@ -1,0 +1,159 @@
+/* V5.1 mobile-first Chaos Tap Battle. Scope isolated to Arena. */
+body[data-page="arena"] .tap-battle{
+  margin:14px 0 16px;
+  padding:18px 16px;
+  border:3px solid #576a82;
+  background:linear-gradient(180deg,#19293b 0%,#0e1826 100%);
+  box-shadow:6px 6px 0 #03070e;
+  text-align:center;
+  --tap-accent:#72dfa6;
+}
+body[data-page="arena"] .tap-battle[data-side="kill"]{--tap-accent:#ff657d}
+body[data-page="arena"] .tap-topline{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:8px;padding-bottom:13px;
+  border-bottom:1px solid #425369;
+}
+body[data-page="arena"] .tap-heading{
+  font:10px/1.7 "Press Start 2P",monospace;
+  color:#f3f4ec;
+}
+body[data-page="arena"] .tap-side-label{
+  border:2px solid var(--tap-accent);
+  color:var(--tap-accent);
+  padding:7px 8px;
+  font:9px/1.5 "Press Start 2P",monospace;
+}
+body[data-page="arena"] .tap-instruction{
+  margin:14px auto;
+  color:#b4c4dc;
+  font:9px/1.9 "Press Start 2P",monospace;
+}
+body[data-page="arena"] .tap-stats{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;margin:0 0 14px;
+}
+body[data-page="arena"] .tap-stat{
+  border:2px solid #3b4c62;
+  background:#0d1725;
+  padding:12px 5px 10px;
+  display:flex;flex-direction:column;align-items:center;gap:9px;
+  min-width:0;
+}
+body[data-page="arena"] .tap-stat > span{
+  font:8px/1.5 "Press Start 2P",monospace;
+  color:#a9bbd2;
+}
+body[data-page="arena"] .tap-stat > strong{
+  font:clamp(11px,2.5vw,19px)/1.6 "Press Start 2P",monospace;
+  color:var(--tap-accent);
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+body[data-page="arena"] .tap-stat > small{font-size:13px;color:#9baabe}
+body[data-page="arena"] .tap-charge-track{
+  height:19px;
+  padding:3px;
+  border:2px solid #586b81;
+  background:#060c15;
+  margin:0 0 14px;
+}
+body[data-page="arena"] .tap-charge-fill{
+  height:100%;width:0%;
+  background:repeating-linear-gradient(90deg,var(--tap-accent) 0 12px,transparent 12px 15px);
+  transition:width .07s steps(2,end);
+}
+body[data-page="arena"] .tap-countdown{
+  display:grid;place-items:center;
+  min-height:225px;
+  color:#fff7f1;
+  font:clamp(60px,13vw,105px)/1.1 "Press Start 2P",monospace;
+  text-shadow:7px 7px 0 #b33956;
+  animation:tap-count-beat .65s steps(2,end) infinite;
+}
+@keyframes tap-count-beat{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.075)}
+}
+body[data-page="arena"] .tap-target{
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-touch-callout:none;
+  user-select:none;
+  width:100%;
+  min-height:245px;
+  border:4px solid #07101a;
+  box-shadow:7px 7px 0 #03070c;
+  background:var(--tap-accent);
+  color:#0a181e;
+  padding:20px 12px;
+  cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+}
+body[data-page="arena"] .tap-target:active,
+body[data-page="arena"] .tap-target.tap-punch{
+  transform:translate(3px,3px) scale(.985);
+  box-shadow:3px 3px 0 #03070c;
+  filter:brightness(1.08);
+}
+body[data-page="arena"] .tap-target-mark{
+  border:5px solid currentColor;
+  width:71px;height:71px;
+  display:grid;place-items:center;
+  font:45px/1 "Press Start 2P",monospace;
+}
+body[data-page="arena"] .tap-battle[data-side="kill"] .tap-target-mark{border-radius:0;transform:rotate(7deg)}
+body[data-page="arena"] .tap-battle[data-side="kill"] .tap-target-mark:after{content:"";width:6px;height:6px;background:#0a181e;position:absolute;bottom:5px}
+body[data-page="arena"] .tap-target strong{
+  font:clamp(16px,3.4vw,23px)/1.8 "Press Start 2P",monospace;
+}
+body[data-page="arena"] .tap-target > span:last-child{
+  font:9px/1.6 "Press Start 2P",monospace;
+}
+body[data-page="arena"] .tap-combo{
+  min-height:34px;
+  margin:15px 0 5px;
+  color:var(--tap-accent);
+  font:12px/1.9 "Press Start 2P",monospace;
+}
+body[data-page="arena"] .tap-safety{
+  max-width:550px;
+  margin:8px auto 0;
+  font:8px/1.9 "Press Start 2P",monospace;
+  color:#b9c4d5;
+}
+body[data-page="arena"] .tap-disclaimer{font-size:7px;color:#e2abac}
+body[data-page="arena"] .arena-choice:disabled{
+  cursor:not-allowed;
+  filter:grayscale(.25);
+  opacity:.62;
+}
+@media(max-width:640px){
+ body[data-page="arena"] .tap-battle{padding:13px 10px}
+ body[data-page="arena"] .tap-heading{font-size:8px}
+ body[data-page="arena"] .tap-side-label{font-size:8px}
+ body[data-page="arena"] .tap-instruction{font-size:7px}
+ body[data-page="arena"] .tap-stats{gap:5px}
+ body[data-page="arena"] .tap-stat{gap:7px;padding:10px 2px}
+ body[data-page="arena"] .tap-stat > span{font-size:7px}
+ body[data-page="arena"] .tap-stat > strong{font-size:11px}
+ body[data-page="arena"] .tap-stat > small{font-size:11px}
+ body[data-page="arena"] .tap-countdown{min-height:195px;font-size:70px}
+ body[data-page="arena"] .tap-target{min-height:235px;padding:20px 8px}
+ body[data-page="arena"] .tap-target strong{font-size:15px}
+ body[data-page="arena"] .tap-target-mark{width:60px;height:60px;font-size:34px}
+ body[data-page="arena"] .tap-combo{font-size:10px}
+ body[data-page="arena"] .tap-safety{font-size:7px}
+ body[data-page="arena"] .tap-disclaimer{font-size:6px}
+}
+@media(max-width:365px){
+ body[data-page="arena"] .tap-stat > span{font-size:6px}
+ body[data-page="arena"] .tap-stat > strong{font-size:10px}
+ body[data-page="arena"] .tap-instruction{font-size:6px}
+ body[data-page="arena"] .tap-target strong{font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-page="arena"] .tap-countdown{animation:none}
+ body[data-page="arena"] .tap-target.tap-punch{transform:none}
+ body[data-page="arena"] .tap-charge-fill{transition:none}
+}
