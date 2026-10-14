@@ -38,6 +38,26 @@ export async function initGlobalBattle({sb}) {
     $('arena-fill').style.width=(w.hp/10000)+'%';
     $('arena-progress').setAttribute('aria-valuenow',String(w.hp/10000));
     $('arena-percent').textContent=(w.hp/10000).toFixed(1)+'% LIFE REMAINING';
+    $('save-impact-caption').textContent=economy.enabled?'+ WAR INFLUENCE':'+ RANDOM HP';
+    $('kill-impact-caption').textContent=economy.enabled?'− WAR INFLUENCE':'− RANDOM HP';
+    $('v2-war').hidden=!economy.enabled;
+    if(economy.enabled){
+      const save=Math.max(0,Number(economy.save_influence)||0);
+      const kill=Math.max(0,Number(economy.kill_influence)||0);
+      const total=save+kill;
+      const savePct=total?100*save/total:50;
+      $('v2-save-influence').textContent=fmt(save);
+      $('v2-kill-influence').textContent=fmt(kill);
+      $('v2-war-save-fill').style.width=savePct+'%';
+      $('v2-war-kill-fill').style.width=(100-savePct)+'%';
+      const until=Math.max(0,Math.ceil((Date.parse(economy.window_start)+4*3600000-now())/60000));
+      $('v2-war-status').textContent=(total?'PROVISIONAL INFLUENCE':'AWAITING FIRST V2 BATTLE')+
+        ' • WINDOW CLOSES IN '+until+' MIN • '+fmt(economy.battle_count)+' VERIFIED BATTLES';
+      const latest=economy.latest_window;
+      $('v2-war-latest').textContent=latest
+        ?'LAST CLOSED WAR: '+(latest.applied_hp>0?'+':'')+fmt(latest.applied_hp)+' VERIFIED WORLD HP'
+        :'FIRST WORLD WINDOW RESULT PENDING • LIVE HP IS NOT A FORECAST';
+    }
     const stage=w.hp===0?'DEAD':w.hp<=250000?'NEAR DEATH':w.hp<=500000?'CRITICAL':w.hp<=750000?'STABLE':'RECOVERING';
     $('arena-status').textContent='● '+stage;
     $('heart-zone').dataset.stage=w.hp===0?'dead':w.hp<=250000?'danger':'critical';
