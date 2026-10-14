@@ -53,6 +53,7 @@ test('Google identity, valid session and profile enforced on server',async()=>{
 test('anonymous callers cannot invoke mutations or read history',async()=>{
   await login({},'anon');await assert.rejects(start(),/permission denied/);
   await assert.rejects(db.query('select * from public.iid_battles'),/permission denied/);
+  await assert.rejects(rpc('tap_batch',['00000000-0000-0000-0000-000000000000',1],['uuid','integer']),/permission denied/);
   assert.equal((await db.query('select hp from public.iid_world')).rows[0].hp,500000);await login();
 });
 test('start is idempotent; separate request or opposite side resumes same pending battle',async()=>{
@@ -106,6 +107,32 @@ test('pause prevents new battles but existing sessions can settle',async()=>{
   await fresh();const b=await start();await expire(b.id);await admin('update public.iid_world set enabled=false');
   await settle(b.id);assert.equal((await rpc('status')).monthly.battle_count,1);
 });
+test('batched taps are idempotent, capped, paced and tied to server timestamps',async()=>{
+  await fresh();
+  const b=await start('HEAL');
+  await admin(`update public.iid_battles
+    set created_at=clock_timestamp()-interval '6 seconds',
+        starts_at=clock_timestamp()-interval '3 seconds',
+        ends_at=clock_timestamp()+interval '17 seconds'
+    where id='${b.id}'`);
+  const batch=(n)=>rpc('tap_batch',[b.id,n],['uuid','integer']);
+  assert.equal((await batch(8)).counted_taps,8);
+  assert.equal((await batch(8)).counted_taps,8);
+  await assert.rejects(batch(19),/BATCH_TOO_LARGE/); // delta 11
+  await assert.rejects(batch(9),/TAP_TOO_FAST/); // no time to earn another tap
+  await assert.rejects(batch(0),/INVALID_TAP_TOTAL/);
+  await assert.rejects(batch(51),/INVALID_TAP_TOTAL/);
+  await admin(`update public.iid_battles set last_tap_at=clock_timestamp()-interval '2 seconds' where id='${b.id}'`);
+  assert.equal((await batch(18)).counted_taps,18);
+  assert.equal((await batch(8)).counted_taps,18); // stale delayed ack
+  await expire(b.id);
+  await assert.rejects(batch(19),/TAP_WINDOW_CLOSED/);
+  const r=await settle(b.id);
+  assert.equal(r.counted_taps,18);
+  assert.equal(r.bonus,2); // verified 18, not locally claimed 50
+  assert.equal((await batch(18)).counted_taps,18);
+});
+
 test('rolling 24-hour cap independently rejects a seventh settlement opportunity',async()=>{
   await fresh();const b=await start();await expire(b.id);await settle(b.id);
   await admin(`update public.iid_battles set created_at=clock_timestamp()-interval '6 hours',starts_at=clock_timestamp()-interval '6 hours'+interval '3 seconds',ends_at=clock_timestamp()-interval '6 hours'+interval '23 seconds',settled_at=clock_timestamp()-interval '5 hours';
