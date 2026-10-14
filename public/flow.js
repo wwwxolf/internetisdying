@@ -49,7 +49,14 @@ if(page==="auth"){
  controls.hidden=false;
  if(!sb){
   $("google-login").disabled=true;$("email-send").disabled=true;
-  show("REGISTRATION IS NOT ACTIVE YET. A dedicated Supabase project is required. No emails are being collected.","warning");return;
+  show("Authentication library unavailable. Sign-in is not active.","warning");return;
+ }
+ const googleReady=conf.googleAuthReady===true;
+ const emailReady=conf.emailAuthReady===true;
+ $("google-login").disabled=!googleReady;
+ $("email-send").disabled=!emailReady;
+ if(!googleReady&&!emailReady){
+  show("DATABASE CONNECTED. SIGN-IN NOT READY: configure Auth redirect URLs, production email delivery and Google OAuth, then enable providers. No emails are being collected yet.","warning");return;
  }
  try{const u=await user();if(u){await route(u);return;}show("Sign in with Google or email.");}
  catch(e){show("Sign-in setup error: "+e.message,"error");}
