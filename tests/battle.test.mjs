@@ -278,3 +278,74 @@ test('Hybrid Vote Power server status exposes projection but cannot bypass pause
  assert.equal(st.projected_impact_hp,0);
  await assert.rejects(crpc('vote',['recovery'],['text']),/CHAOS_PAUSED/);
 });
+
+
+async function presence(mode='open'){
+ return (await db.query('select public.iid_return_digest($1::text) as result',[mode])).rows[0].result;
+}
+test('World Return first visit is truthful and creates no fictitious activity',async()=>{
+ await fresh();
+ await admin("truncate public.iid_player_presence,public.iid_decay_pulses,public.iid_chaos_votes,public.iid_chaos_results,public.iid_chaos_days,public.iid_battles cascade");
+ const first=await presence();
+ assert.equal(first.first_visit,true);
+ assert.equal(first.world_hp,500000);
+ assert.equal(first.net_hp,0);
+ assert.equal(first.heal_battles,0);
+ assert.equal(first.kill_battles,0);
+ assert.equal(first.decay_pulses,0);
+ assert.equal(first.chaos_events,0);
+ assert.equal(first.source,'SERVER_LEDGER');
+ await db.exec('reset role');
+ const activeBefore=(await db.query("select last_active_at from public.iid_player_presence where user_id=$1::uuid",[U])).rows[0].last_active_at;
+ await login();
+ const refresh=await presence();
+ assert.equal(refresh.replayed,true);
+ assert.equal(refresh.first_visit,true);
+ await db.exec('reset role');
+ const activeAfter=(await db.query("select last_active_at from public.iid_player_presence where user_id=$1::uuid",[U])).rows[0].last_active_at;
+ await login();
+ assert.equal(String(activeAfter),String(activeBefore),'refresh must not erase events from the cursor');
+});
+test('World Return sums actual HEAL, KILL, decay and event ledger independently',async()=>{
+ await fresh();
+ await admin("truncate public.iid_player_presence,public.iid_decay_pulses,public.iid_chaos_votes,public.iid_chaos_results,public.iid_chaos_days,public.iid_battles cascade");
+ await presence();
+ await admin("update public.iid_player_presence set last_active_at=clock_timestamp()-interval '5 hours',last_digest_at=clock_timestamp()-interval '10 minutes'");
+ // Insert fully settled synthetic game rows; the return digest must never
+ // infer action direction from applied_hp (all battle applied_hp are >= 0).
+ await admin("insert into public.iid_battles(id,user_id,request_id,nickname,action,created_at,starts_at,ends_at,counted_taps,settled_at,base,critical,bonus,power,hp_before,hp_after,applied_hp,world_version) values "+
+ " (gen_random_uuid(),'"+U+"',gen_random_uuid(),'PlayerOne','HEAL',statement_timestamp()-interval '2 hours',statement_timestamp()-interval '2 hours'+interval '3 seconds',statement_timestamp()-interval '2 hours'+interval '23 seconds',0,clock_timestamp()-interval '90 minutes',400,1,0,400,500000,500400,400,1),"+
+ " (gen_random_uuid(),'"+V+"',gen_random_uuid(),'PlayerTwo','KILL',statement_timestamp()-interval '2 hours',statement_timestamp()-interval '2 hours'+interval '3 seconds',statement_timestamp()-interval '2 hours'+interval '23 seconds',0,clock_timestamp()-interval '90 minutes',200,1,0,200,500400,500200,200,2)");
+ await admin("insert into public.iid_decay_pulses(slot_no,scheduled_at,rolled_hp,applied_hp,hp_after,world_version,settled_at) values (1,clock_timestamp()-interval '70 minutes',900,900,499300,3,clock_timestamp()-interval '60 minutes')");
+ await admin("insert into public.iid_chaos_days(day_utc,rotation_day,closed) values ((clock_timestamp() at time zone 'UTC')::date,1,true)");
+ await admin("insert into public.iid_chaos_results(day_utc,rotation_day,damage_votes,recovery_votes,winner,nominal_hp,applied_hp,hp_after,world_version,settled_at) values ((clock_timestamp() at time zone 'UTC')::date,1,20,100,'recovery',3872,3872,503172,4,clock_timestamp()-interval '30 minutes')");
+ await admin("update public.iid_world set hp=503172,version=4");
+ const r=await presence();
+ assert.equal(r.first_visit,false);
+ assert.equal(r.heal_battles,1);
+ assert.equal(r.kill_battles,1);
+ assert.equal(r.heal_hp,400);
+ assert.equal(r.kill_hp,200);
+ assert.equal(r.decay_hp,900);
+ assert.equal(r.chaos_hp,3872);
+ assert.equal(r.net_hp,3172);
+ assert.equal(r.world_hp,503172);
+ assert.equal(r.latest_event.title,'GLOBAL FIREWALL');
+ assert.equal(r.latest_event.applied_hp,3872);
+});
+test('World Return heartbeat, refresh replay and security boundaries',async()=>{
+ await fresh();
+ await admin("truncate public.iid_player_presence cascade");
+ const first=await presence();
+ const hb=await presence('heartbeat');
+ assert.equal(hb.heartbeat,true);
+ assert.equal(hb.net_hp,undefined);
+ const repeat=await presence();
+ assert.equal(repeat.replayed,true);
+ assert.equal(repeat.until,first.until);
+ await assert.rejects(presence('set-world-hp'),/INVALID_PRESENCE_MODE/);
+ await login({},'anon');
+ await assert.rejects(presence(),/permission denied/);
+ await assert.rejects(db.query('select * from public.iid_player_presence'),/permission denied/);
+ await login();
+});

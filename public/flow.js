@@ -165,6 +165,10 @@ if(page==="arena"){
   else {
    const {initGlobalBattle}=await import("./global-battle.js?v=2");
    await initGlobalBattle({sb});
+   // Verified return brief is independent from Tap Battle and NEXT CHAOS.
+   void import("./world-return.js?v=1")
+     .then(({initWorldReturn})=>initWorldReturn({sb,nickname:p.nickname}))
+     .catch(err=>console.warn("WORLD RETURN LOAD FAILED",err));
    // NEXT CHAOS reads server-only votes; failure never blocks the battle arena.
    void import("./daily-chaos.js?v=2").then(({initDailyChaos})=>initDailyChaos({sb})).catch(e=>show("DAILY CHAOS PREVIEW COULD NOT LOAD: "+e.message,"warning"));
   }
