@@ -34,40 +34,61 @@ a:hover{color:var(--ink)}
 .crack{opacity:0}
 .heart-zone[data-stage="dead"] .crack{opacity:1}
 
-/* LANDING HERO V3: a broken pixel internet core, not a heart.
- * SVG wraps an optimized 96px pixel PNG; image-rendering keeps hard edges.
- * The Arena deliberately retains its separate heart indicator. */
+/* LANDING HERO V4: only the red core pulses; globe itself stays still.
+ * Pixel sizes follow the 96x96 SVG sprite. Arena heart is unchanged. */
 .world-core-zone{min-height:174px;margin:0 auto 8px;overflow:visible;isolation:isolate}
+.world-core-visual{position:relative;width:160px;max-width:100%;aspect-ratio:1}
 .world-core-img{
-  display:block;width:160px;height:160px;max-width:100%;object-fit:contain;
+  display:block;width:100%;height:100%;object-fit:contain;
+  image-rendering:pixelated;filter:drop-shadow(0 0 5px #eb405044);
+}
+.world-core-signal{
+  position:absolute;left:52%;top:49%;
+  width:5px;height:5px;pointer-events:none;
+  background:#ff486c;
+  box-shadow:0 0 0 3px #ff486c70,0 0 0 7px #ff486c29;
   image-rendering:pixelated;
-  filter:drop-shadow(0 0 5px #eb405044);
-  transform-origin:50% 50%;
-  animation:internet-core-flicker 3.1s steps(2,end) infinite;
-  will-change:transform;
+  animation:internet-core-pulse 1.6s steps(3,end) infinite;
 }
-@keyframes internet-core-flicker{
-  0%,18%,23%,49%,55%,100%{transform:translateX(0) scale(1)}
-  20%{transform:translateX(2px) scale(1.025)}
-  52%{transform:translateX(-2px) scale(1.01)}
+@keyframes internet-core-pulse{
+  0%,100%{opacity:.45;box-shadow:0 0 0 1px #ff486c66,0 0 0 4px #ff486c11}
+  40%{opacity:1;box-shadow:0 0 0 3px #ff486c99,0 0 0 8px #ff486c33}
+  70%{opacity:.75;box-shadow:0 0 0 2px #ff486c77,0 0 0 6px #ff486c22}
 }
-.world-core-zone[data-stage="danger"] .world-core-img{
-  animation-duration:1.7s;
-  filter:drop-shadow(0 0 7px #ff657d77);
-}
-.world-core-zone[data-stage="dead"] .world-core-img{
-  animation:none;filter:grayscale(1) brightness(.65);
-}
+.world-core-zone[data-stage="danger"] .world-core-signal{animation-duration:.85s}
+.world-core-zone[data-stage="dead"] .world-core-img{filter:grayscale(1) brightness(.65)}
+.world-core-zone[data-stage="dead"] .world-core-signal{animation:none;opacity:0}
 @media(max-width:640px){
   .world-core-zone{min-height:150px;margin-bottom:7px}
-  .world-core-img{width:142px;height:142px}
+  .world-core-visual{width:142px}
 }
 @media(max-width:380px){
   .world-core-zone{min-height:140px}
-  .world-core-img{width:132px;height:132px}
+  .world-core-visual{width:132px}
 }
 @media(prefers-reduced-motion:reduce){
-  .world-core-img{animation:none!important;will-change:auto}
+  .world-core-signal{animation:none!important;box-shadow:0 0 0 2px #ff486c55}
+}
+
+/* LANDING HUD: only CRITICAL, a truthful 50%-filled bar, and DEMO label.
+ * The scan stays INSIDE the real filled pixels: it never creates fake HP. */
+.hero .hud-minimal{padding:12px 14px 11px}
+.hero .hud-minimal .hud-head,.hero .hud-minimal .hud-foot{justify-content:flex-end}
+.hero .hud-minimal .hp-track{margin:9px 0 8px}
+.hero .hud-minimal .hp-fill{position:relative;overflow:hidden}
+.hero .hud-minimal .hp-fill::after{
+  content:"";position:absolute;top:0;bottom:0;left:-22%;
+  width:20%;pointer-events:none;
+  background:linear-gradient(90deg,transparent 0 22%,#ffd1dbb0 22% 58%,transparent 58%);
+  animation:hp-segment-signal 3.4s steps(19,end) infinite;
+}
+@keyframes hp-segment-signal{
+  0%{left:-22%;opacity:0}
+  15%,80%{opacity:.8}
+  100%{left:101%;opacity:0}
+}
+@media(prefers-reduced-motion:reduce){
+  .hero .hud-minimal .hp-fill::after{animation:none!important;opacity:0}
 }
 
 .hud{max-width:650px;margin:0 auto;background:var(--panel);border:3px solid var(--line);padding:18px 17px;box-shadow:5px 5px #05080f;text-align:left;min-width:0}
