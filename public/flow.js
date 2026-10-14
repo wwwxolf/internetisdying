@@ -153,14 +153,19 @@ if(page==="arena"){
   const p=await profile(u.id);if(!p){next("./onboarding.html");return;}
   $("arena-content").hidden=false;
   $("arena-identity").textContent=p.origin+" / "+p.nickname;
-  show("SIGNED IN • HEAL/KILL BELOW ARE LOCAL DEMOS, NOT GLOBAL VOTES.","success");
+  const demoMode=document.body.dataset.battleMode==="demo";
+  show(demoMode?"LOCAL DEMO • NO GLOBAL VOTES":"CONNECTING TO GLOBAL BATTLE ENGINE…","success");
   $("signout").addEventListener("click",async()=>{
    $("signout").disabled=true;
    const {error}=await sb.auth.signOut();
    if(error){show("Sign-out error: "+error.message,"error");$("signout").disabled=false;}
    else next("./index.html");
   });
-  demo(u.id,p);
+  if(demoMode)demo(u.id,p);
+  else {
+   const {initGlobalBattle}=await import("./global-battle.js?v=2");
+   await initGlobalBattle({sb});
+  }
  }catch(e){show("Could not open Arena: "+e.message,"error");}
 }
 function demo(id,p){
