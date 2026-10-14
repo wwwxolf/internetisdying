@@ -215,6 +215,8 @@ test('Daily Chaos voting is one per verified user per UTC day, non-editable',asy
 test('World Decay is 800..1000 HP, idempotent per 3-hour slot and paused when disabled',async()=>{
  await fresh();
  await admin("delete from public.iid_decay_pulses; update public.iid_chaos_control set enabled=false,decay_anchor_at=clock_timestamp()-interval '3 hours 10 minutes'");
+ // The preceding RNG boundary test installs a deterministic random_int fixture.
+ await admin('insert into iid_private.test_rolls(value) values (50)');
  assert.match(String((await cronRpc('process_decay')).status),/PAUSED/);
  await admin('update public.iid_chaos_control set enabled=true');
  const first=await cronRpc('process_decay');
