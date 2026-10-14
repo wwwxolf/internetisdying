@@ -1,4 +1,4 @@
-import {evaluateWindows} from "./wib-battle-windows.js?v=1";
+import {evaluateWindows} from "./utc-battle-windows.js?v=1";
 // Browser renders server facts. It never sends HP, bonus, RNG or a tap total.
 export async function initGlobalBattle({sb}) {
   const $=id=>document.getElementById(id);
@@ -40,13 +40,13 @@ export async function initGlobalBattle({sb}) {
       icon.textContent=kind==='USED'?'✓':kind==='MISSED'?'—':kind==='ACTIVE'?'◆':'■';
       title.textContent=kind;
       tile.setAttribute('aria-label',item
-        ?'Window '+(i+1)+', '+item.start+' to '+item.end+' WIB: '+kind
+        ?'Window '+(i+1)+', '+item.start+' to '+item.end+' UTC: '+kind
         :'Window '+(i+1)+': server sync pending');
     }
     const allowed=slots.ready&&!slots.currentUsed;
     choices.forEach(b=>{b.disabled=!syncOk||busy||refreshBusy||!!battle||!w.enabled||!allowed;});
     $('arena-move-rule').textContent=!w.enabled?'GLOBAL BATTLES PAUSED':
-      !syncOk||!slots.ready?'SYNCING WIB BATTLE WINDOWS...':
+      !syncOk||!slots.ready?'SYNCING UTC BATTLE WINDOWS...':
       slots.currentUsed?'SLOT USED · NEXT WINDOW IN '+slots.minutesLeft+' MIN':
       'CURRENT WINDOW · '+slots.minutesLeft+' MIN LEFT';
     $('arena-decision').hidden=!!battle;
