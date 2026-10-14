@@ -163,7 +163,7 @@ if(page==="arena"){
   });
   if(demoMode)demo(u.id,p);
   else {
-   const {initGlobalBattle}=await import("./global-battle.js?v=2");
+   const {initGlobalBattle}=await import("./global-battle.js?v=3");
    await initGlobalBattle({sb});
    // Verified return brief is independent from Tap Battle and NEXT CHAOS.
    void import("./world-return.js?v=1")
@@ -176,7 +176,7 @@ if(page==="arena"){
 }
 function demo(id,p){
  // UI-only V5.1 mini-game; authenticated identity and profile logic stay unchanged.
- import("./tap-battle.js?v=2").then(({initTapBattle})=>{
+ import("./tap-battle.js?v=3").then(({initTapBattle})=>{
   initTapBattle({userId:id,profile:p});
  }).catch(error=>{
   show("TAP BATTLE COULD NOT LOAD: "+(error?.message||"Unknown error")+". Refresh the Arena.","error");
