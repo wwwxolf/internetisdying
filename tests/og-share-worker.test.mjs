@@ -6,10 +6,10 @@ import {readFile} from "node:fs/promises";
 const ID="11111111-1111-4111-8111-111111111111";
 const snapshot={source:"SERVER_LEDGER",snapshot_at:"2026-10-14T09:50:00Z",
  world_hp:500180,heal_hp:180,kill_hp:0,decay_hp:0,chaos_hp:0,net_hp:180};
-test("Cloudflare routing runs worker on share paths only; assets remain static",async()=>{
+test("Cloudflare routes OG shares and public momentum through worker; all other assets stay static",async()=>{
  const json=JSON.parse(await readFile("wrangler.jsonc","utf8"));
  assert.equal(json.main,"./src/share-worker.js");
- assert.deepEqual(json.assets.run_worker_first,["/share/*"]);
+ assert.deepEqual(json.assets.run_worker_first,["/share/*","/api/war-momentum"]);
  assert.equal(json.assets.binding,"ASSETS");
  assert.equal(json.assets.directory,"./public");
  const assets={ASSETS:{fetch:async()=>new Response("Static asset preserved",{status:200})}};

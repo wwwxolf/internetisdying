@@ -1,12 +1,13 @@
 import {evaluateWindows} from "./utc-battle-windows.js?v=1";
 import {battlePollDelay,economyRefreshDue,jitterDelay} from "./arena-polling.js";
+import {startLiveWarMomentum,currentMomentum,slotStartMs} from "./live-war-momentum.js?v=1";
 // Browser renders server facts. It never sends HP, bonus, RNG or a tap total.
 export async function initGlobalBattle({sb}) {
   const $=id=>document.getElementById(id);
   const choices=[...document.querySelectorAll('[data-arena-action]')];
   let state=null, battle=null, offset=0, busy=false, tapBusy=false, settling=false;
   let retryAfter=0, tapRetryAfter=0, localTaps=0, disposed=false, refreshBusy=false, syncOk=false;
-  let economy={enabled:false},holdLoop=null;
+  let economy={enabled:false},liveMomentum=null,holdLoop=null;
   let pollTimer=null,pollErrors=0,lastEconomySuccess=0,lastPaintedHp=null;
   const maxTaps=()=>battle?.engine_version===2?24:50;
   const v2Mode=()=>battle?.engine_version===2||(!battle&&economy.enabled);
@@ -53,27 +54,34 @@ export async function initGlobalBattle({sb}) {
       $('arena-percent').textContent=(verifiedHp/10000).toFixed(1)+'% LIFE REMAINING';
       lastPaintedHp=verifiedHp;
     }
+    // Server V2 influence is distinct from World HP. Never carry previous-window totals
+    // into the new four-hour window, even while the next network request is pending.
+    const activeSlot=slotStartMs(now());
+    const latestMomentum=currentMomentum(liveMomentum,now());
+    const fallbackEconomy=Date.parse(economy.window_start)===activeSlot?economy:null;
+    const liveSave=latestMomentum?.save_influence??fallbackEconomy?.save_influence??0;
+    const liveKill=latestMomentum?.kill_influence??fallbackEconomy?.kill_influence??0;
+    const liveCount=latestMomentum?.battle_count??fallbackEconomy?.battle_count??0;
     // Live War Influence is NOT yet World HP. Keep it separate from the health bar.
     $('arena-hp-pending').hidden=!economy.enabled;
     if(economy.enabled){
-      $('arena-hp-pending-score').textContent='SAVE +'+fmt(Math.max(0,Number(economy.save_influence)||0))+
-        ' / KILL −'+fmt(Math.max(0,Number(economy.kill_influence)||0))+' WAR INFLUENCE';
+      $('arena-hp-pending-score').textContent='SAVE +'+fmt(liveSave)+
+        ' / KILL −'+fmt(liveKill)+' WAR INFLUENCE';
     }
     $('save-impact-caption').textContent=economy.enabled?'+ WAR INFLUENCE':'+ RANDOM HP';
     $('kill-impact-caption').textContent=economy.enabled?'− WAR INFLUENCE':'− RANDOM HP';
     $('v2-war').hidden=!economy.enabled;
     if(economy.enabled){
-      const save=Math.max(0,Number(economy.save_influence)||0);
-      const kill=Math.max(0,Number(economy.kill_influence)||0);
+      const save=liveSave,kill=liveKill;
       const total=save+kill;
       const savePct=total?100*save/total:50;
       $('v2-save-influence').textContent=fmt(save);
       $('v2-kill-influence').textContent=fmt(kill);
       $('v2-war-save-fill').style.width=savePct+'%';
       $('v2-war-kill-fill').style.width=(100-savePct)+'%';
-      const until=Math.max(0,Math.ceil((Date.parse(economy.window_start)+4*3600000-now())/60000));
+      const until=Math.max(0,Math.ceil((activeSlot+4*3600000-now())/60000));
       $('v2-war-status').textContent=(total?'PROVISIONAL INFLUENCE':'AWAITING FIRST V2 BATTLE')+
-        ' • WINDOW CLOSES IN '+until+' MIN • '+fmt(economy.battle_count)+' VERIFIED BATTLES';
+        ' • WINDOW CLOSES IN '+until+' MIN • '+fmt(liveCount)+' VERIFIED BATTLES';
       const latest=economy.latest_window;
       $('v2-war-latest').textContent=latest
         ?'LAST CLOSED WAR: '+(latest.applied_hp>0?'+':'')+fmt(latest.applied_hp)+' VERIFIED WORLD HP'
@@ -84,7 +92,7 @@ export async function initGlobalBattle({sb}) {
     $('heart-zone').dataset.stage=w.hp===0?'dead':w.hp<=250000?'danger':'critical';
     // V2 rows represent influence, not per-player World HP; never display 0 HP as damage.
     $('monthly-summary').textContent=economy.enabled
-      ?`${m.month} UTC • ${m.nickname} • ${m.battle_count} verified battles\nSAVE ${m.heal_count} | KILL ${m.kill_count}\nCURRENT WAR WINDOW • SAVE +${fmt(economy.save_influence||0)} / KILL −${fmt(economy.kill_influence||0)} INFLUENCE\nWORLD HP CHANGES ONLY AFTER THE 4H WINDOW SETTLES`
+      ?`${m.month} UTC • ${m.nickname} • ${m.battle_count} verified battles\nSAVE ${m.heal_count} | KILL ${m.kill_count}\nCURRENT WAR WINDOW • SAVE +${fmt(liveSave)} / KILL −${fmt(liveKill)} INFLUENCE\nWORLD HP CHANGES ONLY AFTER THE 4H WINDOW SETTLES`
       :`${m.month} UTC • ${m.nickname} • ${m.tier||'No card yet'} • ${m.battle_count} battles\nSAVE ${m.heal_count} · +${fmt(m.heal_hp)} HP | KILL ${m.kill_count} · −${fmt(m.kill_hp)} HP`;
     const slots=evaluateWindows(state,now());
     for(let i=0;i<6;i++){
@@ -215,6 +223,7 @@ export async function initGlobalBattle({sb}) {
       showResult(r);battle=null;
       // Refresh provisional faction influence on the next authoritative status request.
       lastEconomySuccess=0;
+      livePoll.refresh();
       // Leaderboard is a separate read-only module; notify after verified settlement.
       if(typeof document.dispatchEvent==='function'){
         document.dispatchEvent(new Event('iid:battle-settled'));
@@ -236,6 +245,11 @@ export async function initGlobalBattle({sb}) {
   $('battle-refresh').addEventListener('click',refresh);
   choices.forEach(b=>b.disabled=true);
   await refresh();
+  // Shared public edge-cache (8s) rather than a 5s per-user Supabase RPC.
+  const livePoll=startLiveWarMomentum(data=>{
+    liveMomentum=data;
+    if(state)render();
+  },{clock:now});
   const timer=setInterval(()=>{render();if(battle&&now()<Date.parse(battle.ends_at))void flushTaps();else if(battle&&!tapBusy)void settle();},100);
   const visibility=()=>{
     if(document.hidden){clearTimeout(pollTimer);pollTimer=null;return;}
@@ -243,5 +257,5 @@ export async function initGlobalBattle({sb}) {
     scheduleRefresh(jitterDelay(1500,5500));
   };
   document.addEventListener('visibilitychange',visibility);
-  window.addEventListener('pagehide',()=>{disposed=true;haltHold();clearInterval(timer);clearTimeout(pollTimer);document.removeEventListener('visibilitychange',visibility);},{once:true});
+  window.addEventListener('pagehide',()=>{disposed=true;livePoll.stop();haltHold();clearInterval(timer);clearTimeout(pollTimer);document.removeEventListener('visibilitychange',visibility);},{once:true});
 }
