@@ -21,7 +21,7 @@ await db.exec(`create role anon;create role authenticated;create schema auth;
 for(const f of (await readdir("supabase/migrations")).filter(x=>x.endsWith(".sql")&&!x.includes("_game_economy_v2_scheduler_staged.sql")).sort()){
  await db.exec(await readFile("supabase/migrations/"+f,"utf8"));
 }
-await db.query("insert into public.iid_profiles(user_id,nickname,origin,country_code) values($1,'OLF','BOT','IDN')",[U]);
+await db.query("insert into public.iid_profiles(user_id,nickname,origin,country_code,custom_flag) values($1,'OLF','BOT','IDN',null)",[U]);
 async function role(as="authenticated",uid=U,sid=S){
  await db.exec("reset role");
  await db.query("select set_config('request.jwt.claims',$1,false)",[JSON.stringify({sub:uid,session_id:sid,app_metadata:{provider:"google"}})]);
@@ -46,7 +46,7 @@ test("refuse deletion if a second auth user or profile exists",async()=>{
  await admin(`insert into auth.users(id) values('${V}')`);
  assert.equal((await status()).allowed,false);
  await assert.rejects(reset(),/RESET_DISABLED_MULTIPLAYER/);
- await admin(`insert into public.iid_profiles(user_id,nickname,origin,country_code) values('${V}','SECOND','GLITCH','USA')`);
+ await admin(`insert into public.iid_profiles(user_id,nickname,origin,country_code,custom_flag) values('${V}','SECOND','GLITCH','USA',null)`);
  assert.equal((await status()).allowed,false);
  await assert.rejects(reset(),/RESET_DISABLED_MULTIPLAYER/);
  await admin(`delete from public.iid_profiles where user_id='${V}';delete from auth.users where id='${V}'`);
