@@ -49,10 +49,8 @@ async function profile(id){
 async function route(u){next((await profile(u.id))?"./arena.html":"./onboarding.html");}
 
 if(page==="landing"){
- $("join-btn").addEventListener("click",()=>{
-  // Login page handles returning users; never block landing CTA on SDK/network.
-  next("./auth.html");
- });
+ // The native ENTER WORLD link opens the skippable prologue first.
+ // Do not override its href: returning users bypass the intro on that page.
  const timer=$("timer");
  if(timer){
   const tick=()=>{

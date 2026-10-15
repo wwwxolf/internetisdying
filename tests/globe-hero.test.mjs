@@ -6,7 +6,7 @@ test("Landing offers one active world and four distinct locked worlds without fa
  const html=await readFile("public/index.html","utf8");
  assert.equal((html.match(/class="world-active"/g)||[]).length,1);
  assert.equal((html.match(/class="world-locked"/g)||[]).length,4);
- assert.match(html,/id="join-btn" href="\.\/auth\.html"/);
+ assert.match(html,/id="join-btn" href="\.\/prologue\.html"/);
  assert.match(html,/ACTIVE NOW/);assert.match(html,/30-DAY WORLD/);
  assert.match(html,/World rotation is coming soon/);
  assert.doesNotMatch(html,/id="countdown"|aria-valuenow="50"|DESIGN DEMO/);

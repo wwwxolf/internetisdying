@@ -58,3 +58,9 @@
  .locked-meta{font-size:6px}.world-concept{font-size:14px}
 }
 @media(prefers-reduced-motion:reduce){.world-status:before{animation:none}.world-active{transition:none}}
+
+/* Optional replay lets returning visitors revisit the first-time pixel story. */
+.world-replay{margin:8px 1px 0;text-align:right}
+.world-replay a{font:8px/1.7 "Press Start 2P",monospace;color:#a4b9c8}
+.world-replay a:hover{text-decoration:underline;color:#d5e1ec}
+@media(max-width:640px){.world-replay a{font-size:7px}}

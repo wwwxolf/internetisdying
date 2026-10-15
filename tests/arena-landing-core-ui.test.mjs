@@ -33,7 +33,7 @@ test("only Arena illustration changed; server HP and live battle hooks remain wi
 test("World_002–005 artwork is monochrome, readable and World_001 remains full-color",async()=>{
  const landing=await readFile("public/index.html","utf8");
  const css=await readFile("public/multiverse.css","utf8");
- assert.match(landing,/multiverse\.css\?v=2/);
+ assert.match(landing,/multiverse\.css\?v=3/);
  for(const [no,animal] of [["002","cat"],["003","cow"],["004","pigeon"],["005","monkey"]]){
   assert.match(landing,new RegExp('WORLD_'+no));
   assert.match(landing,new RegExp('src="\\.\\/assets\\/world-'+animal+'\\.svg"'));
