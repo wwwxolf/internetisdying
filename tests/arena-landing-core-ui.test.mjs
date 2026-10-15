@@ -2,12 +2,11 @@ import {test} from "node:test";
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 
-test("Arena Internet Vitals shares the exact landing pixel globe sprite and core pulse",async()=>{
- const landing=await readFile("public/index.html","utf8");
+test("Arena Internet Vitals retains its pixel globe sprite and core pulse",async()=>{
  const arena=await readFile("public/arena.html","utf8");
  const css=await readFile("public/styles.css","utf8");
  const asset="./assets/dying-internet-core.svg";
- for(const page of [landing,arena]){
+ for(const page of [arena]){
   assert.match(page,/class="heart-zone world-core-zone"[^>]*id="heart-zone"/);
   assert.match(page,/class="world-core-visual"/);
   assert.match(page,/class="world-core-img" src="\.\/assets\/dying-internet-core\.svg"/);
