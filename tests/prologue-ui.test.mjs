@@ -11,7 +11,7 @@ function fixture({seen=false,replay=false}={}){
   focus(){this.focused=true;}
  });
  for(const id of ["prologue-frame","prologue-line","prologue-aside","prologue-count",
-  "prologue-next","prologue-skip","prologue-final","prologue-save","prologue-kill"])nodes.set(id,mk(id));
+  "prologue-next","prologue-back","prologue-skip","prologue-final","prologue-story-back","prologue-save","prologue-kill"])nodes.set(id,mk(id));
  nodes.get("prologue-final").hidden=true;
  const controls=mk("controls");
  const doc={
@@ -59,6 +59,45 @@ test("four short scenes retain the approved jokes and end in a choice",()=>{
  assert.equal(f.read("iid_world001_prologue_seen_v1"),"1");
 });
 
+test("Back moves one scene at a time, disables on Scene 01, and does not auto-advance",()=>{
+ const f=fixture();
+ const r=initPrologue(f);
+ assert.equal(f.nodes.get("prologue-back").disabled,true);
+ assert.equal(f.pending,null,"No automatic timer should run");
+ f.fire("prologue-next");
+ assert.equal(r.getCurrentScene(),1);
+ assert.equal(f.nodes.get("prologue-back").disabled,false);
+ f.fire("prologue-next");
+ assert.equal(r.getCurrentScene(),2);
+ f.fire("prologue-back");
+ assert.equal(r.getCurrentScene(),1);
+ assert.equal(f.nodes.get("prologue-line").textContent,PROLOGUE_SCENES[1].line);
+ f.fire("prologue-back");
+ assert.equal(r.getCurrentScene(),0);
+ assert.equal(f.nodes.get("prologue-back").disabled,true);
+ f.fire("prologue-back");
+ assert.equal(r.getCurrentScene(),0,"First scene must not go negative");
+ assert.equal(f.pending,null);
+});
+
+test("Final choice can return to Scene 04 before signing in",()=>{
+ const f=fixture();
+ const r=initPrologue(f);
+ f.fire("prologue-skip");
+ assert.equal(f.nodes.get("prologue-final").hidden,false);
+ f.fire("prologue-story-back");
+ assert.equal(f.nodes.get("prologue-final").hidden,true);
+ assert.equal(f.controls.hidden,false);
+ assert.equal(r.getCurrentScene(),3);
+ assert.equal(f.nodes.get("prologue-next").focused,true);
+ f.fire("prologue-back");
+ assert.equal(r.getCurrentScene(),2);
+ f.fire("prologue-next");
+ f.fire("prologue-next");
+ assert.equal(f.nodes.get("prologue-final").hidden,false);
+ assert.equal(f.read("iid_world001_prologue_seen_v1"),undefined);
+});
+
 test("skip reaches final choice without implying a verified battle",()=>{
  const f=fixture();
  initPrologue(f);
@@ -88,6 +127,10 @@ test("landing Enter World connects to prologue, while server-authenticated Arena
  assert.match(landing,/id="join-btn" href="\.\/prologue\.html"/);
  assert.match(landing,/href="\.\/prologue\.html\?replay=1"/);
  assert.doesNotMatch(flow.slice(flow.indexOf('if(page==="landing")'),flow.indexOf('if(page==="auth")')), /next\("\.\/auth\.html"\)/);
+ assert.match(page,/prologue\.js\?v=2/);
+ assert.match(page,/prologue\.css\?v=2/);
+ assert.match(page,/id="prologue-back" disabled/);
+ assert.match(page,/id="prologue-story-back"/);
  assert.match(page,/id="prologue-save" href="\.\/auth\.html"/);
  assert.match(page,/id="prologue-kill" href="\.\/auth\.html"/);
  assert.match(page,/class="prologue-choice prologue-choice-save"/);
