@@ -208,7 +208,7 @@ if(page==="arena"){
      .then(({initDeveloperMode})=>initDeveloperMode({sb}))
      .catch(()=>{});
    // Verified return brief is independent from Tap Battle and NEXT CHAOS.
-   void import("./world-return.js?v=7")
+   void import("./world-return.js?v=8")
      .then(({initWorldReturn})=>initWorldReturn({sb,nickname:p.nickname}))
      .catch(err=>console.warn("WORLD RETURN LOAD FAILED",err));
    // Read-only Hall of Fame is isolated from battle gameplay, auth and timers.
