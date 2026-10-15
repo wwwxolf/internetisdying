@@ -40,6 +40,6 @@ test("auth profile select includes country fields; first-visit welcome and nickn
  assert.match(arena,/id="arena-country"/);
  assert.match(arena,/id="world-return-eyebrow"/);
  assert.match(world,/visited\?"WHILE YOU WERE AWAY_":"FIRST VISIT_"/);
- assert.match(world,/!visited\?"WELCOME TO WORLD_001_"/);
+ assert.match(world,/if\(data\.first_visit\)return "WELCOME TO WORLD_001_"/);
  assert.match(style,/\.auth-panel #nickname\{/);
 });
