@@ -44,7 +44,7 @@ test("World Return headline does not blame chicken for decay or negative chaos",
  assert.equal(worldReturnHeadline({...basic,net_hp:0,kill_battles:1}),"A PERFECT STALEMATE_");
 });
 
-test("Chicken event aliases are display-only and preserve all other rotations",()=>{
+test("Chicken event aliases are display-only and preserve all other rotations",async()=>{
  assert.deepEqual(chickenEventCopy("GLOBAL FIREWALL","Original server description"),{
   title:"CHICKEN-PROOF FIREWALL",
   description:"Defenders reinforce the internet core to block incoming pecks."
