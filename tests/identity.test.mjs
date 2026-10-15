@@ -11,6 +11,7 @@ grant usage on schema auth to anon,authenticated; grant execute on function auth
 await db.exec(await readFile('supabase/migrations/20261014003346_create_iid_profiles_with_rls.sql','utf8'));
 await db.exec(`insert into iid_profiles(user_id,nickname,origin) values('${A}','LegacyPlayer','HUMAN')`);
 await db.exec(await readFile('supabase/migrations/20261015010610_phase1_player_identity.sql','utf8'));
+await db.exec(await readFile('supabase/migrations/20261015101500_world001_avatar_origins.sql','utf8'))
 async function login(id=A,role='authenticated'){
  await db.exec('reset role');
  await db.query(`select set_config('request.jwt.claims',$1,false)`,[JSON.stringify({sub:id})]);
@@ -39,7 +40,7 @@ test('existing account skips onboarding; new player saves selected country and e
  async function open(existing){
   const nodes=new Map(), make=()=>({hidden:false,value:'',dataset:{},style:{setProperty(){}},children:[],listeners:{},addEventListener(type,fn){this.listeners[type]=fn},setAttribute(){},append(node){this.children.push(node)},replaceChildren(){this.children=[]},focus(){}});
   const get=id=>{if(!nodes.has(id))nodes.set(id,Object.assign(make(),{hidden:id==='profile-form'}));return nodes.get(id)};
-  const origins=['HUMAN','BOT','ALIEN','GLITCH'].map(origin=>Object.assign(make(),{dataset:{origin}}));
+  const origins=['HUMAN','BOT_CHICKEN','CHICKEN_MUTANT','EGG_GLITCH'].map(origin=>Object.assign(make(),{dataset:{origin}}));
   globalThis.document={body:{dataset:{page:'onboarding'}},getElementById:get,querySelectorAll:()=>origins,createElement:make};
   globalThis.location={href:'https://game.test/onboarding.html',assign(url){this.destination=url}};
   let inserted=null;
@@ -53,7 +54,7 @@ test('existing account skips onboarding; new player saves selected country and e
   fresh.get('country-search').listeners.input();fresh.get('country-search').value='IDN';fresh.get('country-search').listeners.input();
   const indonesia=fresh.get('country-results').children.find(button=>button.innerHTML.includes('IDN'));indonesia.listeners.click();
   await fresh.get('profile-form').listeners.submit({preventDefault(){}});
-  assert.equal(fresh.inserted().nickname,'PixelAce');assert.equal(fresh.inserted().origin,'BOT');assert.equal(fresh.inserted().country_code,'IDN');assert.equal(fresh.inserted().custom_flag,null);
+  assert.equal(fresh.inserted().nickname,'PixelAce');assert.equal(fresh.inserted().origin,'BOT_CHICKEN');assert.equal(fresh.inserted().country_code,'IDN');assert.equal(fresh.inserted().custom_flag,null);
  }finally{globalThis.document=prior.body;globalThis.window=prior.window;globalThis.location=prior.location;}
 });
 test('nickname uniqueness stays case-insensitive and profile RLS stays owner-only',async()=>{
@@ -61,4 +62,16 @@ test('nickname uniqueness stays case-insensitive and profile RLS stays owner-onl
  await login(B);assert.equal((await db.query('select * from iid_profiles')).rows.length,1);
  await assert.rejects(db.query(`insert into iid_profiles(user_id,nickname,origin,country_code,custom_flag) values('${A}','WrongOwner','HUMAN','IDN',null)`),/row-level security/);
  await login(A,'anon');await assert.rejects(db.query('select * from iid_profiles'),/permission denied/);
+});
+
+test('new World 001 origins persist while invalid origins remain rejected',async()=>{
+ await adminQuery(`insert into iid_profiles(user_id,nickname,origin,country_code,custom_flag) values('${C}','CyborgChicken','BOT_CHICKEN','IDN',null)`);
+ await adminQuery(`insert into iid_profiles(user_id,nickname,origin,country_code,custom_flag) values('${D}','RadioactiveHen','CHICKEN_MUTANT','IDN',null)`);
+ const rows=(await adminQuery(`select origin from iid_profiles where user_id in ('${C}','${D}') order by origin`)).rows.map(r=>r.origin);
+ assert.deepEqual(rows,['BOT_CHICKEN','CHICKEN_MUTANT']);
+ await adminQuery(`delete from iid_profiles where user_id='${C}'`);
+ await adminQuery(`insert into iid_profiles(user_id,nickname,origin,country_code,custom_flag) values('${C}','Egg404','EGG_GLITCH','IDN',null)`);
+ const egg=(await adminQuery(`select origin from iid_profiles where user_id='${C}'`)).rows[0];
+ assert.equal(egg.origin,'EGG_GLITCH');
+ await assert.rejects(adminQuery(`insert into iid_profiles(user_id,nickname,origin,country_code,custom_flag) values('${C}','FakeOrigin','UNKNOWN','IDN',null)`),/check constraint|duplicate key/);
 });
