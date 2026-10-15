@@ -24,7 +24,7 @@ test("Arena World 001 uses chicken themed display copy and unchanged action prot
  assert.match(arena,/data-chaos-choice="damage"/);
  assert.match(arena,/id="world-return-heal"/);
  assert.match(arena,/id="world-return-kill"/);
- assert.match(arena,/flow\.js\?v=33/);
+ assert.match(arena,/flow\.js\?v=34/);
  assert.match(arena,/arena\.css\?v=11/);
  assert.match(css,/\.arena-choice \.choice-title\{[^}]*white-space:normal/);
  assert.match(flow,/world-return\.js\?v=7/);
