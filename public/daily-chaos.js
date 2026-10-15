@@ -1,3 +1,4 @@
+import {chaosPollDelay,jitterDelay} from "./arena-polling.js";
 /* NEXT CHAOS: 30 rotating internet-themed pixel events.
  * Presentation and authenticated RPC only. Never predicts or changes HP locally.
  * Database remains the authority for one-vote/day, UTC timing and resolution.
@@ -62,6 +63,7 @@ export async function initDailyChaos({sb}) {
  const root=$("next-chaos");
  if(!root)return;
  let data=null,offset=0,disposed=false,busy=false,fetching=false;
+ let pollTimer=null,failures=0;
  const now=()=>Date.now()+offset;
  const fmt=n=>Number(n||0).toLocaleString("en-US");
  const text=(id,value)=>{$(id).textContent=value;};
@@ -130,14 +132,19 @@ export async function initDailyChaos({sb}) {
    text("chaos-decay-time",data.next_decay_at?
      countdown(Date.parse(data.next_decay_at)-now()):"PAUSED");
  }
+ function scheduleRefresh(delay){
+   clearTimeout(pollTimer);pollTimer=null;
+   if(disposed||document.hidden)return;
+   pollTimer=setTimeout(()=>{pollTimer=null;void refresh();},delay);
+ }
  async function refresh() {
    if(disposed||fetching||busy)return;
    fetching=true;
    try{
      data=await rpc("status");
-     draw();
-   }catch(e){textStatus("SERVER SYNC FAILED: "+(e.message||"Please retry"));}
-   finally{fetching=false;}
+     failures=0;draw();
+   }catch(e){failures++;textStatus("SERVER SYNC FAILED: "+(e.message||"Please retry"));}
+   finally{fetching=false;scheduleRefresh(chaosPollDelay(data?.enabled,failures));}
  }
  async function vote(choice) {
    if(!data?.enabled||busy||data.voted_for||now()>=Date.parse(data.closes_at))return;
@@ -151,7 +158,14 @@ export async function initDailyChaos({sb}) {
  buttons.forEach(button=>button.addEventListener("click",()=>vote(button.dataset.chaosChoice)));
  root.hidden=false;
  await refresh();
- const timer=setInterval(tick,1000);
- const poll=setInterval(refresh,30000);
- window.addEventListener("pagehide",()=>{disposed=true;clearInterval(timer);clearInterval(poll);},{once:true});
+ const timer=setInterval(()=>{if(!document.hidden)tick();},1000);
+ const visibility=()=>{
+   if(document.hidden){clearTimeout(pollTimer);pollTimer=null;return;}
+   tick();scheduleRefresh(jitterDelay(1500,5500));
+ };
+ document.addEventListener("visibilitychange",visibility);
+ window.addEventListener("pagehide",()=>{
+   disposed=true;clearInterval(timer);clearTimeout(pollTimer);
+   document.removeEventListener("visibilitychange",visibility);
+ },{once:true});
 }

@@ -189,7 +189,7 @@ if(page==="arena"){
   });
   if(demoMode)demo(u.id,p);
   else {
-   const {initGlobalBattle}=await import("./global-battle.js?v=7");
+   const {initGlobalBattle}=await import("./global-battle.js?v=8");
    await initGlobalBattle({sb});
    // Verified return brief is independent from Tap Battle and NEXT CHAOS.
    void import("./world-return.js?v=6")
@@ -200,7 +200,7 @@ if(page==="arena"){
      .then(({initHallOfFame})=>initHallOfFame({sb}))
      .catch(err=>console.warn("HALL OF FAME LOAD FAILED",err));
    // NEXT CHAOS reads server-only votes; failure never blocks the battle arena.
-   void import("./daily-chaos.js?v=2").then(({initDailyChaos})=>initDailyChaos({sb})).catch(e=>show("DAILY CHAOS PREVIEW COULD NOT LOAD: "+e.message,"warning"));
+   void import("./daily-chaos.js?v=3").then(({initDailyChaos})=>initDailyChaos({sb})).catch(e=>show("DAILY CHAOS PREVIEW COULD NOT LOAD: "+e.message,"warning"));
   }
  }catch(e){show("Could not open Arena: "+e.message,"error");}
 }
