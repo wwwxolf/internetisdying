@@ -40,7 +40,7 @@ test("chosen preview avatar survives sign-in and the Arena supports legacy origi
  for(const [origin,asset] of origins)assert.match(js,new RegExp(origin+':"world001-'+asset+'"'));
  for(const origin of ["BOT","ALIEN","GLITCH"])assert.match(js,new RegExp(origin+':"'+origin.toLowerCase()+'"'));
  assert.match(js,/\$\("arena-origin-avatar"\)\.src/);
- for(const page of [auth,onboarding,arena])assert.match(page,/src="\.\/flow\.js\?v=34"/);
+ for(const page of [auth,onboarding,arena])assert.match(page,/src="\.\/flow\.js\?v=35"/);
  const css=await readFile("public/styles.css","utf8");
  const arenaCss=await readFile("public/arena.css","utf8");
  assert.match(css,/\.world001-characters .avatar-icon img\{[^}]*image-rendering:pixelated/);
