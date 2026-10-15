@@ -18,8 +18,7 @@ export async function initHallOfFame({sb}){
   const hp=Math.max(0,Number(item.hp)||0);
   if(version===2){
    const influence=Math.max(0,Number(item.score)||0);
-   return (side==="save"?"+":"−")+fmt(influence)+" INFLUENCE"
-     +(hp>0?" • V1: "+(side==="save"?"+":"−")+fmt(hp)+" HP":"");
+   return (side==="save"?"+":"−")+fmt(influence)+" WAR INFLUENCE";
   }
   return (side==="save"?"+":"−")+fmt(hp)+" HP";
  };
@@ -39,9 +38,15 @@ export async function initHallOfFame({sb}){
  };
  const showSide=(side,data,version)=>{
   const total=$("hof-"+side+"-total");
-  if(total)total.textContent=(version===2?"HISTORIC V1 ":"TOTAL ")+
-   (side==="save"?"SAVE ":"KILL ")+(side==="save"?"+":"−")+
-   fmt(Math.max(0,Number(data?.total_hp)||0))+" HP";
+  if(total){
+   if(version===2){
+    total.textContent="TOTAL "+(side==="save"?"SAVE +":"KILL −")+
+      fmt(Math.max(0,Number(data?.total_score)||0))+" WAR INFLUENCE";
+   }else{
+    total.textContent="TOTAL "+(side==="save"?"SAVE +":"KILL −")+
+      fmt(Math.max(0,Number(data?.total_hp)||0))+" HP";
+   }
+  }
   const list=$("hof-"+side+"-list"),footer=$("hof-"+side+"-self");
   list.replaceChildren();
   const top=Array.isArray(data?.top)?data.top.slice(0,10):[];
@@ -77,8 +82,9 @@ export async function initHallOfFame({sb}){
    if(!data||!data.save||!data.kill)throw Error("Unexpected response");
    showSide("save",data.save,data.engine_version);
    showSide("kill",data.kill,data.engine_version);
-   scoring.textContent="ALL TIME • VERIFIED V"+data.engine_version+" "+data.score_unit+
-    " • V1 AND V2 SCORES NEVER MIX";
+   scoring.textContent=data.engine_version===2
+    ?"V2 • VERIFIED WAR INFLUENCE • WORLD HP SETTLES EACH 4H WINDOW"
+    :"V1 • VERIFIED PERSONAL POWER";
    status.textContent="SERVER VERIFIED • UPDATED";
   }catch(e){
    status.textContent="RANKINGS TEMPORARILY UNAVAILABLE • TAP RETRY";
@@ -86,5 +92,13 @@ export async function initHallOfFame({sb}){
   }finally{busy=false;refresh.disabled=false;}
  }
  refresh.addEventListener("click",reload);
+ // Battle results are recorded before this event; refresh the ranks without page reload.
+ const onBattleSettled=()=>{void reload();};
+ if(typeof document.addEventListener==="function"){
+  document.addEventListener("iid:battle-settled",onBattleSettled);
+  if(typeof window!=="undefined"&&typeof window.addEventListener==="function"){
+   window.addEventListener("pagehide",()=>document.removeEventListener("iid:battle-settled",onBattleSettled),{once:true});
+  }
+ }
  await reload();
 }
