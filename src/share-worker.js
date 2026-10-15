@@ -1,3 +1,4 @@
+import {shareStory,SHARE_LABELS} from "../public/share-story.js";
 import {serveWarMomentum} from "./war-momentum.js";
 /* Share link OG renderer. Existing static site routes remain unchanged. */
 const SITE="https://internetisdying.wwwxolf.workers.dev";
@@ -8,14 +9,20 @@ const W=600,H=750;
 const C={bg:[8,19,34],panel:[17,30,49],border:[80,112,151],mute:[171,196,222],
 white:[245,243,236],green:[115,227,167],pink:[255,98,126],gold:[247,210,120],blue:[71,176,215]};
 export const healthStage=hp=>hp===0?"DEAD":hp<=250000?"NEAR DEATH":hp<=500000?"CRITICAL":hp<=750000?"STABLE":"RECOVERING";
-export const worldHeadline=d=>d.net_hp>0?"THE INTERNET FOUGHT BACK":d.net_hp<0?"THE INTERNET TOOK A HIT":"THE INTERNET STAYED QUIET";
+export const worldHeadline=d=>shareStory(d).headline.join(" ");
 function verify(d){
- if(!d||d.source!=="SERVER_LEDGER"||!Number.isFinite(Date.parse(d.snapshot_at)))throw Error("Unverified report");
- for(const k of ["world_hp","heal_hp","kill_hp","decay_hp","chaos_hp","net_hp"]){
-  if(!Number.isSafeInteger(Number(d[k])))throw Error("Invalid "+k);
+ if(!d||d.source!=="SERVER_LEDGER"||
+    !Number.isFinite(Date.parse(d.snapshot_at))||!Number.isFinite(Date.parse(d.from)))
+    throw Error("Unverified report");
+ for(const k of ["world_hp","heal_hp","kill_hp","decay_hp","chaos_hp","net_hp",
+   "heal_battles","kill_battles","decay_pulses","chaos_events"]){
+  if(d[k]===undefined||d[k]===null||!Number.isSafeInteger(Number(d[k])))
+    throw Error("Invalid "+k);
  }
  if(d.world_hp<0||d.world_hp>1000000||
-    d.net_hp!==d.heal_hp-d.kill_hp-d.decay_hp+d.chaos_hp)throw Error("Invalid impact");
+   d.heal_hp<0||d.kill_hp<0||d.decay_hp<0||
+   d.net_hp!==d.heal_hp-d.kill_hp-d.decay_hp+d.chaos_hp)
+    throw Error("Invalid impact");
  return d;
 }
 async function readCard(id,fetcher=fetch){
@@ -113,34 +120,44 @@ export async function makePNG(d){
  rect(0,0,W,H,C.bg);
  for(let y=8;y<H;y+=14)for(let x=8;x<W;x+=14)rect(x,y,2,2,[21,48,71]);
  panel(15,12,570,48);
- txt("WORLD_001 / INTERNET CHAOS",30,29,2,C.mute);
+ txt("WORLD_001 // CHICKEN EATS THE INTERNET",30,29,2,C.mute);
  txt("WHILE YOU WERE GONE",31,80,2,C.mute);
- txt("BREAKING",28,116,5,C.pink);
- txt("INTERNET_",28,168,4,C.white);
- // Pixel internet globe: sphere, fragmented continents, critical red core.
- for(let y=-72;y<72;y+=5)for(let x=-72;x<72;x+=5){
-  if(x*x+y*y<72*72){
-   let land=(x>-42&&x<8&&y>-36&&y<20)||(x>9&&x<44&&y>4&&y<41);
-   rect(476+x,194+y,5,5,land?C.green:C.blue);
+ const story=shareStory(d);
+ const tint=story.tone==="heal"?C.green:story.tone==="neutral"?C.gold:C.pink;
+ txt(story.headline[0],28,116,Math.min(5,Math.floor(345/(6*story.headline[0].length))),C.pink);
+ txt(story.headline[1],28,168,Math.min(4,Math.floor(350/(6*story.headline[1].length))),C.white);
+ // Pixel globe under attack. Both art and copy are frozen to this snapshot.
+ for(let y=-61;y<61;y+=5)for(let x=-61;x<61;x+=5){
+  if(x*x+y*y<61*61){
+   const land=(x>-42&&x<8&&y>-36&&y<20)||(x>9&&x<44&&y>4&&y<41);
+   rect(487+x,207+y,5,5,land?C.green:C.blue);
   }
  }
- rect(465,186,8,31,C.pink);rect(451,198,31,6,C.pink);
+ rect(471,195,8,31,C.pink);rect(459,205,32,6,C.pink);
+ // World_001 chicken: comb, white pixel body, eye, golden beak, wing and feet.
+ rect(410,119,16,24,C.pink);rect(430,109,16,27,C.pink);
+ rect(449,122,16,22,C.pink);rect(404,143,77,16,C.white);
+ rect(392,155,95,24,C.white);rect(390,179,84,27,C.white);
+ rect(389,207,53,23,C.white);rect(421,174,31,23,C.mute);
+ rect(443,153,9,10,C.bg);rect(446,155,3,3,C.pink);
+ rect(478,175,27,12,C.gold);rect(479,187,16,10,C.gold);
+ rect(401,225,7,19,C.gold);rect(427,225,7,19,C.gold);
+ rect(390,243,27,6,C.gold);rect(421,243,27,6,C.gold);
  for(let i=0;i<15;i++)rect(384+(i*53)%185,112+(i*61)%164,6+(i%3)*3,3,i%2?C.pink:C.mute);
- const lines=d.net_hp>0?["THE INTERNET","FOUGHT BACK"]:d.net_hp<0?["THE INTERNET","TOOK A HIT"]:["THE INTERNET","STAYED QUIET"];
- const tint=d.net_hp<0?C.pink:C.green;
- txt(lines[0],30,289,3,tint);txt(lines[1],30,320,3,tint);
- const cards=[["WORLD SAVE","+"+fmt(d.heal_hp)+" HP",C.green,18,365],
- ["WORLD KILL","-"+fmt(d.kill_hp)+" HP",C.pink,308,365],
- ["WORLD DECAY","-"+fmt(d.decay_hp)+" HP",C.pink,18,457],
- ["DAILY CHAOS",signed(d.chaos_hp)+" HP",C.gold,308,457]];
+ txt(story.detail[0],30,289,Math.min(3,Math.floor(350/(6*story.detail[0].length))),tint);
+ txt(story.detail[1],30,320,Math.min(3,Math.floor(350/(6*story.detail[1].length))),tint);
+ const cards=[[SHARE_LABELS.heal,"+"+fmt(d.heal_hp)+" HP",C.green,18,365],
+ [SHARE_LABELS.kill,"-"+fmt(d.kill_hp)+" HP",C.pink,308,365],
+ [SHARE_LABELS.decay,"-"+fmt(d.decay_hp)+" HP",C.pink,18,457],
+ [SHARE_LABELS.chaos,signed(d.chaos_hp)+" HP",C.gold,308,457]];
  for(const [label,number,color,x,y] of cards){
-  panel(x,y,274,81);txt(label,x+12,y+13,2,C.mute);
+  panel(x,y,274,81);txt(label,x+12,y+13,Math.min(2,Math.floor(245/(6*label.length))),C.mute);
   txt(number,x+12,y+43,number.length>16?2:3,color);
  }
  panel(18,553,564,155);
- txt("NET WORLD CHANGE",31,570,2,C.mute);
+ txt(SHARE_LABELS.net,31,570,2,C.mute);
  txt(signed(d.net_hp)+" HP",31,609,3,d.net_hp<0?C.pink:C.gold);
- txt("WORLD HEALTH",323,570,2,C.mute);
+ txt(SHARE_LABELS.health,323,570,2,C.mute);
  rect(321,597,249,36,C.border);rect(325,601,241,28,C.bg);
  const lit=Math.round(d.world_hp/50000);
  for(let i=0;i<20;i++)rect(331+i*11,607,8,16,i<lit?C.pink:C.panel);
@@ -161,8 +178,8 @@ export async function makePNG(d){
 }
 function page(id,d){
  const image=SITE+"/share/"+id+"/image.png",link=SITE+"/share/"+id;
- const title="BREAKING INTERNET — "+worldHeadline(d);
- const desc="SAVE +"+fmt(d.heal_hp)+" HP | KILL -"+fmt(d.kill_hp)+" HP | "+healthStage(d.world_hp)+". Will you SAVE it or KILL it?";
+ const title="CHICKEN EATS THE INTERNET — "+worldHeadline(d);
+ const desc=SHARE_LABELS.heal+" +"+fmt(d.heal_hp)+" HP | "+SHARE_LABELS.kill+" -"+fmt(d.kill_hp)+" HP | "+healthStage(d.world_hp)+". Will you SAVE it or KILL it?";
  return ['<!doctype html><html lang="en"><head><meta charset="utf-8">',
  '<meta name="viewport" content="width=device-width,initial-scale=1">',
  '<title>',title,'</title><meta name="description" content="',desc,'">',
@@ -174,7 +191,7 @@ function page(id,d){
  '<meta property="og:image:height" content="750"><meta name="twitter:card" content="summary_large_image">',
  '<meta name="twitter:image" content="',image,'"><meta name="robots" content="noindex">',
  '<style>body{background:#081322;color:#f4f1e9;font:20px monospace;text-align:center;padding:15px}a{color:#7be1aa}img{max-width:min(94vw,380px)}</style>',
- '</head><body><main><img src="',image,'" alt="Pixel Breaking Internet report">',
+ '</head><body><main><img src="',image,'" alt="World 001 Chicken Eats the Internet verified pixel report">',
  '<h1>THE INTERNET IS DYING</h1><p>Will you SAVE it or KILL it?</p>',
  '<a href="',SITE,'/">JOIN THE CHAOS</a></main>',
  '<script>setTimeout(()=>location.replace("',SITE,'/"),1200)</script></body></html>'
