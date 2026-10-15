@@ -110,7 +110,7 @@ export async function initWorldReturn({sb,nickname}) {
    const snapshot=data.snapshot;
    const id=String(data.id);
    if(!/^[a-f0-9-]{36}$/i.test(id))throw Error("Unexpected share ID");
-   shareLib??=await import("./breaking-share-card.js?v=3");
+   shareLib??=await import("./breaking-share-card.js?v=4");
    shareLib.validateSnapshot(snapshot);
    const png=await shareLib.renderBreakingCard(snapshot);
    if(png.type!=="image/png")throw Error("PNG unavailable");
