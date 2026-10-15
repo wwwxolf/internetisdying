@@ -1,4 +1,5 @@
 import {evaluateWindows} from "./utc-battle-windows.js?v=1";
+import {battlePollDelay,economyRefreshDue,jitterDelay} from "./arena-polling.js";
 // Browser renders server facts. It never sends HP, bonus, RNG or a tap total.
 export async function initGlobalBattle({sb}) {
   const $=id=>document.getElementById(id);
@@ -6,6 +7,7 @@ export async function initGlobalBattle({sb}) {
   let state=null, battle=null, offset=0, busy=false, tapBusy=false, settling=false;
   let retryAfter=0, tapRetryAfter=0, localTaps=0, disposed=false, refreshBusy=false, syncOk=false;
   let economy={enabled:false},holdLoop=null;
+  let pollTimer=null,pollErrors=0,lastEconomySuccess=0;
   const maxTaps=()=>battle?.engine_version===2?24:50;
   const v2Mode=()=>battle?.engine_version===2||(!battle&&economy.enabled);
   const haltHold=()=>{if(holdLoop!==null){clearInterval(holdLoop);holdLoop=null;}};
@@ -109,20 +111,44 @@ export async function initGlobalBattle({sb}) {
     $('tap-charge').style.width=(battle.counted_taps*100/max)+'%';
     $('tap-combo').textContent=settling?'RECORDING RESULT…':battle.counted_taps===max?'MAX CHARGE VERIFIED':localTaps===max?'MAX TAPPED • VERIFYING '+battle.counted_taps+'/'+max:'SERVER CONFIRMED '+battle.counted_taps+'/'+max;
   }
+  function scheduleRefresh(delay){
+    clearTimeout(pollTimer);pollTimer=null;
+    if(disposed||document.hidden)return;
+    pollTimer=setTimeout(()=>{
+      pollTimer=null;
+      if(battle||busy||tapBusy||settling||refreshBusy){
+        if(!battle)scheduleRefresh(jitterDelay(3500,2000));
+        return;
+      }
+      void refresh();
+    },delay);
+  }
   async function refresh() {
     if(refreshBusy||busy||tapBusy||settling||disposed)return;
     refreshBusy=true;
     try {
       state=await rpc('status');
-      // Economy status is server-owned. A failed optional fetch does not fabricate V2.
-      try{const response=await sb.rpc('iid_economy_status');if(!response.error&&response.data)economy=response.data;}catch{}
+      // Rarely-changing server flag is sampled at most once per two minutes.
+      // The server remains authoritative for all mutations even if UI state is stale.
+      if(economyRefreshDue(lastEconomySuccess,Date.now())){
+        try{
+          const response=await sb.rpc('iid_economy_status');
+          if(!response.error&&response.data){
+            economy=response.data;lastEconomySuccess=Date.now();
+          }
+        }catch{}
+      }
+      pollErrors=0;
       const previousId=battle?.id;battle=state.active;syncOk=true;
       localTaps=!battle?0:battle.id===previousId?Math.max(localTaps,battle.counted_taps):battle.counted_taps;
       if(!battle&&state.latest)showResult(state.latest);
       message(state.world.enabled?'GLOBAL BATTLE • RESULTS VERIFIED BY SERVER':'GLOBAL ENGINE PAUSED • YOUR PROFILE IS READY');
       render();
-    } catch(e) {syncOk=false;message('Could not sync the server: '+e.message+'. Use RETRY SYNC.');choices.forEach(b=>b.disabled=true);}
-    finally{refreshBusy=false;render();}
+    } catch(e) {pollErrors++;syncOk=false;message('Could not sync the server: '+e.message+'. Retrying automatically; use RETRY SYNC if needed.');choices.forEach(b=>b.disabled=true);}
+    finally{
+      refreshBusy=false;render();
+      if(!battle)scheduleRefresh(battlePollDelay(pollErrors));
+    }
   }
   async function choose(action) {
     if(!syncOk||busy||battle||refreshBusy)return;
@@ -181,8 +207,11 @@ export async function initGlobalBattle({sb}) {
   choices.forEach(b=>b.disabled=true);
   await refresh();
   const timer=setInterval(()=>{render();if(battle&&now()<Date.parse(battle.ends_at))void flushTaps();else if(battle&&!tapBusy)void settle();},100);
-  const poll=setInterval(()=>{if(!battle)void refresh();},15000);
-  const visibility=()=>{if(!document.hidden)void refresh();};
+  const visibility=()=>{
+    if(document.hidden){clearTimeout(pollTimer);pollTimer=null;return;}
+    // Spread foreground reconnects; active battle settlement still uses the timer above.
+    scheduleRefresh(jitterDelay(1500,5500));
+  };
   document.addEventListener('visibilitychange',visibility);
-  window.addEventListener('pagehide',()=>{disposed=true;haltHold();clearInterval(timer);clearInterval(poll);document.removeEventListener('visibilitychange',visibility);},{once:true});
+  window.addEventListener('pagehide',()=>{disposed=true;haltHold();clearInterval(timer);clearTimeout(pollTimer);document.removeEventListener('visibilitychange',visibility);},{once:true});
 }
