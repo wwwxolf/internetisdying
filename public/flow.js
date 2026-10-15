@@ -187,14 +187,14 @@ if(page==="arena"){
   });
   if(demoMode)demo(u.id,p);
   else {
-   const {initGlobalBattle}=await import("./global-battle.js?v=12");
+   const {initGlobalBattle}=await import("./global-battle.js?v=13");
    await initGlobalBattle({sb});
    // Private controls initialize only after verified Google login and profile.
    void import("./developer-mode.js?v=1")
      .then(({initDeveloperMode})=>initDeveloperMode({sb}))
      .catch(()=>{});
    // Verified return brief is independent from Tap Battle and NEXT CHAOS.
-   void import("./world-return.js?v=6")
+   void import("./world-return.js?v=7")
      .then(({initWorldReturn})=>initWorldReturn({sb,nickname:p.nickname}))
      .catch(err=>console.warn("WORLD RETURN LOAD FAILED",err));
    // Read-only Hall of Fame is isolated from battle gameplay, auth and timers.
@@ -202,7 +202,7 @@ if(page==="arena"){
      .then(({initHallOfFame})=>initHallOfFame({sb}))
      .catch(err=>console.warn("HALL OF FAME LOAD FAILED",err));
    // NEXT CHAOS reads server-only votes; failure never blocks the battle arena.
-   void import("./daily-chaos.js?v=3").then(({initDailyChaos})=>initDailyChaos({sb})).catch(e=>show("DAILY CHAOS PREVIEW COULD NOT LOAD: "+e.message,"warning"));
+   void import("./daily-chaos.js?v=4").then(({initDailyChaos})=>initDailyChaos({sb})).catch(e=>show("DAILY CHAOS PREVIEW COULD NOT LOAD: "+e.message,"warning"));
   }
  }catch(e){show("Could not open Arena: "+e.message,"error");}
 }
