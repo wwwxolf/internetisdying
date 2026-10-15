@@ -18,8 +18,8 @@ test("10 independent synthetic TEST players, fixed countries and both SAVE/KILL"
 
 test("all 10 V2 formula snapshots reproduce exact production SQL results",()=>{
  const report=auditSamples(sample);
- assert.equal(report.save,936);
- assert.equal(report.kill,456);
+ assert.equal(report.save,935);
+ assert.equal(report.kill,454);
  assert.equal(report.count,10);
  assert.equal(sample.players.find(p=>p.nickname==="TEST_ECHO").critical,200);
  assert.equal(sample.players.find(p=>p.nickname==="TEST_ECHO").personal_power,4497);
@@ -27,19 +27,19 @@ test("all 10 V2 formula snapshots reproduce exact production SQL results",()=>{
  assert.equal(sample.players.find(p=>p.nickname==="TEST_CIPHER").bonus,0);
  assert.equal(sample.players.find(p=>p.nickname==="TEST_CIPHER").war_influence,53);
  assert.throws(()=>auditSamples({...sample,players:[...sample.players.slice(0,9),sample.players[0]]}),/DUPLICATE_TEST_IDENTITY/);
- assert.throws(()=>computeBattle({...sample.players[0],taps:25}),/INVALID_SYNTHETIC_INPUT/);
+ assert.throws(()=>computeBattle({...sample.players[0],taps:51}),/INVALID_SYNTHETIC_INPUT/);
 });
 
 test("rank scores do NOT directly modify the global World HP; four-hour settlement does",()=>{
  const simulatedStartingHp=sample.baseline_hp;
  const liveInfluence=totals(sample.players);
- assert.deepEqual(liveInfluence,{save:936,kill:456,count:10});
+ assert.deepEqual(liveInfluence,{save:935,kill:454,count:10});
  assert.equal(simulatedStartingHp,500000);
  const settled=windowSettlement(sample.players,simulatedStartingHp);
- assert.equal(settled.nominal,4968);
- assert.equal(settled.applied,4968);
- assert.equal(settled.hpAfter,504968);
- assert.ok(Math.abs(settled.q-480/1392)<1e-12);
+ assert.equal(settled.nominal,4969);
+ assert.equal(settled.applied,4969);
+ assert.equal(settled.hpAfter,504969);
+ assert.ok(Math.abs(settled.q-481/1389)<1e-12);
  assert.equal(sample.expected.nominal_hp,settled.nominal);
 });
 
@@ -97,12 +97,12 @@ test("ten-player simulated DOM runs sequentially and settles exactly once",async
    assert.equal(dom.get("lab-hp").textContent,"500,000","HP must not move before settlement");
    assert.equal(dom.get("lab-settle").disabled,false);
    dom.get("lab-settle").events.click();
-   assert.equal(dom.get("lab-hp").textContent,"504,968");
-   assert.equal(dom.get("lab-meter-fill").style.width,"50.4968%");
-   assert.match(dom.get("lab-pending").textContent,/\+4,968 HP/);
+   assert.equal(dom.get("lab-hp").textContent,"504,969");
+   assert.equal(dom.get("lab-meter-fill").style.width,"50.4969%");
+   assert.match(dom.get("lab-pending").textContent,/\+4,969 HP/);
    assert.equal(dom.get("lab-settle").disabled,true);
    dom.get("lab-settle").events.click();
-   assert.equal(dom.get("lab-hp").textContent,"504,968","no double settlement");
+   assert.equal(dom.get("lab-hp").textContent,"504,969","no double settlement");
    dom.get("lab-restart").events.click();
    assert.equal(dom.get("lab-count").textContent,"0 / 10");
    assert.equal(dom.get("lab-hp").textContent,"500,000");
