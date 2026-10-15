@@ -12,7 +12,7 @@
   <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="./styles.css?v=7"/>
   <link rel="stylesheet" href="./arena.css?v=9"/>
-  <link rel="stylesheet" href="./hall-of-fame.css?v=1"/>
+  <link rel="stylesheet" href="./hall-of-fame.css?v=2"/>
   <link rel="stylesheet" href="./tap-battle.css?v=3"/>
   <link rel="stylesheet" href="./daily-chaos.css?v=2"/>
   <link rel="stylesheet" href="./world-return.css?v=4"/>
@@ -277,11 +277,13 @@
           <div class="hof-dual">
             <article class="hof-panel hof-panel-save" aria-label="Top 10 SAVE">
               <h3>✦ TOP 10 SAVE_</h3>
+              <p id="hof-save-total" class="hof-total">TOTAL SAVE — HP</p>
               <div id="hof-save-list" class="hof-list"></div>
               <div id="hof-save-self" class="hof-self" hidden></div>
             </article>
             <article class="hof-panel hof-panel-kill" aria-label="Top 10 KILL">
               <h3>✕ TOP 10 KILL_</h3>
+              <p id="hof-kill-total" class="hof-total">TOTAL KILL — HP</p>
               <div id="hof-kill-list" class="hof-list"></div>
               <div id="hof-kill-self" class="hof-self" hidden></div>
             </article>
