@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="./world-return.css?v=4"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./flow.js?v=30"></script>
+  <script type="module" src="./flow.js?v=31"></script>
 </head>
 <body data-page="arena" data-battle-mode="global">
   <div class="preview-bar" role="note">GLOBAL BATTLE ENGINE • CONTROLLED ROLLOUT</div>
@@ -305,6 +305,15 @@
           <a href="./demo.html" class="navlink">SEPARATE LOCAL DEMO →</a>
         </section>
 
+        <section id="arena-dev-mode" class="arena-dev-mode" aria-label="Private developer controls" hidden>
+          <h2>DEVELOPER MODE_</h2>
+          <p>Reset test battles, world HP, rankings and war progress. Your Google login and character remain.</p>
+          <p>Only the authorized developer can reset, and only while they are the sole player.</p>
+          <label for="dev-reset-confirm">Type RESET WORLD_001 to confirm:</label>
+          <input id="dev-reset-confirm" type="text" autocomplete="off" spellcheck="false" placeholder="RESET WORLD_001">
+          <button id="dev-reset-button" type="button" disabled>RESET TEST WORLD</button>
+          <p id="dev-reset-message" role="status">Ready for another test.</p>
+        </section>
         <aside class="arena-ad-slot" aria-label="Future advertisement space">
           <span class="ad-label">AD SPACE RESERVED • NOT ACTIVE</span>
           <p>No ads or purchases in this alpha.</p>

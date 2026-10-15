@@ -191,6 +191,10 @@ if(page==="arena"){
   else {
    const {initGlobalBattle}=await import("./global-battle.js?v=12");
    await initGlobalBattle({sb});
+   // Private controls initialize only after verified Google login and profile.
+   void import("./developer-mode.js?v=1")
+     .then(({initDeveloperMode})=>initDeveloperMode({sb}))
+     .catch(()=>{});
    // Verified return brief is independent from Tap Battle and NEXT CHAOS.
    void import("./world-return.js?v=6")
      .then(({initWorldReturn})=>initWorldReturn({sb,nickname:p.nickname}))
