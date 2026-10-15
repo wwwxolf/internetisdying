@@ -58,6 +58,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          set -x
           ROOT="https://internetisdying.wwwxolf.workers.dev"
           for i in 1 2 3 4 5 6; do
             curl -fsSL --max-time 12 "$ROOT/arena.html" -o /tmp/iid-arena.html || true
