@@ -12,6 +12,7 @@ function fixture({seen=false,replay=false}={}){
  });
  for(const id of ["prologue-frame","prologue-line","prologue-aside","prologue-count",
   "prologue-next","prologue-skip","prologue-final","prologue-save","prologue-kill"])nodes.set(id,mk(id));
+ nodes.get("prologue-final").hidden=true;
  const controls=mk("controls");
  const doc={
   visibilityState:"visible",
