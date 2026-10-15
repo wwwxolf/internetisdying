@@ -49,7 +49,7 @@ test("Arena still uses authoritative start/tap_batch/settle RPCs and skips hidde
  assert.match(battle,/if\(disposed\|\|document.hidden\)return/);
  assert.match(chaos,/if\(disposed\|\|document.hidden\)return/);
  assert.doesNotMatch(battle,/setInterval\(\(\)=>\{if\(!battle\)void refresh\(\);\},15000\)/);
- assert.match(flow,/global-battle\.js\?v=9/);
+ assert.match(flow,/global-battle\.js\?v=10/);
  assert.match(flow,/daily-chaos\.js\?v=3/);
  assert.match(arena,/SERVER SYNC AUTO/);
 });
