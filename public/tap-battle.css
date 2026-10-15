@@ -177,3 +177,7 @@ body[data-page="arena"] .v2-war-meter{display:flex;width:100%;height:18px;border
 body[data-page="arena"] .v2-war-save-fill{width:50%;background:#5dd3a6;transition:width .3s ease}
 body[data-page="arena"] .v2-war-kill-fill{width:50%;background:#f26883;transition:width .3s ease}
 body[data-page="arena"] .v2-war-note{font:10px/1.6 "Pixelify Sans",monospace;color:#a7bad0;margin:4px 0}
+
+/* World_001: faction-specific English tap copy. data-side is already set by each game engine. */
+body[data-page="arena"] .tap-battle[data-side="heal"] .tap-copy-kill,
+body[data-page="arena"] .tap-battle[data-side="kill"] .tap-copy-save{display:none}
