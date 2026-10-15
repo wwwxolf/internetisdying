@@ -28,11 +28,12 @@
 .locked-worlds{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:20px}
 .world-locked{min-width:0;background:#131825;border:2px solid #30374d;padding:12px;box-shadow:3px 3px 0 #080b12}
 .locked-art{background:#0e1421;border-bottom:1px solid #2f3850;margin:-12px -12px 12px;padding:5px 16px}
-.world-locked .world-art{height:86px;filter:saturate(.65);opacity:.9}
+/* Locked worlds share a true monochrome visual treatment. Active World_001 remains full color. */
+.world-locked .world-art{height:86px;filter:grayscale(1) brightness(.83) contrast(1.06);opacity:.88}
 .locked-meta{display:flex;justify-content:space-between;gap:4px;flex-wrap:wrap;font:7px/1.7 "Press Start 2P",monospace;color:#929cb7}
-.lock-label{display:inline-flex;align-items:center;gap:5px;color:#b0a4c8}
-.pixel-lock{width:8px;height:7px;display:inline-block;position:relative;background:#a498bc;margin-top:3px}
-.pixel-lock:before{content:"";position:absolute;width:6px;height:5px;border:2px solid #a498bc;left:1px;top:-4px}
+.lock-label{display:inline-flex;align-items:center;gap:5px;color:#aab3c1}
+.pixel-lock{width:8px;height:7px;display:inline-block;position:relative;background:#9ca8b8;margin-top:3px}
+.pixel-lock:before{content:"";position:absolute;width:6px;height:5px;border:2px solid #9ca8b8;left:1px;top:-4px}
 .world-locked h3{font-size:9px;line-height:1.8;color:#cbd0df;margin:9px 0 0;overflow-wrap:anywhere}
 .world-concept{font-size:15px;color:#929db6;text-align:center;max-width:65ch;margin:20px auto 0;line-height:1.4}
 .multiverse .global-pulses{display:grid;grid-template-columns:1fr auto;gap:4px 14px;align-items:center;max-width:none;text-align:left;margin:24px 0;padding:13px 16px;border:1px solid #30374d;background:#101622}
