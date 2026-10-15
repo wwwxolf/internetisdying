@@ -9,10 +9,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
-  <link rel="stylesheet" href="./styles.css?v=phase1-polish"/>
+  <link rel="stylesheet" href="./styles.css?v=world001-avatars"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./flow.js?v=phase1-polish"></script>
+  <script type="module" src="./flow.js?v=34"></script>
 </head>
 <body data-page="onboarding">
   <div class="preview-bar">DESIGN PREVIEW • GAME SYSTEM AND ADS ARE NOT LIVE</div>
@@ -23,17 +23,17 @@
     </header>
     <main class="flow-shell">
       <p class="eyebrow">WORLD_001 / FIRST TIME ONLY</p>
-      <h1 class="flow-title">CREATE YOUR <span>IDENTITY_</span></h1>
-      <p class="flow-intro">Choose your origin and a unique nickname. Both are stored in your account once.</p>
+      <h1 class="flow-title">CHOOSE YOUR <span>AVATAR_</span></h1>
+      <p class="flow-intro">Select your World_001 character, country and unique nickname. Your identity is saved once.</p>
       <div class="panel auth-panel">
-        <h2 class="flow-heading">WHO ARE YOU?</h2>
+        <h2 class="flow-heading">CHICKEN EATS THE INTERNET / PICK A FIGHTER</h2>
         <p id="flow-status" class="flow-message" role="status" aria-live="polite">Checking your account...</p>
         <form id="profile-form" hidden>
-          <div class="characters" role="group" aria-label="Choose your character">
-            <button type="button" class="avatar" data-origin="HUMAN" aria-pressed="true"><span class="avatar-icon" aria-hidden="true"><img src="./assets/avatar-human.svg" width="44" height="44" alt="" decoding="async"/></span><span class="avatar-label">HUMAN</span></button>
-            <button type="button" class="avatar" data-origin="BOT" aria-pressed="false"><span class="avatar-icon" aria-hidden="true"><img src="./assets/avatar-bot.svg" width="44" height="44" alt="" decoding="async"/></span><span class="avatar-label">BOT</span></button>
-            <button type="button" class="avatar" data-origin="ALIEN" aria-pressed="false"><span class="avatar-icon" aria-hidden="true"><img src="./assets/avatar-alien.svg" width="44" height="44" alt="" decoding="async"/></span><span class="avatar-label">ALIEN</span></button>
-            <button type="button" class="avatar" data-origin="GLITCH" aria-pressed="false"><span class="avatar-icon" aria-hidden="true"><img src="./assets/avatar-glitch.svg" width="44" height="44" alt="" decoding="async"/></span><span class="avatar-label">GLITCH</span></button>
+          <div class="characters world001-characters" role="group" aria-label="Choose your World 001 character">
+            <button type="button" class="avatar" data-origin="HUMAN" aria-pressed="true"><span class="avatar-icon" aria-hidden="true"><img src="./assets/avatar-world001-human.svg" width="96" height="112" alt="" decoding="async"/></span><span class="avatar-label">HUMAN</span><span class="avatar-tagline">Still online. Barely.</span></button>
+            <button type="button" class="avatar" data-origin="BOT_CHICKEN" aria-pressed="false"><span class="avatar-icon" aria-hidden="true"><img src="./assets/avatar-world001-bot-chicken.svg" width="96" height="112" alt="" decoding="async"/></span><span class="avatar-label">BOT CHICKEN</span><span class="avatar-tagline">Cluck.exe</span></button>
+            <button type="button" class="avatar" data-origin="CHICKEN_MUTANT" aria-pressed="false"><span class="avatar-icon" aria-hidden="true"><img src="./assets/avatar-world001-chicken-mutant.svg" width="96" height="112" alt="" decoding="async"/></span><span class="avatar-label">CHICKEN MUTANT</span><span class="avatar-tagline">Very hungry.</span></button>
+            <button type="button" class="avatar" data-origin="EGG_GLITCH" aria-pressed="false"><span class="avatar-icon" aria-hidden="true"><img src="./assets/avatar-world001-egg-glitch.svg" width="96" height="112" alt="" decoding="async"/></span><span class="avatar-label">EGG GLITCH</span><span class="avatar-tagline">404: Life not found.</span></button>
           </div>
           <label class="field-label" for="country-search">COUNTRY / TERRITORY</label>
           <div class="country-picker">
