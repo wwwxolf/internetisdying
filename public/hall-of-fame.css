@@ -27,3 +27,13 @@ body[data-page="arena"] .hof-unranked .hof-rank{color:#8ea4bb}
 body[data-page="arena"] .hof-unranked-label{grid-column:2/4;color:#f4ca73;font:7px/1.6 "Press Start 2P",monospace}
 body[data-page="arena"] .hof-status{font:12px/1.5 "Pixelify Sans",monospace;color:#9baec6;margin:13px 0 0}
 @media(max-width:560px){body[data-page="arena"] .hof-dual{grid-template-columns:1fr}body[data-page="arena"] .hof-panel{padding:12px}body[data-page="arena"] .hof-entry{grid-template-columns:42px minmax(0,1fr) auto;gap:10px}body[data-page="arena"] .hof-name{font-size:14px}}
+
+/* Verified applied World HP, separate from ranking Personal Power. */
+body[data-page="arena"] .hof-total{margin:0 0 10px;color:#9db9ce;font:10px/1.6 "Pixelify Sans",monospace}
+body[data-page="arena"] .hof-panel-save .hof-total{color:#7adbb1}
+body[data-page="arena"] .hof-panel-kill .hof-total{color:#ff98aa}
+body[data-page="arena"] .hof-hp{grid-column:2/-1;justify-self:start;font:9px/1.6 "Press Start 2P",monospace;overflow-wrap:anywhere}
+body[data-page="arena"] .hof-hp-save{color:#72dfa6}
+body[data-page="arena"] .hof-hp-kill{color:#ff7894}
+body[data-page="arena"] .hof-entry .hof-hp + .hof-you-tag{grid-column:2/-1}
+@media(max-width:560px){body[data-page="arena"] .hof-hp{font-size:8px}}
