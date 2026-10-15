@@ -36,5 +36,8 @@ test("Only red core pulses, HP bar scans inside 50 percent; mobile and reduced m
  assert.match(css,/\.hero \.hud-minimal \.hp-fill::after\{/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)[\s\S]*\.world-core-signal\{animation:none!important/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)[\s\S]*\.hero \.hud-minimal \.hp-fill::after\{animation:none!important/);
- assert.match(arena,/class="pixel-heart"/);
+ assert.match(arena,/class="heart-zone world-core-zone"/);
+ assert.match(arena,/src="\.\/assets\/dying-internet-core\.svg"/);
+ assert.match(arena,/class="world-core-signal"/);
+ assert.doesNotMatch(arena,/class="pixel-heart"/);
 });
