@@ -46,7 +46,11 @@ async function profile(id){
  if(error)throw error;
  return data;
 }
-async function route(u){next((await profile(u.id))?"./arena.html":"./onboarding.html");}
+const avatarCodes=["HUMAN","BOT_CHICKEN","CHICKEN_MUTANT","EGG_GLITCH"];
+const avatarFromUrl=new URLSearchParams(location.search||"").get("avatar");
+const requestedAvatar=avatarCodes.includes(avatarFromUrl)?avatarFromUrl:null;
+const onboardingDest="./onboarding.html"+(requestedAvatar?"?avatar="+requestedAvatar:"");
+async function route(u){next((await profile(u.id))?"./arena.html":onboardingDest);}
 
 if(page==="landing"){
  // The native ENTER WORLD link opens the skippable prologue first.
@@ -82,7 +86,7 @@ if(page==="auth"){
  $("google-login").addEventListener("click",async()=>{
   const btn=$("google-login");btn.disabled=true;show("Redirecting to Google...");
   try{
-   const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:new URL("./onboarding.html",location.href).href}});
+   const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:new URL(onboardingDest,location.href).href}});
    if(error)throw error;
   }catch(e){show("Google sign-in error: "+e.message,"error");btn.disabled=false;}
  });
@@ -90,7 +94,7 @@ if(page==="auth"){
   ev.preventDefault();if(!$("email").reportValidity())return;
   const btn=$("email-send");btn.disabled=true;show("Sending email...");
   try{
-   const {error}=await sb.auth.signInWithOtp({email:$("email").value.trim(),options:{emailRedirectTo:new URL("./onboarding.html",location.href).href}});
+   const {error}=await sb.auth.signInWithOtp({email:$("email").value.trim(),options:{emailRedirectTo:new URL(onboardingDest,location.href).href}});
    if(error)throw error;
    $("otp-form").hidden=false;show("Check your inbox for a code or sign-in link.","success");
   }catch(e){show("Email sign-in error: "+e.message,"error");}
@@ -121,11 +125,18 @@ if(page==="onboarding"){
   const u=await user();if(!u){next("./auth.html");return;}
   if(await profile(u.id)){next("./arena.html");return;}
   const form=$("profile-form");form.hidden=false;show("Verified account. Create your one-time identity.","success");
-  let origin="HUMAN";
-  document.querySelectorAll("[data-origin]").forEach(btn=>btn.addEventListener("click",()=>{
-   origin=btn.dataset.origin;
-   document.querySelectorAll("[data-origin]").forEach(item=>item.setAttribute("aria-pressed",String(item.dataset.origin===origin)));
-  }));
+  const originButtons=[...document.querySelectorAll("[data-origin]")];
+  const avatarStoreKey="iid_world001_avatar_choice_v1";
+  let savedChoice=null;
+  try{savedChoice=sessionStorage.getItem(avatarStoreKey);}catch{/* Private browsing fallback: select manually. */}
+  let origin=avatarCodes.includes(requestedAvatar)?requestedAvatar:(avatarCodes.includes(savedChoice)?savedChoice:"HUMAN");
+  const selectOrigin=(choice)=>{
+   origin=choice;
+   originButtons.forEach(item=>item.setAttribute("aria-pressed",String(item.dataset.origin===choice)));
+   try{sessionStorage.setItem(avatarStoreKey,choice);}catch{}
+  };
+  originButtons.forEach(btn=>btn.addEventListener("click",()=>selectOrigin(btn.dataset.origin)));
+  selectOrigin(origin);
   const search=$("country-search"), countryCode=$("country-code"), results=$("country-results"), selected=$("country-selected");
   const flagPanel=$("custom-flag-panel"), grid=$("flag-grid"), palette=$("flag-palette");
   const colors=FLAG_COLORS, pixels=Array(96).fill(0);
@@ -160,6 +171,7 @@ if(page==="onboarding"){
      }
      throw error;
     }
+    try{sessionStorage.removeItem(avatarStoreKey);}catch{}
     next("./arena.html");
    }catch(e){show("Could not save identity: "+e.message,"error");btn.disabled=false;}
   });
@@ -172,11 +184,13 @@ if(page==="arena"){
   const u=await user();if(!u){next("./auth.html");return;}
   const p=await profile(u.id);if(!p){next("./onboarding.html");return;}
   $("arena-content").hidden=false;
-  $("arena-identity").textContent=p.origin+" / "+p.nickname;
+  const originLabels={HUMAN:"HUMAN",BOT_CHICKEN:"BOT CHICKEN",CHICKEN_MUTANT:"CHICKEN MUTANT",EGG_GLITCH:"EGG GLITCH",BOT:"BOT",ALIEN:"ALIEN",GLITCH:"GLITCH"};
+  $("arena-identity").textContent=(originLabels[p.origin]||p.origin)+" / "+p.nickname;
   renderCountryBadge($("arena-country"),p);
-  // Origin visuals are cosmetic. Preserve the stored enum and all gameplay rules.
-  const originKey=["HUMAN","BOT","ALIEN","GLITCH"].includes(p.origin)?p.origin.toLowerCase():"human";
-  $("arena-origin-avatar").src="./assets/avatar-"+originKey+".svg";
+  // Character sprites are cosmetic until avatar abilities are designed.
+  // Legacy profile origins are still supported without changing stored history.
+  const originSprite={HUMAN:"world001-human",BOT_CHICKEN:"world001-bot-chicken",CHICKEN_MUTANT:"world001-chicken-mutant",EGG_GLITCH:"world001-egg-glitch",BOT:"bot",ALIEN:"alien",GLITCH:"glitch"};
+  $("arena-origin-avatar").src="./assets/avatar-"+(originSprite[p.origin]||"world001-human")+".svg";
   const demoMode=document.body.dataset.battleMode==="demo";
   show(demoMode?"LOCAL DEMO • NO GLOBAL VOTES":"CONNECTING TO GLOBAL BATTLE ENGINE…","success");
   $("signout").addEventListener("click",async()=>{
