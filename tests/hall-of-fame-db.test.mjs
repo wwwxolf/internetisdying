@@ -118,3 +118,45 @@ test("KILL and V2 War Influence remain distinct; V2 does not inherit V1 scores",
  await asAdmin("update public.iid_economy_control set v2_enabled=false where id=1");
  assert.equal((await hall()).save.self.rank,13);
 });
+
+test("30-day Legendary Top 3 uses single strongest verified V2 battle per unique player",async()=>{
+ await asAdmin("update public.iid_economy_control set v2_enabled=true where id=1");
+ const records=[
+  [1,"HEAL",900,140],
+  [1,"KILL",1400,185],
+  [1,"HEAL",1200,165],
+  [2,"HEAL",1300,175],
+  [3,"KILL",1100,165],
+  [4,"HEAL",1000,150]
+ ];
+ let repeatedId=null;
+ for(const [person,action,power,influence] of records){
+  const t=await asAdmin(
+   "insert into public.iid_battles(user_id,action,engine_version,power,war_influence,applied_hp) values($1,$2,2,$3,$4,0) returning id",
+   [user(person),action,power,influence]);
+  const battle=t.rows[0].id;
+  await asAdmin("update public.iid_battles set settled_at=now() where id=$1",[battle]);
+  if(person===2)repeatedId=battle;
+ }
+ const rank=await hall();
+ assert.equal(rank.engine_version,2);
+ assert.equal(rank.score_unit,"FACTION POINTS");
+ assert.equal(rank.period,"30-DAY LEADERBOARD CYCLE");
+ assert.equal(rank.legendary.length,3);
+ assert.deepEqual(rank.legendary.map(x=>x.nickname),["Player_1","Player_2","Player_3"]);
+ assert.deepEqual(rank.legendary.map(x=>x.power),[1400,1300,1100]);
+ assert.deepEqual(rank.legendary.map(x=>x.action),["KILL","HEAL","KILL"]);
+ assert.equal(rank.save.top[0].nickname,"Player_1");
+ assert.equal(rank.save.top[0].score,140+165);
+ assert.ok(rank.season.ends_at);
+ assert.doesNotMatch(JSON.stringify(rank),/10000000-0000-4000|email/);
+ const before=(await asAdmin("select save_points,kill_points from public.iid_hof_season_totals where user_id=$1 and season_no=$2",[user(2),rank.season.number])).rows[0];
+ await asAdmin("update public.iid_battles set settled_at=now() where id=$1",[repeatedId]);
+ const after=(await asAdmin("select save_points,kill_points from public.iid_hof_season_totals where user_id=$1 and season_no=$2",[user(2),rank.season.number])).rows[0];
+ assert.deepEqual(after,before,"re-settlement cannot inflate points");
+ await login(13,"anon");
+ await assert.rejects(db.query("select * from public.iid_hof_season_totals"),/permission denied/);
+ await assert.rejects(hall(),/permission denied/);
+ await login(13);
+ await asAdmin("update public.iid_economy_control set v2_enabled=false where id=1");
+});
