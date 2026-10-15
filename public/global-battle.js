@@ -1,6 +1,7 @@
 import {evaluateWindows} from "./utc-battle-windows.js?v=1";
 import {battlePollDelay,economyRefreshDue,jitterDelay} from "./arena-polling.js";
 import {startLiveWarMomentum,currentMomentum,slotStartMs} from "./live-war-momentum.js?v=1";
+import {V2_MAX_TAPS,V2_DURATION_SECONDS,V2_HOLD_MS,v2TapBonus} from "./v2-tap-config.js";
 // Browser renders server facts. It never sends HP, bonus, RNG or a tap total.
 export async function initGlobalBattle({sb}) {
   const $=id=>document.getElementById(id);
@@ -9,7 +10,7 @@ export async function initGlobalBattle({sb}) {
   let retryAfter=0, tapRetryAfter=0, localTaps=0, disposed=false, refreshBusy=false, syncOk=false;
   let economy={enabled:false},liveMomentum=null,holdLoop=null;
   let pollTimer=null,pollErrors=0,lastEconomySuccess=0,lastPaintedHp=null;
-  const maxTaps=()=>battle?.engine_version===2?24:50;
+  const maxTaps=()=>battle?.engine_version===2?V2_MAX_TAPS:50;
   const v2Mode=()=>battle?.engine_version===2||(!battle&&economy.enabled);
   const haltHold=()=>{if(holdLoop!==null){clearInterval(holdLoop);holdLoop=null;}};
   const now=()=>Date.now()+offset;
@@ -123,7 +124,7 @@ export async function initGlobalBattle({sb}) {
     $('tap-countdown').hidden=before<=0;
     $('tap-countdown').textContent=String(Math.max(1,Math.ceil(before/1000)));
     $('tap-target').hidden=before>0;
-    const isV2=battle.engine_version===2,max=isV2?24:50,duration=isV2?12000:20000;
+    const isV2=battle.engine_version===2,max=isV2?V2_MAX_TAPS:50,duration=isV2?V2_DURATION_SECONDS*1000:20000;
     $('tap-battle').setAttribute('aria-label',(duration/1000)+'-second Global Chaos Tap Battle');
     $('tap-target').disabled=before>0||remain<=0||refreshBusy||localTaps>=max;
     $('tap-hold').hidden=!isV2||before>0;
@@ -136,7 +137,7 @@ export async function initGlobalBattle({sb}) {
     $('tap-charge-track').setAttribute('aria-label','Charge rises from zero to maximum at '+max+' taps');
     $('tap-time').textContent=(Math.min(duration,Math.max(0,remain))/1000).toFixed(1);
     $('tap-count').textContent=localTaps+' / '+max;
-    $('tap-bonus').textContent='+'+(isV2?Math.floor(battle.counted_taps/4):Math.floor(battle.counted_taps/10)*2)+'%';
+    $('tap-bonus').textContent='+'+(isV2?v2TapBonus(battle.counted_taps):Math.floor(battle.counted_taps/10)*2)+'%';
     $('tap-charge').style.width=(battle.counted_taps*100/max)+'%';
     $('tap-combo').textContent=settling?'RECORDING RESULT…':battle.counted_taps===max?'MAX CHARGE VERIFIED':localTaps===max?'MAX TAPPED • VERIFYING '+battle.counted_taps+'/'+max:'SERVER CONFIRMED '+battle.counted_taps+'/'+max;
   }
@@ -236,7 +237,7 @@ export async function initGlobalBattle({sb}) {
   $('tap-target').addEventListener('click',tap);
   const hold=$('tap-hold');
   const beginHold=()=>{if(!battle||battle.engine_version!==2||holdLoop!==null||hold.disabled)return;
-    tap();holdLoop=setInterval(tap,500);};
+    tap();holdLoop=setInterval(tap,V2_HOLD_MS);};
   hold.addEventListener('pointerdown',beginHold);
   ['pointerup','pointercancel','pointerleave'].forEach(name=>hold.addEventListener(name,haltHold));
   hold.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();beginHold();}});
