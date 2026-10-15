@@ -31,6 +31,7 @@ export async function initWorldReturn({sb,nickname}) {
     && Number(data.chaos_events)===0 && Number(data.decay_pulses)===0;
   const change=Number(data.net_hp||0);
   root.dataset.trend=change>0?"heal":change<0?"kill":"quiet";
+  text("world-return-eyebrow",visited?"WHILE YOU WERE GONE_":"FIRST VISIT_");
   text("world-return-title",!visited?"WELCOME TO WORLD_001_"
     :quiet?"THE INTERNET WAS QUIET_":change<0?"THE INTERNET TOOK A HIT_"
     :change>0?"THE INTERNET FOUGHT BACK_":"A PERFECT STALEMATE_");
