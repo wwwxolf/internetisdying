@@ -199,15 +199,15 @@ test('authenticated start path retains player-row serialization',async()=>{
     assert.match(q.rows[0].source,/from public\.iid_profiles[\s\S]*for update/i);
   }finally{await login();}
 });
-test('V2 combat uses 2-second ready, 12-second play, 24 taps and compressed war influence',async()=>{
+test('V2 combat uses 2-second ready, 10-second play, 50 taps and compressed war influence',async()=>{
  await fresh();
  await admin("update public.iid_economy_control set v2_enabled=true,activated_at=clock_timestamp()");
  const b=await start('HEAL');
  assert.equal(b.engine_version,2);
  assert.equal(new Date(b.starts_at)-new Date(b.created_at),2000);
- assert.equal(new Date(b.ends_at)-new Date(b.starts_at),12000);
- await assert.rejects(rpc('tap_batch',[b.id,25],['uuid','integer']),/INVALID_TAP_TOTAL/);
- await admin("update public.iid_battles set created_at=statement_timestamp()-interval '16 seconds',starts_at=statement_timestamp()-interval '14 seconds',ends_at=statement_timestamp()-interval '2 seconds',counted_taps=24 where id='"+b.id+"'");
+ assert.equal(new Date(b.ends_at)-new Date(b.starts_at),10000);
+ await assert.rejects(rpc('tap_batch',[b.id,51],['uuid','integer']),/INVALID_TAP_TOTAL/);
+ await admin("update public.iid_battles set created_at=statement_timestamp()-interval '16 seconds',starts_at=statement_timestamp()-interval '14 seconds',ends_at=statement_timestamp()-interval '2 seconds',counted_taps=50 where id='"+b.id+"'");
  const r=await settle(b.id);
  assert.ok(r.power>=100&&r.power<=5300);
  assert.ok([100,150,200].includes(r.critical));
@@ -219,6 +219,57 @@ test('V2 combat uses 2-second ready, 12-second play, 24 taps and compressed war 
  assert.deepEqual(await settle(b.id),r,'V2 settlement is idempotent');
  await admin("update public.iid_economy_control set v2_enabled=false,activated_at=null");
 });
+
+test('V2 server-verified tier thresholds are 0–6% and +6% requires exactly 50 taps',async()=>{
+ const ranges=[
+  [0,0],[8,0],[9,1],[16,1],[17,2],[24,2],[25,3],[33,3],
+  [34,4],[41,4],[42,5],[49,5],[50,6],[51,6]
+ ];
+ await db.exec('reset role');
+ try{
+  for(const [tapCount,bonus] of ranges){
+   const actual=(await db.query('select iid_private.v2_tap_bonus($1::int) as v',[tapCount])).rows[0].v;
+   assert.equal(actual,bonus,'tap '+tapCount);
+  }
+ }finally{await login();}
+ // V2 per-battle power comes from the actual server accepted taps, not local taps.
+ for(const [tapCount,bonus] of [[0,0],[8,0],[9,1],[17,2],[25,3],[34,4],[42,5],[49,5],[50,6]]){
+  await fresh();
+  await admin('update public.iid_economy_control set v2_enabled=true,activated_at=clock_timestamp()');
+  const b=await start('HEAL');
+  await admin(`update public.iid_battles set starts_at=statement_timestamp()-interval '11 seconds',
+    ends_at=statement_timestamp()-interval '1 second',counted_taps=${tapCount} where id='${b.id}'`);
+  const settled=await settle(b.id);
+  assert.equal(settled.bonus,bonus,'settled tap count '+tapCount);
+  assert.equal(settled.engine_version,2);
+  assert.equal(settled.applied_hp,0);
+  assert.equal((await settle(b.id)).war_influence,settled.war_influence);
+ }
+ await fresh();
+});
+
+test('V2 accepts up to 50 acknowledged taps in bounded idempotent batches; 51st rejected',async()=>{
+ await fresh();
+ await admin('update public.iid_economy_control set v2_enabled=true,activated_at=clock_timestamp()');
+ const b=await start('HEAL');
+ const batches=async n=>rpc('tap_batch',[b.id,n],['uuid','integer']);
+ await admin(`update public.iid_battles set starts_at=statement_timestamp()-interval '5 seconds',
+   ends_at=statement_timestamp()+interval '5 seconds',last_tap_at=null where id='${b.id}'`);
+ await assert.rejects(batches(51),/INVALID_TAP_TOTAL/);
+ await assert.rejects(batches(11),/BATCH_TOO_LARGE/);
+ for(const n of [10,20,30,40,50]){
+  if(n>10)await admin(`update public.iid_battles set last_tap_at=statement_timestamp()-interval '1 second' where id='${b.id}'`);
+  const ack=await batches(n);assert.equal(ack.counted_taps,n);
+  assert.equal((await batches(n)).counted_taps,n,'retry absolute tap total');
+ }
+ await assert.rejects(rpc('tap',[b.id,51],['uuid','integer']),/INVALID_SEQUENCE/);
+ await admin(`update public.iid_battles set ends_at=statement_timestamp()-interval '1 second' where id='${b.id}'`);
+ await assert.rejects(batches(51),/INVALID_TAP_TOTAL/);
+ const result=await settle(b.id);
+ assert.equal(result.bonus,6);assert.equal(result.counted_taps,50);
+ await fresh();
+});
+
 test('V2 Chaos is symmetric, honors quorum ten and caps absolute impact',async()=>{
  await db.exec('reset role');
  try{
