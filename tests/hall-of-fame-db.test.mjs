@@ -38,6 +38,7 @@ const u1=user(1);
 await db.query("insert into public.iid_battles(user_id,action,engine_version,power,applied_hp,settled_at) values($1,'HEAL',1,200,150,now())",[u1]);
 await db.exec(await readFile("supabase/migrations/20261015025000_phase2_hall_of_fame.sql","utf8"));
 await db.exec(await readFile("supabase/migrations/20261015032000_hof_verified_hp.sql","utf8"));
+await db.exec(await readFile("supabase/migrations/20261015041000_v2_hof_totals.sql","utf8"));
 async function login(i=13,role="authenticated"){
  await db.exec("reset role");
  await db.query("select set_config('request.jwt.claims',$1,false)",[JSON.stringify({sub:user(i)})]);
@@ -72,6 +73,7 @@ test("settled V1 power yields top ten, stable actual self rank below top ten, no
  assert.equal(info.engine_version,1);
  assert.equal(info.score_unit,"PERSONAL POWER");
  assert.equal(info.save.top.length,10);
+ assert.equal(Number(info.save.total_score),2522);
  assert.equal(Number(info.save.top[0].score),200);
  assert.equal(Number(info.save.top[0].hp),150);
  assert.equal(Number(info.save.top[9].hp),161);
@@ -105,6 +107,8 @@ test("KILL and V2 War Influence remain distinct; V2 does not inherit V1 scores",
  assert.equal(v2Ranks.engine_version,2);
  assert.equal(v2Ranks.score_unit,"WAR INFLUENCE");
  assert.equal(v2Ranks.save.top.length,2);
+ assert.equal(Number(v2Ranks.save.total_score),500);
+ assert.equal(Number(v2Ranks.kill.total_score),0);
  assert.equal(v2Ranks.save.top[0].nickname,"Player_13");
  assert.equal(v2Ranks.save.self.rank,1);
  assert.equal(v2Ranks.save.self.score,300);
