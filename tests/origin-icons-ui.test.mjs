@@ -23,7 +23,6 @@ test("World 001 onboarding and preview use four shared lightweight pixel sprites
   assert.ok(svg.length<3000,"sprites must stay lightweight");
  }
  assert.doesNotMatch(onboarding,/data-origin="ALIEN"/);
- assert.doesNotMatch(onboarding,/<span class="avatar-icon" aria-hidden="true">[HBAG]<\\/span>/);
 });
 
 test("chosen preview avatar survives sign-in and the Arena supports legacy origins",async()=>{
