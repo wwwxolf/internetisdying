@@ -77,7 +77,7 @@ test("V2 verified player appears at #1 with influence and no historic V1 labels"
 test("Arena wires isolated Hall of Fame without changing game engine imports",async()=>{
  const flow=await readFile("public/flow.js","utf8"),html=await readFile("public/arena.html","utf8");
  assert.match(flow,/initHallOfFame\(\{sb\}\)/);
- assert.match(flow,/global-battle\.js\?v=10/);
+ assert.match(flow,/global-battle\.js\?v=11/);
  assert.match(html,/id="hall-of-fame"/);
  for(const id of ["hof-save-list","hof-kill-list","hof-save-self","hof-kill-self","hof-status"])
   assert.ok(html.includes('id="'+id+'"'));
