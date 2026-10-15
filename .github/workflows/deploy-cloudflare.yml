@@ -85,4 +85,12 @@ jobs:
           curl -fsSL --max-time 15 "$ROOT/api/war-momentum" -o /tmp/iid-momentum.json
           grep -q '"window_start"' /tmp/iid-momentum.json
           grep -q '"battle_count"' /tmp/iid-momentum.json
-          echo "Verified deployed Arena, live momentum edge API, Hall of Fame and V2 assets."
+          curl -fsSL --max-time 15 "$ROOT/" -o /tmp/iid-landing.html
+          grep -q 'id="join-btn" href="./prologue.html"' /tmp/iid-landing.html
+          curl -fsSL --max-time 15 "$ROOT/prologue.html" -o /tmp/iid-prologue.html
+          grep -q 'prologue.js?v=1' /tmp/iid-prologue.html
+          grep -q 'FEED THE CHICKEN' /tmp/iid-prologue.html
+          grep -q 'SAVE THE INTERNET' /tmp/iid-prologue.html
+          curl -fsSL --max-time 15 "$ROOT/prologue.js?v=1" -o /tmp/iid-prologue.js
+          grep -q 'Then one chicken got hungry' /tmp/iid-prologue.js
+          echo "Verified deployed Arena, landing prologue, Hall of Fame and V2 assets."
