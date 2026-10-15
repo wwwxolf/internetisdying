@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+ <meta charset="utf-8"/>
+ <meta name="viewport" content="width=device-width,initial-scale=1"/>
+ <meta name="theme-color" content="#0b101b"/>
+ <meta name="description" content="THE INTERNET IS DYING — isolated 10-player V2 battle simulation and audit."/>
+ <title>V2 TEST LAB — THE INTERNET IS DYING</title>
+ <link rel="preconnect" href="https://fonts.googleapis.com"/>
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+ <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
+ <link rel="stylesheet" href="./v2-lab.css?v=1"/>
+ <script type="module" src="./v2-lab.js?v=1"></script>
+</head>
+<body>
+ <div class="lab-app" id="v2-lab">
+  <header class="lab-header">
+   <a href="./arena" class="lab-back">← BACK TO CHAOS ARENA</a>
+   <span class="lab-beta">ENGINE V2 • ISOLATED TEST</span>
+  </header>
+  <main>
+   <div class="lab-title">
+    <span class="lab-eyebrow">THE INTERNET IS DYING / ENGINE DIAGNOSTICS</span>
+    <h1>THE 10-PLAYER TEST_</h1>
+    <p>Run ten synthetic player identities through the current V2 battle formulas. Then settle one four-hour war window and inspect the World HP impact.</p>
+   </div>
+   <div id="lab-warning" class="lab-warning" role="note">LOADING VERIFIED FORMULA SAMPLES…</div>
+   <section class="lab-stats" aria-label="Simulated battle statistics">
+    <article class="lab-stat"><span>TEST PLAYERS</span><strong id="lab-count">0 / 10</strong></article>
+    <article class="lab-stat save"><span>✦ SAVE INFLUENCE</span><strong id="lab-save">+0</strong></article>
+    <article class="lab-stat kill"><span>✕ KILL INFLUENCE</span><strong id="lab-kill">−0</strong></article>
+   </section>
+   <section class="lab-world" aria-labelledby="lab-world-title">
+    <div class="lab-world-heading">
+     <h2 id="lab-world-title">SIMULATED WORLD_001</h2>
+     <span>NO PRODUCTION CHANGES</span>
+    </div>
+    <div class="lab-world-hp"><strong id="lab-hp">500,000</strong><span>/ 1,000,000 HP</span></div>
+    <div class="lab-meter" id="lab-meter" role="progressbar" aria-label="Simulated World HP" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+     <div id="lab-meter-fill" class="lab-meter-fill" style="width:50%"></div>
+    </div>
+    <div class="lab-world-meta"><span id="lab-hp-percent">50%</span><span id="lab-delta">NO WORLD HP APPLIED YET</span></div>
+    <p id="lab-pending" class="lab-pending">WINDOW OPEN • WAR INFLUENCE PENDING • REAL HP UNCHANGED</p>
+   </section>
+   <section class="lab-controls" aria-label="Simulation playback controls">
+    <button type="button" id="lab-next">PLAY NEXT BATTLE</button>
+    <button type="button" id="lab-all">RUN ALL 10</button>
+    <button type="button" id="lab-settle" class="lab-settle" disabled>SETTLE 4H WINDOW</button>
+    <button type="button" id="lab-restart" class="lab-restart">RESET SIMULATION</button>
+   </section>
+   <section class="lab-ranks" aria-label="Simulated V2 Hall of Fame">
+    <article class="lab-rank-panel save"><h2>✦ TOP 10 SAVE_</h2><div id="lab-save-ranks"></div></article>
+    <article class="lab-rank-panel kill"><h2>✕ TOP 10 KILL_</h2><div id="lab-kill-ranks"></div></article>
+   </section>
+   <section class="lab-bottom">
+    <article class="lab-panel"><h2>10 SYNTHETIC TEST IDENTITIES_</h2><p>Independent test samples. They cannot log in, claim rewards, or appear on the real Hall of Fame.</p>
+     <div id="lab-battles" class="lab-battles"></div>
+    </article>
+    <aside class="lab-panel"><h2>V2 ENGINE AUDIT_</h2><p>Cross-checked using production V2 SQL formulas with predetermined RNG input values for repeatability.</p>
+     <div id="lab-audit" class="lab-audit"></div>
+     <div class="lab-rule">
+      <strong>V2 SETTLEMENT RULE</strong>
+      <p>Battle: 2s ready + 12s active, ≤24 taps, CRIT ×1/1.5/2, maximum tap bonus +6%. Each verified battle produces War Influence. Only the four-hour window changes World HP.</p>
+      <p class="lab-note">This is a formula/UI simulation, not ten real Google OAuth sessions or a concurrent-user load test. Actual V2 production remains unchanged.</p>
+     </div>
+    </aside>
+   </section>
+  </main>
+  <footer>THE INTERNET IS DYING • V2 SANDBOX • NO LOGIN • NO REAL BATTLES</footer>
+ </div>
+</body>
+</html>
