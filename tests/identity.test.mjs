@@ -73,5 +73,5 @@ test('new World 001 origins persist while invalid origins remain rejected',async
  await adminQuery(`insert into iid_profiles(user_id,nickname,origin,country_code,custom_flag) values('${C}','Egg404','EGG_GLITCH','IDN',null)`);
  const egg=(await adminQuery(`select origin from iid_profiles where user_id='${C}'`)).rows[0];
  assert.equal(egg.origin,'EGG_GLITCH');
- await assert.rejects(adminQuery(`insert into iid_profiles(user_id,nickname,origin,country_code,custom_flag) values('${C}','FakeOrigin','UNKNOWN','IDN',null)`),/check constraint|duplicate key/);
+ await assert.rejects(adminQuery(`update iid_profiles set origin='UNKNOWN' where user_id='${C}'`),/check constraint/);
 });
