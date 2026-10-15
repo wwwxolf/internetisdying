@@ -28,6 +28,7 @@ async function role(as="authenticated",uid=U,sid=S){
  await db.exec("set role "+as);
 }
 async function admin(sql){await db.exec("reset role");await db.exec(sql);await role();}
+async function readAdmin(sql){await db.exec("reset role");try{return (await db.query(sql)).rows[0]}finally{await role();}}
 async function status(){return (await db.query("select public.iid_developer_status() j")).rows[0].j;}
 async function reset(txt="RESET WORLD_001"){return (await db.query("select public.iid_developer_reset($1::text) j",[txt])).rows[0].j;}
 await role();
@@ -62,17 +63,17 @@ test("repeated reset clears battle/world/ranking/momentum but preserves develope
  const result=(await db.query("select public.iid_battle_settle($1::uuid) j",[started.id])).rows[0].j;
  assert.equal(result.bonus,6);
  assert.equal((await db.query("select count(*)::int n from public.iid_battles")).rows[0].n,1);
- assert.equal((await db.query("select count(*)::int n from public.iid_hof_totals")).rows[0].n,1);
- assert.equal((await db.query("select count(*)::int n from public.iid_v2_live_buckets")).rows[0].n,1);
+ assert.equal((await readAdmin("select count(*)::int n from public.iid_hof_totals")).n,1);
+ assert.equal((await readAdmin("select count(*)::int n from public.iid_v2_live_buckets")).n,1);
  const one=await reset();
  assert.deepEqual([one.ok,one.world_hp,one.previous_hp,one.deleted_battles,one.player_identity_kept],[true,500000,502000,1,true]);
  for(const table of ["iid_battles","iid_hof_totals","iid_v2_live_buckets","iid_v2_window_results","iid_player_presence","iid_share_cards","iid_chaos_votes","iid_decay_pulses"]){
-  const count=(await db.query("select count(*)::int n from public."+table)).rows[0].n;
+  const count=(await readAdmin("select count(*)::int n from public."+table)).n;
   assert.equal(count,0,table);
  }
  assert.deepEqual((await db.query("select hp,version from public.iid_world where id=1")).rows[0],{hp:500000,version:0});
  assert.equal((await db.query("select count(*)::int n from public.iid_profiles")).rows[0].n,1);
- assert.equal((await db.query("select count(*)::int n from auth.users")).rows[0].n,1);
+ assert.equal((await readAdmin("select count(*)::int n from auth.users")).n,1);
  assert.equal((await status()).allowed,true);
  const twice=await reset();
  assert.equal(twice.deleted_battles,0);
