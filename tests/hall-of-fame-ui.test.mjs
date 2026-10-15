@@ -58,7 +58,7 @@ test("empty verified leaderboards show UNRANKED; errors do not fabricate ranking
 test("Arena wires isolated Hall of Fame without changing game engine imports",async()=>{
  const flow=await readFile("public/flow.js","utf8"),html=await readFile("public/arena.html","utf8");
  assert.match(flow,/initHallOfFame\(\{sb\}\)/);
- assert.match(flow,/global-battle\.js\?v=7/);
+ assert.match(flow,/global-battle\.js\?v=8/);
  assert.match(html,/id="hall-of-fame"/);
  for(const id of ["hof-save-list","hof-kill-list","hof-save-self","hof-kill-self","hof-status"])
   assert.ok(html.includes('id="'+id+'"'));
