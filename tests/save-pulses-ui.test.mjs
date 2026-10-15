@@ -20,10 +20,10 @@ test("Arena player-facing actions use SAVE without changing internal HEAL protoc
   const global=await readFile("public/global-battle.js","utf8");
   const demo=await readFile("public/tap-battle.js","utf8");
   const report=await readFile("public/world-return.js","utf8");
-  assert.match(arena,/data-arena-action="HEAL" aria-label="Save the internet"/);
-  assert.match(arena,/<strong class="choice-title">SAVE<\/strong>/);
+  assert.match(arena,/data-arena-action="HEAL" aria-label="Patch the net to save the internet"/);
+  assert.match(arena,/<strong class="choice-title">PATCH THE NET<\/strong>/);
   assert.match(arena,/id="tap-side">SAVE<\/span>/);
-  assert.match(arena,/WORLD SAVE/);
+  assert.match(arena,/<span>INTERNET REPAIRED<\/span>/);
   assert.doesNotMatch(arena,/>HEAL<\/strong>|id="tap-side">HEAL/);
   assert.match(global,/r\.action==='HEAL'\?'SAVE':r\.action/);
   assert.match(global,/battle\.action==='HEAL'\?'SAVE':battle\.action/);
