@@ -172,7 +172,7 @@ export async function initGlobalBattle({sb}) {
       const previousId=battle?.id;battle=state.active;syncOk=true;
       localTaps=!battle?0:battle.id===previousId?Math.max(localTaps,battle.counted_taps):battle.counted_taps;
       if(!battle&&state.latest)showResult(state.latest);
-      message(state.world.enabled?'GLOBAL BATTLE • RESULTS VERIFIED BY SERVER':'GLOBAL ENGINE PAUSED • YOUR PROFILE IS READY');
+      message(state.world.enabled?'ONE HUNGRY CHICKEN. TWO SIDES.':'GLOBAL ENGINE PAUSED • YOUR PROFILE IS READY');
       render();
     } catch(e) {pollErrors++;syncOk=false;message('Could not sync the server: '+e.message+'. Retrying automatically; use RETRY SYNC if needed.');choices.forEach(b=>b.disabled=true);}
     finally{
