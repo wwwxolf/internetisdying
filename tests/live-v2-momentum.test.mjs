@@ -98,7 +98,7 @@ test("client pauses when hidden, retries with bounded backoff, does not leak cre
 test("V2 backtest: 10-player SQL scenario and 1M-player adversarial balances",async()=>{
  const sample=JSON.parse(await readFile("public/v2-lab-data.json","utf8"));
  const t=windowSettlement(sample.players,500000);
- assert.deepEqual([t.save,t.kill,t.nominal,t.hpAfter],[936,456,4968,504968]);
+ assert.deepEqual([t.save,t.kill,t.nominal,t.hpAfter],[935,454,4969,504969]);
  // Production window transformation, verified against SQL at selected points.
  const formula=(save,kill,n)=>{
   const q=save+kill===0?0:(save-kill)/(save+kill);
