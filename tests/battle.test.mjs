@@ -263,7 +263,7 @@ test('V2 accepts up to 50 acknowledged taps in bounded idempotent batches; 51st 
   assert.equal((await batches(n)).counted_taps,n,'retry absolute tap total');
  }
  await assert.rejects(rpc('tap',[b.id,51],['uuid','integer']),/INVALID_SEQUENCE/);
- await admin(`update public.iid_battles set ends_at=statement_timestamp()-interval '1 second' where id='${b.id}'`);
+ await admin(`update public.iid_battles set created_at=statement_timestamp()-interval '13 seconds',starts_at=statement_timestamp()-interval '11 seconds',ends_at=statement_timestamp()-interval '1 second' where id='${b.id}'`);
  await assert.rejects(batches(51),/INVALID_TAP_TOTAL/);
  const result=await settle(b.id);
  assert.equal(result.bonus,6);assert.equal(result.counted_taps,50);
