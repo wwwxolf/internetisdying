@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+ <meta charset="utf-8"/>
+ <meta name="viewport" content="width=device-width,initial-scale=1"/>
+ <meta name="theme-color" content="#0b101b"/>
+ <meta name="description" content="World 001: One hungry chicken. One very unfortunate internet."/>
+ <title>WORLD_001 PROLOGUE — THE INTERNET IS DYING</title>
+ <link rel="preconnect" href="https://fonts.googleapis.com"/>
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+ <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
+ <link rel="stylesheet" href="./styles.css?v=5"/>
+ <link rel="stylesheet" href="./prologue.css?v=1"/>
+ <script type="module" src="./prologue.js?v=1"></script>
+</head>
+<body data-page="prologue" class="prologue-page">
+ <div class="page">
+  <header class="header">
+   <a class="brand" href="./index.html">THE INTERNET<br/><span>IS DYING_</span></a>
+   <nav class="header-right" aria-label="Prologue navigation"><span class="prologue-chapter">WORLD_001 / PROLOGUE</span><a class="navlink" href="./index.html">← HOME</a></nav>
+  </header>
+  <main class="prologue-shell">
+   <div class="prologue-topline">
+    <span class="prologue-kicker">PIXEL STORY MODE_</span>
+    <span id="prologue-count" class="prologue-count">SCENE 01 / 04</span>
+   </div>
+   <div class="prologue-frame" id="prologue-frame">
+    <div class="prologue-visual" aria-hidden="true">
+     <div class="prologue-grid"></div>
+     <div class="prologue-stars"></div>
+     <img class="prologue-core" src="./assets/dying-internet-core.svg" width="180" height="180" alt=""/>
+     <img class="prologue-chicken" src="./assets/world-chicken.svg" width="320" height="192" alt=""/>
+     <span class="prologue-glitch prologue-glitch-left">404</span>
+     <span class="prologue-glitch prologue-glitch-right">DATA LOST_</span>
+     <span class="prologue-alert">INTERNET CRITICAL</span>
+    </div>
+    <div class="prologue-caption" aria-live="polite" aria-atomic="true">
+     <p id="prologue-line" class="prologue-line">Once upon a time, the internet was peaceful.</p>
+     <p id="prologue-aside" class="prologue-aside"></p>
+    </div>
+   </div>
+   <div class="prologue-progress" aria-label="Story progress">
+    <span class="prologue-dot current" data-progress="0"></span>
+    <span class="prologue-dot" data-progress="1"></span>
+    <span class="prologue-dot" data-progress="2"></span>
+    <span class="prologue-dot" data-progress="3"></span>
+   </div>
+   <div class="prologue-controls">
+    <button type="button" class="prologue-skip" id="prologue-skip">SKIP INTRO →</button>
+    <button type="button" class="prologue-next" id="prologue-next">NEXT SCENE →</button>
+   </div>
+   <section class="prologue-final" id="prologue-final" aria-label="Choose what happens next" hidden>
+    <p class="prologue-final-title">SO... WHICH SIDE ARE YOU ON?</p>
+    <div class="prologue-choice-grid">
+     <a class="prologue-choice prologue-choice-save" id="prologue-save" href="./auth.html">♥ SAVE THE INTERNET</a>
+     <a class="prologue-choice prologue-choice-kill" id="prologue-kill" href="./auth.html">★ FEED THE CHICKEN</a>
+    </div>
+    <p class="prologue-fineprint">Sign in to enter the arena. Your side is chosen per battle.</p>
+   </section>
+   <noscript><p class="prologue-noscript">Enable JavaScript for the story, or <a href="./auth.html">continue to sign in →</a></p></noscript>
+  </main>
+ </div>
+</body>
+</html>
