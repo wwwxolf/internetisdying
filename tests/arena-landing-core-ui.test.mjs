@@ -2,20 +2,28 @@ import {test} from "node:test";
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 
-test("Arena Internet Vitals retains its pixel globe sprite and core pulse",async()=>{
+test("Arena Internet Vitals uses World 001 pixel round Earth with pecking chickens",async()=>{
  const arena=await readFile("public/arena.html","utf8");
  const css=await readFile("public/styles.css","utf8");
- const asset="./assets/dying-internet-core.svg";
+ const asset="./assets/world001-pecking-globe.svg";
  for(const page of [arena]){
   assert.match(page,/class="heart-zone world-core-zone"[^>]*id="heart-zone"/);
   assert.match(page,/class="world-core-visual"/);
-  assert.match(page,/class="world-core-img" src="\.\/assets\/dying-internet-core\.svg"/);
+  assert.match(page,/class="world-core-img" src="\.\/assets\/world001-pecking-globe\.svg"/);
   assert.match(page,/class="world-core-signal" aria-hidden="true"/);
   assert.ok(page.includes(asset));
  }
  assert.doesNotMatch(arena,/<svg viewBox="0 0 16 16" class="pixel-heart"/);
- assert.match(css,/@keyframes internet-core-pulse/);
+ assert.match(css,/@keyframes internet-core-pulse/); // legacy landing pulse remains available
  assert.match(css,/\.world-core-zone\[data-stage="dead"\] \.world-core-img/);
+ const graphic=await readFile("public/assets/world001-pecking-globe.svg","utf8");
+ assert.match(graphic,/viewBox="0 0 400 240"/);
+ assert.match(graphic,/Four pixel chickens peck the internet globe/);
+ assert.match(graphic,/three comic bubbles saying PECK!/);
+ assert.match(graphic,/shape-rendering="crispEdges"/);
+ const body=await readFile("public/arena.css","utf8");
+ assert.match(body,/world-core-visual\{\s*width:min\(100%,420px\)/);
+ assert.match(body,/world-core-signal\{display:none\}/);
 });
 
 test("only Arena illustration changed; server HP and live battle hooks remain wired",async()=>{
