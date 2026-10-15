@@ -53,7 +53,13 @@ export function initPrologue({
  next.addEventListener("click",()=>{if(finished)return;if(index===3)showEnding();else render(index+1);});
  skip.addEventListener("click",()=>{if(finished)return;render(3);showEnding();});
  for(const id of ["prologue-save","prologue-kill"])$(id).addEventListener("click",markSeen);
- doc.addEventListener("visibilitychange",()=>{if(doc.visibilityState==="hidden")stop();});
+ doc.addEventListener("visibilitychange",()=>{
+  if(doc.visibilityState==="hidden"){stop();return;}
+  if(!finished&&index<3){
+   stop();
+   handle=schedule(()=>{if(!finished)render(index+1);},2900);
+  }
+ });
  render(0);
  return {getCurrentScene:()=>index,stop};
 }
