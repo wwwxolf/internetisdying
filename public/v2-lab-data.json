@@ -1,17 +1,17 @@
 {
-  "scenario": "V2-10-BOT-ISOLATED-20261015",
+  "scenario": "V2-50-TAP-10-SECOND-ISOLATED-20261015",
   "engine_version": 2,
   "simulation_only": true,
   "baseline_hp": 500000,
   "ready_seconds": 2,
-  "duration_seconds": 12,
+  "duration_seconds": 10,
   "window_seconds": 14400,
-  "source": "Deterministic synthetic inputs verified against production V2 SQL formula; NOT actual Supabase Auth accounts or settled production battles.",
+  "source": "Deterministic 50-tap / 10s V2 input samples verified against production SQL in dedicated backtests; NOT actual Supabase Auth accounts or settled production battles.",
   "expected": {
-    "save_influence": 936,
-    "kill_influence": 456,
-    "nominal_hp": 4968,
-    "settled_hp": 504968
+    "save_influence": 935,
+    "kill_influence": 454,
+    "nominal_hp": 4969,
+    "settled_hp": 504969
   },
   "players": [
     {
@@ -20,7 +20,7 @@
       "origin": "HUMAN",
       "country_code": "IDN",
       "action": "HEAL",
-      "taps": 24,
+      "taps": 50,
       "roll": 12,
       "crit_roll": 20,
       "draw": 135,
@@ -36,15 +36,15 @@
       "origin": "BOT",
       "country_code": "USA",
       "action": "KILL",
-      "taps": 24,
+      "taps": 49,
       "roll": 78,
       "crit_roll": 96,
       "draw": 220,
       "base": 470,
       "critical": 150,
-      "bonus": 6,
-      "personal_power": 747,
-      "war_influence": 137
+      "bonus": 5,
+      "personal_power": 740,
+      "war_influence": 136
     },
     {
       "id": 3,
@@ -52,15 +52,15 @@
       "origin": "ALIEN",
       "country_code": "JPN",
       "action": "HEAL",
-      "taps": 16,
+      "taps": 24,
       "roll": 90,
       "crit_roll": 45,
       "draw": 415,
       "base": 1015,
       "critical": 100,
-      "bonus": 4,
-      "personal_power": 1056,
-      "war_influence": 162
+      "bonus": 2,
+      "personal_power": 1035,
+      "war_influence": 161
     },
     {
       "id": 4,
@@ -74,8 +74,8 @@
       "draw": 48,
       "base": 148,
       "critical": 100,
-      "bonus": 2,
-      "personal_power": 151,
+      "bonus": 0,
+      "personal_power": 148,
       "war_influence": 61
     },
     {
@@ -84,7 +84,7 @@
       "origin": "HUMAN",
       "country_code": "BRA",
       "action": "HEAL",
-      "taps": 24,
+      "taps": 50,
       "roll": 98,
       "crit_roll": 99,
       "draw": 821,
@@ -100,7 +100,7 @@
       "origin": "BOT",
       "country_code": "DEU",
       "action": "KILL",
-      "taps": 20,
+      "taps": 42,
       "roll": 82,
       "crit_roll": 13,
       "draw": 334,
@@ -116,7 +116,7 @@
       "origin": "ALIEN",
       "country_code": "FRA",
       "action": "HEAL",
-      "taps": 4,
+      "taps": 16,
       "roll": 59,
       "crit_roll": 92,
       "draw": 83,
@@ -148,7 +148,7 @@
       "origin": "HUMAN",
       "country_code": "IND",
       "action": "HEAL",
-      "taps": 12,
+      "taps": 33,
       "roll": 95,
       "crit_roll": 99,
       "draw": 599,
@@ -164,15 +164,15 @@
       "origin": "BOT",
       "country_code": "AUS",
       "action": "KILL",
-      "taps": 24,
+      "taps": 41,
       "roll": 33,
       "crit_roll": 91,
       "draw": 66,
       "base": 166,
       "critical": 150,
-      "bonus": 6,
-      "personal_power": 264,
-      "war_influence": 81
+      "bonus": 4,
+      "personal_power": 259,
+      "war_influence": 80
     }
   ]
 }
