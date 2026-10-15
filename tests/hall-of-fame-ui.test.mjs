@@ -82,4 +82,9 @@ test("Arena wires isolated Hall of Fame without changing game engine imports",as
  for(const id of ["hof-save-list","hof-kill-list","hof-save-self","hof-kill-self","hof-status"])
   assert.ok(html.includes('id="'+id+'"'));
  assert.match(html,/hall-of-fame\.css\?v=2/);
+ assert.match(flow,/hall-of-fame\.js\?v=3/);
+ const battle=await readFile("public/global-battle.js","utf8");
+ assert.match(battle,/iid:battle-settled/);
+ const hof=await readFile("public/hall-of-fame.js","utf8");
+ assert.match(hof,/document\.addEventListener\("iid:battle-settled",onBattleSettled\)/);
 });
