@@ -61,16 +61,21 @@ jobs:
           ROOT="https://internetisdying.wwwxolf.workers.dev"
           for i in 1 2 3 4 5 6; do
             curl -fsSL --max-time 12 "$ROOT/arena.html" -o /tmp/iid-arena.html || true
-            if grep -q 'flow.js?v=29' /tmp/iid-arena.html 2>/dev/null; then
+            if grep -q 'flow.js?v=30' /tmp/iid-arena.html 2>/dev/null; then
               break
             fi
             sleep 5
           done
-          grep -q 'flow.js?v=29' /tmp/iid-arena.html
+          grep -q 'flow.js?v=30' /tmp/iid-arena.html
           curl -fsSL --max-time 15 "$ROOT/hall-of-fame.js?v=3" -o /tmp/iid-hof.js
           grep -q 'iid_hall_of_fame' /tmp/iid-hof.js
           grep -q 'hall-of-fame.css?v=2' /tmp/iid-arena.html
-          curl -fsSL --max-time 15 "$ROOT/global-battle.js?v=11" -o /tmp/iid-battle.js
+          curl -fsSL --max-time 15 "$ROOT/v2-tap-config.js" -o /tmp/iid-v2-config.js
+          grep -q 'V2_MAX_TAPS=50' /tmp/iid-v2-config.js
+          grep -q 'V2_DURATION_SECONDS=10' /tmp/iid-v2-config.js
+          curl -fsSL --max-time 15 "$ROOT/v2-lab.html" -o /tmp/iid-v2-lab.html
+          grep -q '2s ready + 10s active' /tmp/iid-v2-lab.html
+          curl -fsSL --max-time 15 "$ROOT/global-battle.js?v=12" -o /tmp/iid-battle.js
           grep -q 'WAR INFLUENCE' /tmp/iid-battle.js
           curl -fsSL --max-time 15 "$ROOT/api/war-momentum" -o /tmp/iid-momentum.json
           grep -q '"window_start"' /tmp/iid-momentum.json

@@ -4,6 +4,7 @@ import vm from 'node:vm';
 import {evaluateWindows,utcDay,activeSlot} from '../public/utc-battle-windows.js';
 import {battlePollDelay,economyRefreshDue,jitterDelay} from '../public/arena-polling.js';
 import {currentMomentum,slotStartMs} from '../public/live-war-momentum.js';
+import {V2_MAX_TAPS,V2_DURATION_SECONDS,V2_HOLD_MS,v2TapBonus} from '../public/v2-tap-config.js';
 import {readFile} from 'node:fs/promises';
 const source=await readFile('public/global-battle.js','utf8');
 const html=await readFile('public/arena.html','utf8');
@@ -12,6 +13,7 @@ function fixture(handler) {
   const choices=['HEAL','KILL'].map(action=>({dataset:{arenaAction:action},events:{},addEventListener(n,f){this.events[n]=f;}}));
   const intervals=[];
   const context={evaluateWindows,battlePollDelay,economyRefreshDue,jitterDelay,currentMomentum,slotStartMs,
+    V2_MAX_TAPS,V2_DURATION_SECONDS,V2_HOLD_MS,v2TapBonus,
     startLiveWarMomentum:()=>({stop(){},refresh(){}}),document:{getElementById:id=>{assert.ok(nodes.has(id),id+' exists in markup');return nodes.get(id);},querySelectorAll:()=>choices,addEventListener(){},removeEventListener(){}},
     window:{addEventListener(){}},Date,Number,Math,crypto,setInterval:f=>intervals.push(f),clearInterval(){},setTimeout:()=>1,clearTimeout(){}};
   const init=vm.runInNewContext(source.replace(/^import[^\n]*\n/gm,'').replace('export async function','async function')+';initGlobalBattle',context);

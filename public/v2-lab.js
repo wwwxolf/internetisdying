@@ -1,14 +1,15 @@
 // V2 simulation-only lab. No Supabase client, no auth, and no production mutations.
 // Mirrors audited V2 formulas; production SQL remains the source of truth.
+import {V2_MAX_TAPS,V2_DURATION_SECONDS,V2_READY_SECONDS,v2TapBonus} from "./v2-tap-config.js";
 export function computeBattle(p){
  const {roll,crit_roll,draw,taps}=p;
  if(![roll,crit_roll,draw,taps].every(Number.isInteger)||roll<0||roll>=100||
-  crit_roll<0||crit_roll>=100||taps<0||taps>24)throw Error("INVALID_SYNTHETIC_INPUT");
+  crit_roll<0||crit_roll>=100||taps<0||taps>V2_MAX_TAPS)throw Error("INVALID_SYNTHETIC_INPUT");
  const pool=roll<55?150:roll<85?350:roll<97?700:1201;
  if(draw<0||draw>=pool)throw Error("INVALID_DRAW");
  const base=(roll<55?100:roll<85?250:roll<97?600:1300)+draw;
  const critical=crit_roll<90?100:crit_roll<99?150:200;
- const bonus=Math.min(6,Math.floor(taps/4));
+ const bonus=v2TapBonus(taps);
  const personal_power=Math.round(base*critical/100*(100+bonus)/100);
  const war_influence=Math.round(100*Math.sqrt(personal_power/400));
  return {base,critical,bonus,personal_power,war_influence};
@@ -117,7 +118,7 @@ function startLab(sample){
    const details=node("div","lab-player-detail",p.action==="HEAL"?"✦ SAVE":"✕ KILL");
    details.className+=" "+(p.action==="HEAL"?"positive":"negative");
    details.append(node("span","",executed?
-    "TAPS "+p.taps+"/24 • CRIT ×"+(p.critical/100).toFixed(2)+" • BONUS +"+p.bonus+"%":"READY TO SIMULATE"));
+    "TAPS "+p.taps+"/"+V2_MAX_TAPS+" • CRIT ×"+(p.critical/100).toFixed(2)+" • BONUS +"+p.bonus+"%":"READY TO SIMULATE"));
    if(executed)details.append(node("strong","","+ "+fmt(p.war_influence)+" WI • "+fmt(p.personal_power)+" POWER"));
    else details.append(node("span","lab-idle","PENDING"));
    item.append(top,details);
@@ -148,7 +149,7 @@ function startLab(sample){
  render();
 }
 if(typeof document!=="undefined"&&$("v2-lab")){
- fetch("./v2-lab-data.json?v=1",{cache:"no-store"})
+ fetch("./v2-lab-data.json?v=2",{cache:"no-store"})
   .then(async r=>{if(!r.ok)throw Error("HTTP "+r.status);return r.json();})
   .then(startLab)
   .catch(e=>{$("lab-warning").textContent="SIMULATION COULD NOT LOAD: "+e.message;});
