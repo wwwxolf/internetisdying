@@ -1,3 +1,4 @@
+import {shareStory,SHARE_LABELS} from "./share-story.js";
 /* BREAKING INTERNET — fixed pixel design, fresh authenticated world ledger snapshot.
    A shared PNG is a frozen snapshot; the invite URL opens the live game. */
 export const GAME_URL="https://internetisdying.wwwxolf.workers.dev/";
@@ -9,19 +10,13 @@ export function worldStage(hp){
   return v===0?"DEAD":v<=250000?"NEAR DEATH":v<=500000?"CRITICAL":
     v<=750000?"STABLE":"RECOVERING";
 }
-export function headlineFor(data){
-  if(data.net_hp>0)return ["THE INTERNET","FOUGHT BACK_"];
-  if(data.net_hp<0)return ["THE INTERNET","TOOK A HIT_"];
-  if(Number(data.heal_battles)+Number(data.kill_battles)+Number(data.decay_pulses)+Number(data.chaos_events)>0)
-    return ["THE INTERNET","HELD THE LINE_"];
-  return ["THE INTERNET","STAYED QUIET_"];
-}
+export function headlineFor(data){return shareStory(data).headline;}
 export function validateSnapshot(data){
   if(!data||data.source!=="SERVER_LEDGER"||!Number.isFinite(Date.parse(data.snapshot_at))||
      !Number.isFinite(Date.parse(data.from)))throw Error("Unverified world snapshot");
   const keys=["world_hp","heal_hp","kill_hp","decay_hp","chaos_hp","net_hp",
     "heal_battles","kill_battles","decay_pulses","chaos_events"];
-  for(const k of keys)if(!Number.isSafeInteger(Number(data[k])))throw Error("Invalid server data: "+k);
+  for(const k of keys)if(data[k]===null||data[k]===undefined||!Number.isSafeInteger(Number(data[k])))throw Error("Invalid server data: "+k);
   const hp=Number(data.world_hp);
   worldStage(hp);
   if(["heal_hp","kill_hp","decay_hp"].some(k=>Number(data[k])<0))
@@ -76,7 +71,7 @@ function symbol(ctx,kind,x,y,color){
 function stat(ctx,x,y,w,h,label,value,color,kind){
  frame(ctx,x,y,w,h);
  symbol(ctx,kind,x+22,y+37,color);
- pixelText(ctx,label,x+120,y+67,22,C.muted);
+ fitText(ctx,label,x+120,y+67,w-142,22,C.muted,14);
  fitText(ctx,value,x+120,y+130,w-142,38,color,17);
 }
 function healthBar(ctx,hp,x,y,w,h){
@@ -112,36 +107,38 @@ export async function renderBreakingCard(data){
  for(let y=10;y<IMAGE_HEIGHT;y+=17)
    for(let x=12;x<IMAGE_WIDTH;x+=17)px(ctx,x,y,3,3,"#17344e");
  frame(ctx,30,28,1020,66,C.bg);
- pixelText(ctx,"WORLD_001 // INTERNET CHAOS",55,71,23,C.muted);
+ fitText(ctx,"WORLD_001 // CHICKEN EATS THE INTERNET",55,71,860,23,C.muted,15);
  for(let i=0;i<3;i++)px(ctx,950+i*25,52,17,17,i===2?C.pink:"#2c5276");
  pixelText(ctx,"WHILE YOU WERE GONE...",65,174,24,C.muted);
- pixelText(ctx,"BREAKING",62,280,59,C.pink);
- pixelText(ctx,"INTERNET_",62,359,53,C.white);
- const lines=headlineFor(data);
- fitText(ctx,lines[0],65,494,625,40,data.net_hp>=0?C.green:C.pink,22);
- fitText(ctx,lines[1],65,549,625,40,data.net_hp>=0?C.green:C.pink,22);
- // Reuse the game's real pixel planet asset, not a generic emoji or external image.
- const planet=await imageOrNull("./assets/dying-internet-core.svg");
- if(planet)ctx.drawImage(planet,712,170,280,280);
+ const story=shareStory(data);
+ const accent=story.tone==="heal"?C.green:story.tone==="neutral"?C.gold:C.pink;
+ fitText(ctx,story.headline[0],62,280,635,59,C.pink,24);
+ fitText(ctx,story.headline[1],62,359,635,53,C.white,24);
+ fitText(ctx,story.detail[0],65,494,625,40,accent,22);
+ fitText(ctx,story.detail[1],65,549,625,40,accent,22);
+ // The original World_001 chicken sprite is part of the game, not a placeholder.
+ const chicken=await imageOrNull("./assets/world-chicken.svg");
+ if(chicken)ctx.drawImage(chicken,694,202,310,190);
  else{
-   px(ctx,762,227,160,160,C.blue);px(ctx,792,258,100,102,C.bg);
-   px(ctx,820,287,50,46,C.green);
+   // Honest pixel silhouette fallback when local artwork cannot be loaded.
+   px(ctx,789,233,109,95,C.white);px(ctx,825,207,25,34,C.pink);
+   px(ctx,895,267,36,16,C.gold);px(ctx,846,257,11,11,C.bg);
  }
  px(ctx,712,423,255,7,C.pink);px(ctx,765,452,172,6,C.blue);
  pixelText(ctx,"SERVER SNAPSHOT",62,619,17,C.gold);
  pixelText(ctx,dateUTC(data.snapshot_at),350,619,17,C.muted);
 
- stat(ctx,35,660,497,158,"WORLD SAVE","+"+fmt(data.heal_hp)+" HP",C.green,"save");
- stat(ctx,548,660,497,158,"WORLD KILL","-"+fmt(data.kill_hp)+" HP",C.pink,"kill");
- stat(ctx,35,838,497,158,"WORLD DECAY","-"+fmt(data.decay_hp)+" HP",C.pink,"decay");
- stat(ctx,548,838,497,158,"DAILY CHAOS",sign(data.chaos_hp),C.gold,"chaos");
+ stat(ctx,35,660,497,158,SHARE_LABELS.heal,"+"+fmt(data.heal_hp)+" HP",C.green,"save");
+ stat(ctx,548,660,497,158,SHARE_LABELS.kill,"-"+fmt(data.kill_hp)+" HP",C.pink,"kill");
+ stat(ctx,35,838,497,158,SHARE_LABELS.decay,"-"+fmt(data.decay_hp)+" HP",C.pink,"decay");
+ stat(ctx,548,838,497,158,SHARE_LABELS.chaos,sign(data.chaos_hp),C.gold,"chaos");
 
  frame(ctx,35,1017,1010,229,C.panel2);
- pixelText(ctx,"NET WORLD CHANGE",62,1070,22,C.muted);
+ fitText(ctx,SHARE_LABELS.net,62,1070,460,22,C.muted,15);
  const netColor=data.net_hp>0?C.green:data.net_hp<0?C.pink:C.gold;
  fitText(ctx,sign(data.net_hp,true),62,1168,480,48,netColor,22);
  px(ctx,546,1041,5,178,C.border);
- pixelText(ctx,"WORLD HEALTH",576,1070,22,C.muted);
+ fitText(ctx,SHARE_LABELS.health,576,1070,440,22,C.muted,15);
  healthBar(ctx,Number(data.world_hp),575,1095,443,55);
  pixelText(ctx,"● "+worldStage(data.world_hp),578,1195,24,C.pink);
 
