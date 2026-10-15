@@ -63,8 +63,10 @@ export async function initGlobalBattle({sb}) {
     const stage=w.hp===0?'DEAD':w.hp<=250000?'NEAR DEATH':w.hp<=500000?'CRITICAL':w.hp<=750000?'STABLE':'RECOVERING';
     $('arena-status').textContent='● '+stage;
     $('heart-zone').dataset.stage=w.hp===0?'dead':w.hp<=250000?'danger':'critical';
-    $('monthly-summary').textContent=`${m.month} UTC • ${m.nickname} • ${m.tier||'No card yet'} • ${m.battle_count} battles\nSAVE ${m.heal_count} · +${fmt(m.heal_hp)} HP | KILL ${m.kill_count} · −${fmt(m.kill_hp)} HP`+
-      (economy.enabled?'\nV2 WAR INFLUENCE SETTLES AT UTC WINDOW CLOSE • V1 HP ABOVE IS HISTORICAL':'' );
+    // V2 rows represent influence, not per-player World HP; never display 0 HP as damage.
+    $('monthly-summary').textContent=economy.enabled
+      ?`${m.month} UTC • ${m.nickname} • ${m.battle_count} verified battles\nSAVE ${m.heal_count} | KILL ${m.kill_count}\nCURRENT WAR WINDOW • SAVE +${fmt(economy.save_influence||0)} / KILL −${fmt(economy.kill_influence||0)} INFLUENCE\nWORLD HP CHANGES ONLY AFTER THE 4H WINDOW SETTLES`
+      :`${m.month} UTC • ${m.nickname} • ${m.tier||'No card yet'} • ${m.battle_count} battles\nSAVE ${m.heal_count} · +${fmt(m.heal_hp)} HP | KILL ${m.kill_count} · −${fmt(m.kill_hp)} HP`;
     const slots=evaluateWindows(state,now());
     for(let i=0;i<6;i++){
       const tile=$('battle-window-'+i),icon=$('battle-window-icon-'+i),
