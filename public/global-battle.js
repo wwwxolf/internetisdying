@@ -7,7 +7,7 @@ export async function initGlobalBattle({sb}) {
   let state=null, battle=null, offset=0, busy=false, tapBusy=false, settling=false;
   let retryAfter=0, tapRetryAfter=0, localTaps=0, disposed=false, refreshBusy=false, syncOk=false;
   let economy={enabled:false},holdLoop=null;
-  let pollTimer=null,pollErrors=0,lastEconomySuccess=0;
+  let pollTimer=null,pollErrors=0,lastEconomySuccess=0,lastPaintedHp=null;
   const maxTaps=()=>battle?.engine_version===2?24:50;
   const v2Mode=()=>battle?.engine_version===2||(!battle&&economy.enabled);
   const haltHold=()=>{if(holdLoop!==null){clearInterval(holdLoop);holdLoop=null;}};
@@ -36,10 +36,29 @@ export async function initGlobalBattle({sb}) {
   function render() {
     if(!state)return;
     const w=state.world, m=state.monthly;
-    $('arena-hp').textContent=fmt(w.hp);
-    $('arena-fill').style.width=(w.hp/10000)+'%';
-    $('arena-progress').setAttribute('aria-valuenow',String(w.hp/10000));
-    $('arena-percent').textContent=(w.hp/10000).toFixed(1)+'% LIFE REMAINING';
+    // Only server-verified World HP drives the real life bar.
+    // Keep sub-percent precision: CSS step(20) masked genuine small HP changes.
+    const verifiedHp=Math.max(0,Math.min(1000000,Number(w.hp)));
+    if(Number.isFinite(verifiedHp)&&verifiedHp!==lastPaintedHp){
+      if(lastPaintedHp!==null){
+        const delta=verifiedHp-lastPaintedHp;
+        const change=$('arena-hp-change');
+        change.hidden=false;
+        change.textContent='LAST VERIFIED WORLD CHANGE: '+(delta>0?'+':'−')+fmt(Math.abs(delta))+' HP';
+        $('arena-hud').dataset.hpDirection=delta>0?'up':'down';
+      }
+      $('arena-hp').textContent=fmt(verifiedHp);
+      $('arena-fill').style.width=(verifiedHp/10000)+'%';
+      $('arena-progress').setAttribute('aria-valuenow',String(verifiedHp/10000));
+      $('arena-percent').textContent=(verifiedHp/10000).toFixed(1)+'% LIFE REMAINING';
+      lastPaintedHp=verifiedHp;
+    }
+    // Live War Influence is NOT yet World HP. Keep it separate from the health bar.
+    $('arena-hp-pending').hidden=!economy.enabled;
+    if(economy.enabled){
+      $('arena-hp-pending-score').textContent='SAVE +'+fmt(Math.max(0,Number(economy.save_influence)||0))+
+        ' / KILL −'+fmt(Math.max(0,Number(economy.kill_influence)||0))+' WAR INFLUENCE';
+    }
     $('save-impact-caption').textContent=economy.enabled?'+ WAR INFLUENCE':'+ RANDOM HP';
     $('kill-impact-caption').textContent=economy.enabled?'− WAR INFLUENCE':'− RANDOM HP';
     $('v2-war').hidden=!economy.enabled;
@@ -194,6 +213,8 @@ export async function initGlobalBattle({sb}) {
     try {
       const r=await rpc('settle',{p_battle_id:battle.id});
       showResult(r);battle=null;
+      // Refresh provisional faction influence on the next authoritative status request.
+      lastEconomySuccess=0;
       // Leaderboard is a separate read-only module; notify after verified settlement.
       if(typeof document.dispatchEvent==='function'){
         document.dispatchEvent(new Event('iid:battle-settled'));
