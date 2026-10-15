@@ -9,10 +9,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
-  <link rel="stylesheet" href="./styles.css?v=6"/>
+  <link rel="stylesheet" href="./styles.css?v=phase1-7213e23"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./flow.js?v=15"></script>
+  <script type="module" src="./flow.js?v=phase1-7213e23"></script>
 </head>
 <body data-page="onboarding">
   <div class="preview-bar">DESIGN PREVIEW • GAME SYSTEM AND ADS ARE NOT LIVE</div>
@@ -35,13 +35,26 @@
             <button type="button" class="avatar" data-origin="ALIEN" aria-pressed="false"><span class="avatar-icon" aria-hidden="true"><img src="./assets/avatar-alien.svg" width="44" height="44" alt="" decoding="async"/></span><span class="avatar-label">ALIEN</span></button>
             <button type="button" class="avatar" data-origin="GLITCH" aria-pressed="false"><span class="avatar-icon" aria-hidden="true"><img src="./assets/avatar-glitch.svg" width="44" height="44" alt="" decoding="async"/></span><span class="avatar-label">GLITCH</span></button>
           </div>
+          <label class="field-label" for="country-search">COUNTRY / TERRITORY</label>
+          <div class="country-picker">
+            <input id="country-search" type="search" autocomplete="off" placeholder="Search country or alpha-3 code" aria-controls="country-results" aria-expanded="false" required/>
+            <input id="country-code" type="hidden" required/>
+            <div id="country-results" class="country-results" role="listbox" hidden></div>
+            <p id="country-selected" class="mini">Select a country to continue.</p>
+          </div>
+          <section id="custom-flag-panel" class="custom-flag-panel" hidden aria-label="Custom pixel flag editor">
+            <label class="field-label">CUSTOM FLAG · 12 × 8</label>
+            <div id="flag-palette" class="flag-palette" role="group" aria-label="Flag colors"></div>
+            <div id="flag-grid" class="flag-grid" role="grid" aria-label="12 by 8 pixel flag"></div>
+            <p class="mini">Choose a color, then tap pixels. Your flag is stored as 48 compact hex characters.</p>
+          </section>
           <label class="field-label" for="nickname">UNIQUE NICKNAME</label>
           <input type="text" id="nickname" maxlength="18" minlength="3" pattern="[A-Za-z0-9_]{3,18}" autocomplete="nickname" placeholder="PIXELGHOST" required/>
           <p class="mini">3–18 characters. Letters, numbers, underscores. Nicknames are unique regardless of capitalization.</p>
           <button class="dialog-button" type="submit" id="create-profile">SAVE IDENTITY →</button>
         </form>
       </div>
-      <p class="flow-bottom">YOUR EMAIL IS PRIVATE. ONLY YOUR NICKNAME & CHARACTER ARE SHOWN IN THE GAME.</p>
+      <p class="flow-bottom">YOUR EMAIL IS PRIVATE. ONLY YOUR NICKNAME, CHARACTER & FLAG ARE SHOWN IN THE GAME.</p>
     </main>
   </div>
 </body>

@@ -1,5 +1,6 @@
 /* V3 account flow for THE INTERNET IS DYING.
    All arena rolls are LOCAL DEMOS, not real votes or purchases. */
+import {COUNTRIES,COUNTRY_CODES} from "./countries.js";
 (async()=>{
 "use strict";
 const $=id=>document.getElementById(id);
@@ -126,13 +127,33 @@ if(page==="onboarding"){
    origin=btn.dataset.origin;
    document.querySelectorAll("[data-origin]").forEach(item=>item.setAttribute("aria-pressed",String(item.dataset.origin===origin)));
   }));
+  const search=$("country-search"), countryCode=$("country-code"), results=$("country-results"), selected=$("country-selected");
+  const flagPanel=$("custom-flag-panel"), grid=$("flag-grid"), palette=$("flag-palette");
+  const colors=["#202938","#f2ead3","#d84b4b","#47b985"], pixels=Array(96).fill(0);
+  let paintColor=1;
+  colors.forEach((color,i)=>{const swatch=document.createElement("button");swatch.type="button";swatch.className="flag-swatch";swatch.style.setProperty("--swatch",color);swatch.setAttribute("aria-label",`Color ${i+1}`);swatch.setAttribute("aria-pressed",String(i===paintColor));swatch.addEventListener("click",()=>{paintColor=i;palette.querySelectorAll("button").forEach((button,n)=>button.setAttribute("aria-pressed",String(n===i)));});palette.append(swatch);});
+  const renderGrid=()=>{grid.replaceChildren();pixels.forEach((value,i)=>{const cell=document.createElement("button");cell.type="button";cell.className="flag-pixel";cell.style.setProperty("--pixel",colors[value]);cell.setAttribute("role","gridcell");cell.setAttribute("aria-label",`Pixel ${i+1}`);cell.addEventListener("click",()=>{pixels[i]=paintColor;cell.style.setProperty("--pixel",colors[paintColor]);});grid.append(cell);});};
+  renderGrid();
+  const packFlag=()=>Array.from({length:48},(_,i)=>((pixels[i*2]<<2)|pixels[i*2+1]).toString(16).toUpperCase()).join("");
+  const renderCountries=(query="")=>{
+   const matches=COUNTRIES.filter(c=>(c.name+" "+c.code).toLowerCase().includes(query.trim().toLowerCase())).slice(0,30);
+   results.replaceChildren();
+   matches.forEach(c=>{const option=document.createElement("button");option.type="button";option.className="country-option";option.setAttribute("role","option");option.innerHTML=`<img alt="" src="https://flagcdn.com/w40/${c.alpha2.toLowerCase()}.png"><span>${c.name}</span><b>${c.code}</b>`;option.addEventListener("click",()=>{countryCode.value=c.code;search.value=c.name;selected.innerHTML=`<img alt="" src="https://flagcdn.com/w40/${c.alpha2.toLowerCase()}.png"><b>${c.code}</b> selected`;results.hidden=true;search.setAttribute("aria-expanded","false");flagPanel.hidden=true;});results.append(option);});
+   const other=document.createElement("button");other.type="button";other.className="country-option";other.setAttribute("role","option");other.innerHTML="<span>OTHERS</span><b>OTH</b>";other.addEventListener("click",()=>{countryCode.value="OTH";search.value="OTHERS";selected.textContent="OTH selected · Create your custom flag below.";results.hidden=true;search.setAttribute("aria-expanded","false");flagPanel.hidden=false;});results.append(other);
+  };
+  search.addEventListener("input",()=>{countryCode.value="";renderCountries(search.value);results.hidden=false;search.setAttribute("aria-expanded","true");});
+  search.addEventListener("focus",()=>{renderCountries(search.value);results.hidden=false;search.setAttribute("aria-expanded","true");});
   form.addEventListener("submit",async ev=>{
    ev.preventDefault();
    const nickname=$("nickname").value.trim();
    if(!/^[A-Za-z0-9_]{3,18}$/.test(nickname)){show("Use 3–18 letters, numbers or underscores.","error");return;}
+   const code=countryCode.value;
+   if(!COUNTRY_CODES.has(code)&&code!=="OTH"){show("Choose a country or territory from the list.","error");search.focus();return;}
+   const customFlag=code==="OTH"?packFlag():null;
+   if(code==="OTH"&&!/^[0-9A-F]{48}$/.test(customFlag)){show("Custom flag is invalid. Please edit the grid again.","error");return;}
    const btn=$("create-profile");btn.disabled=true;show("Saving identity...");
    try{
-    const {error}=await sb.from("iid_profiles").insert({user_id:u.id,nickname,origin});
+    const {error}=await sb.from("iid_profiles").insert({user_id:u.id,nickname,origin,country_code:code,custom_flag:customFlag});
     if(error){
      if(error.code==="23505"){
       if(await profile(u.id)){next("./arena.html");return;}
