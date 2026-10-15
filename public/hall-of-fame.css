@@ -1,0 +1,29 @@
+/* Phase 2 — Global Hall of Fame: rank, nickname and flag only. */
+body[data-page="arena"] .hof-section{margin:22px 0;padding:17px 15px 19px;border:2px solid #445875;background:#101a2a;box-shadow:4px 4px 0 #050913;text-align:left}
+body[data-page="arena"] .hof-section[hidden]{display:none}
+body[data-page="arena"] .hof-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:13px}
+body[data-page="arena"] .hof-heading{font:clamp(10px,2.2vw,13px)/1.65 "Press Start 2P",monospace;color:#eaf3f9;margin:0}
+body[data-page="arena"] .hof-scoring{font:11px/1.5 "Pixelify Sans",monospace;color:#9caec3;margin:7px 0 0}
+body[data-page="arena"] .hof-refresh{flex:none;padding:9px 8px;background:#1c3044;border:2px solid #536d85;color:#dcebf8;font:8px/1.4 "Press Start 2P",monospace;box-shadow:2px 2px #050913}
+body[data-page="arena"] .hof-refresh:disabled{opacity:.6}
+body[data-page="arena"] .hof-dual{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+body[data-page="arena"] .hof-panel{min-width:0;background:#0c1523;border:2px solid #384f66;padding:11px 11px 13px}
+body[data-page="arena"] .hof-panel-save{border-top:4px solid #64dba7}
+body[data-page="arena"] .hof-panel-kill{border-top:4px solid #ef7187}
+body[data-page="arena"] .hof-panel h3{font:10px/1.65 "Press Start 2P",monospace;margin:0 0 10px}
+body[data-page="arena"] .hof-panel-save h3{color:#8decc3}
+body[data-page="arena"] .hof-panel-kill h3{color:#ff9bac}
+body[data-page="arena"] .hof-entry{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:7px;min-height:37px;padding:6px 3px;border-bottom:1px solid #25354a}
+body[data-page="arena"] .hof-rank{font:9px/1.6 "Press Start 2P",monospace;color:#aabbd0}
+body[data-page="arena"] .hof-name{font:12px/1.4 "Pixelify Sans",monospace;color:#ecf3f8;overflow-wrap:anywhere;min-width:0}
+body[data-page="arena"] .hof-country{gap:4px;font-size:7px;color:#a6bed5;white-space:nowrap}
+body[data-page="arena"] .hof-country img{width:24px;height:16px}
+body[data-page="arena"] .hof-you{background:#1c3441}
+body[data-page="arena"] .hof-you .hof-name{color:#87e2b8}
+body[data-page="arena"] .hof-you-tag{grid-column:2/4;color:#81dfb1;font:7px/1.2 "Press Start 2P",monospace}
+body[data-page="arena"] .hof-empty{color:#8ea0b5;font:12px/1.5 "Pixelify Sans",monospace;padding:12px 4px;margin:0}
+body[data-page="arena"] .hof-self-divider{font:7px/1.8 "Press Start 2P",monospace;letter-spacing:.2px;color:#88a4c1;margin:13px 0 2px;padding-top:8px;border-top:2px dashed #3f5771}
+body[data-page="arena"] .hof-unranked .hof-rank{color:#8ea4bb}
+body[data-page="arena"] .hof-unranked-label{grid-column:2/4;color:#f4ca73;font:7px/1.6 "Press Start 2P",monospace}
+body[data-page="arena"] .hof-status{font:12px/1.5 "Pixelify Sans",monospace;color:#9baec6;margin:13px 0 0}
+@media(max-width:560px){body[data-page="arena"] .hof-dual{grid-template-columns:1fr}body[data-page="arena"] .hof-panel{padding:12px}body[data-page="arena"] .hof-entry{grid-template-columns:42px minmax(0,1fr) auto;gap:10px}body[data-page="arena"] .hof-name{font-size:14px}}
