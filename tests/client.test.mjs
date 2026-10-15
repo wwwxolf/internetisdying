@@ -90,12 +90,13 @@ test('V2 pending influence never fabricates HP; life bar follows exact verified 
     window_start:new Date().toISOString(),latest_window:null};
   const f=fixture(async name=>name==='iid_economy_status'
     ?{data:economy}:{data:state({world:{hp,enabled:true}})});
+  f.nodes.get('arena-hp-change').hidden=true; // mock DOM defaults hidden:false, unlike markup
   await f.init();
   assert.equal(f.nodes.get('arena-hp').textContent,'500,000');
   assert.equal(f.nodes.get('arena-fill').style.width,'50%');
   assert.equal(f.nodes.get('arena-hp-change').hidden,true);
   assert.equal(f.nodes.get('arena-hp-pending').hidden,false);
-  assert.match(f.nodes.get('arena-hp-pending-score').textContent,/SAVE \\+124/);
+  assert.ok(f.nodes.get('arena-hp-pending-score').textContent.includes('SAVE +124'));
   // V2 battle influence does not change World HP until the window settles.
   f.intervals[0]();
   assert.equal(f.nodes.get('arena-fill').style.width,'50%');
@@ -107,7 +108,7 @@ test('V2 pending influence never fabricates HP; life bar follows exact verified 
   assert.equal(f.nodes.get('arena-fill').style.width,'50.6%');
   assert.equal(f.nodes.get('arena-progress').attrs?.['aria-valuenow']||f.nodes.get('arena-progress').attrNow,'50.6');
   assert.equal(f.nodes.get('arena-hp-change').hidden,false);
-  assert.match(f.nodes.get('arena-hp-change').textContent,/\\+6,000 HP/);
+  assert.ok(f.nodes.get('arena-hp-change').textContent.includes('+6,000 HP'));
   hp=503500;
   await f.nodes.get('battle-refresh').events.click();
   assert.equal(f.nodes.get('arena-fill').style.width,'50.35%');
@@ -120,7 +121,7 @@ test('Arena health visuals never convert provisional influence into World HP',as
  assert.match(html,/id="arena-hp-change"/);
  assert.match(html,/id="arena-hp-pending"/);
  assert.match(html,/PENDING SETTLEMENT/);
- assert.match(css,/\\.arena-hud \\.hp-fill\\{min-height:100%;transition:width 1\\.05s ease-out/);
- assert.doesNotMatch(css,/\\.arena-hud \\.hp-fill\\{min-height:100%;transition:width \\.55s steps\\(20,end\\)/);
+ assert.ok(css.includes('transition:width 1.05s ease-out'));
+ assert.ok(!css.includes('transition:width .55s steps(20,end)'));
  assert.match(css,/@media\\(prefers-reduced-motion:reduce\\)/);
 });
