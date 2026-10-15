@@ -167,6 +167,7 @@ begin
   'kill',iid_private.hof_season_side(u,s,'kill'));
 end $$;
 revoke all on function iid_private.hall_of_fame() from public,anon,authenticated;
+grant execute on function iid_private.hall_of_fame() to authenticated;
 
 -- Developer reset must clear the new seasonal aggregates too, but leave auth/profile intact.
 create or replace function public.iid_developer_reset(p_confirm text) returns jsonb
