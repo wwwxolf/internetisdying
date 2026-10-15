@@ -106,7 +106,7 @@ test("KILL and V2 War Influence remain distinct; V2 does not inherit V1 scores",
  await asAdmin("update public.iid_economy_control set v2_enabled=true where id=1");
  const v2Ranks=await hall();
  assert.equal(v2Ranks.engine_version,2);
- assert.equal(v2Ranks.score_unit,"WAR INFLUENCE");
+ assert.equal(v2Ranks.score_unit,"FACTION POINTS");
  assert.equal(v2Ranks.save.top.length,2);
  assert.equal(Number(v2Ranks.save.total_score),500);
  assert.equal(Number(v2Ranks.kill.total_score),0);
