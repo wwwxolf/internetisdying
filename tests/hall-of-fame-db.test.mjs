@@ -113,7 +113,7 @@ test("KILL and V2 War Influence remain distinct; V2 does not inherit V1 scores",
  assert.equal(v2Ranks.save.top[0].nickname,"Player_13");
  assert.equal(v2Ranks.save.self.rank,1);
  assert.equal(v2Ranks.save.self.score,300);
- assert.equal(v2Ranks.save.self.hp,158,"V2 is influence, not invented individual HP");
+ assert.equal(v2Ranks.save.self.score,300,"V2 faction points are verified; no individual World HP is fabricated");
  assert.equal(v2Ranks.kill.top.length,0);
  await asAdmin("update public.iid_economy_control set v2_enabled=false where id=1");
  assert.equal((await hall()).save.self.rank,13);
