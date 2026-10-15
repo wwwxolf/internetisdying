@@ -14,11 +14,11 @@
 *{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--bg);font-family:"Pixelify Sans",monospace;font-size:19px;min-width:320px;background-image:radial-gradient(#26314b 1px,transparent 1px),linear-gradient(180deg,#090d1c,#10142d 50%,#080d1a);background-size:24px 24px,auto}button,a{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}a:focus-visible,button:focus-visible{outline:3px solid #ffde7a;outline-offset:4px}[hidden]{display:none!important}
 .site{max-width:1140px;padding:0 20px;margin:auto}.top{display:flex;align-items:center;justify-content:space-between;gap:18px;min-height:78px;border-bottom:2px solid var(--line)}.logo{font:10px/1.8 "Press Start 2P",monospace;white-space:nowrap}.logo span{color:var(--hot)}.top nav{display:flex;gap:15px;align-items:center}.top nav a{font:9px/1.7 "Press Start 2P";color:#b8c6d9}.top nav a:hover{color:var(--cyan)}.top nav .active{color:var(--cyan)}
 main{padding:35px 0 45px}.kicker{text-align:center;letter-spacing:2px;color:var(--cyan);font-size:15px}.title{text-align:center;font:clamp(19px,4.5vw,39px)/1.5 "Press Start 2P";margin:12px 0 9px;text-shadow:4px 5px #431035}.title span{color:#ffb84b}.subtitle{text-align:center;color:var(--muted);font-size:19px;margin:0 auto 28px;max-width:660px}.chip{display:inline-block;border:1px solid #467fa0;background:#0a2437;padding:5px 12px;margin-top:5px;color:#a5efff;font:9px/1.8 "Press Start 2P"}
-.roster{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}.fighter{position:relative;display:flex;flex-direction:column;gap:0;min-width:0;text-align:left;padding:0;background:#10182b;color:var(--ink);border:3px solid #435473;box-shadow:5px 5px #030510;transition:transform .12s,border-color .12s,box-shadow .12s}.fighter:hover{transform:translateY(-3px)}.fighter[aria-pressed=true]{border-color:var(--hot);box-shadow:0 0 0 2px #ff4e8340,0 0 19px #ff4e8391,5px 5px #030510}.fighter[aria-pressed=true]::after{content:"1P";position:absolute;top:-15px;left:-10px;padding:3px 7px;background:#ec2758;color:#fff;border:2px solid #fff;font:11px/1.4 "Press Start 2P"}.art{height:234px;position:relative;display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse at 50% 80%,#293552 0%,#121b33 55%,#0a1225 100%);border-bottom:3px solid #45516f}.art::before{content:"";position:absolute;inset:0;opacity:.22;background:linear-gradient(transparent 90%,#566e86 91%);background-size:100% 11px}.fighter:nth-child(2) .art{background:radial-gradient(ellipse at 50% 78%,#154055,#0b1c32 62%,#091526)}.fighter:nth-child(3) .art{background:radial-gradient(ellipse at 50% 78%,#273720,#111d22 65%,#0c171c)}.fighter:nth-child(4) .art{background:radial-gradient(ellipse at 50% 78%,#3b1f5a,#171633 65%,#101127)}.art svg{position:relative;width:min(88%,190px);height:205px;filter:drop-shadow(7px 8px 0 #060812);image-rendering:pixelated}.fighter-label{font:clamp(9px,1.35vw,12px)/1.7 "Press Start 2P";text-align:center;padding:14px 7px 3px;min-height:42px}.fighter-copy{color:#a7b9d0;text-align:center;font-size:15px;line-height:1.25;padding:4px 10px 16px;min-height:60px}
+.roster{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}.fighter{position:relative;display:flex;flex-direction:column;gap:0;min-width:0;text-align:left;padding:0;background:#10182b;color:var(--ink);border:3px solid #435473;box-shadow:5px 5px #030510;transition:transform .12s,border-color .12s,box-shadow .12s}.fighter:hover{transform:translateY(-3px)}.fighter[aria-pressed=true]{border-color:var(--hot);box-shadow:0 0 0 2px #ff4e8340,0 0 19px #ff4e8391,5px 5px #030510}.fighter[aria-pressed=true]::after{content:"1P";position:absolute;top:-15px;left:-10px;padding:3px 7px;background:#ec2758;color:#fff;border:2px solid #fff;font:11px/1.4 "Press Start 2P"}.art{height:234px;position:relative;display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse at 50% 80%,#293552 0%,#121b33 55%,#0a1225 100%);border-bottom:3px solid #45516f}.art::before{content:"";position:absolute;inset:0;opacity:.22;background:linear-gradient(transparent 90%,#566e86 91%);background-size:100% 11px}.fighter:nth-child(2) .art{background:radial-gradient(ellipse at 50% 78%,#154055,#0b1c32 62%,#091526)}.fighter:nth-child(3) .art{background:radial-gradient(ellipse at 50% 78%,#273720,#111d22 65%,#0c171c)}.fighter:nth-child(4) .art{background:radial-gradient(ellipse at 50% 78%,#3b1f5a,#171633 65%,#101127)}.art img{position:relative;width:min(88%,190px);height:205px;filter:drop-shadow(7px 8px 0 #060812);image-rendering:pixelated}.fighter-label{font:clamp(9px,1.35vw,12px)/1.7 "Press Start 2P";text-align:center;padding:14px 7px 3px;min-height:42px}.fighter-copy{color:#a7b9d0;text-align:center;font-size:15px;line-height:1.25;padding:4px 10px 16px;min-height:60px}
 .selection{margin-top:25px;border:3px solid #415879;background:#10192e;box-shadow:5px 5px #040712;display:grid;grid-template-columns:1fr auto;gap:17px;align-items:center;padding:18px 22px}.selection .small{font:9px/1.7 "Press Start 2P";color:#7fecff}.selection h2{font:15px/1.9 "Press Start 2P";color:#fff;margin:6px 0 4px}.selection p{margin:0;font-size:18px;color:#c4d0df}.selection .tagline{color:#ffbe72;margin-top:8px;font-size:17px}.enter{background:#f63167;border:3px solid #ffe2ea;box-shadow:5px 5px #601133;color:#fff;padding:17px 15px;display:inline-block;text-align:center;font:10px/1.8 "Press Start 2P";white-space:nowrap}.enter:hover{background:#ff5784}
 .notice{font:12px/1.9 "Pixelify Sans";margin:19px auto 0;max-width:850px;text-align:center;color:#889bb7}.footer{padding:19px 0 28px;display:flex;justify-content:space-between;gap:10px;border-top:2px solid #25334c;color:#788ea9;font:9px/1.8 "Pixelify Sans"}
 @media(max-width:800px){.roster{grid-template-columns:repeat(2,minmax(0,1fr))}.selection{grid-template-columns:1fr}.enter{justify-self:stretch}.art{height:220px}}
-@media(max-width:430px){.site{padding:0 12px}.top{min-height:66px}.logo{font-size:8px}.top nav{gap:8px}.top nav a{font-size:8px}.kicker{font-size:12px}.title{font-size:18px}.subtitle{font-size:16px}.roster{gap:10px}.art{height:162px}.art svg{height:148px}.fighter-label{font-size:8px;min-height:48px}.fighter-copy{font-size:13px;min-height:67px;padding:2px 5px 11px}.selection{padding:15px}.selection h2{font-size:12px}.selection p{font-size:16px}}
+@media(max-width:430px){.site{padding:0 12px}.top{min-height:66px}.logo{font-size:8px}.top nav{gap:8px}.top nav a{font-size:8px}.kicker{font-size:12px}.title{font-size:18px}.subtitle{font-size:16px}.roster{gap:10px}.art{height:162px}.art img{height:148px}.fighter-label{font-size:8px;min-height:48px}.fighter-copy{font-size:13px;min-height:67px;padding:2px 5px 11px}.selection{padding:15px}.selection h2{font-size:12px}.selection p{font-size:16px}}
 @media(prefers-reduced-motion:reduce){.fighter{transition:none}}
 </style>
 </head>
@@ -35,118 +35,62 @@ main{padding:35px 0 45px}.kicker{text-align:center;letter-spacing:2px;color:var(
  <div class="roster" role="group" aria-label="Choose your pixel avatar">
   <button type="button" class="fighter" data-character="human" aria-pressed="true" aria-label="Choose Human">
    <span class="art" aria-hidden="true">
-    <svg viewBox="0 0 96 112" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
-     <g fill="#19213b"><path d="M24 14h48v8h8v32h-8v12H24V54h-8V22h8z"/><path d="M20 67h56v35H20z"/></g>
-     <g fill="#6d748b"><path d="M24 20h48v8h8v25h-8v10H24V53h-8V29h8z"/></g>
-     <g fill="#293049"><path d="M31 27h34v8H31zM24 35h12v25H24zM64 35h12v25H64z"/></g>
-     <g fill="#5e342c"><path d="M34 24h28v5h8v10h-8v-5H33v8h-6V30h7z"/></g>
-     <g fill="#f1ac8f"><path d="M34 39h28v22H34zM29 46h5v10h-5zM62 45h6v11h-6z"/></g>
-     <g fill="#fff3df"><path d="M38 45h7v6h-7zM54 45h7v6h-7z"/></g>
-     <g fill="#1b2438"><path d="M42 45h3v6h-3zM55 45h3v6h-3zM46 55h9v3h-9z"/></g>
-     <g fill="#d45861"><path d="M31 54h5v4h-5zM62 54h4v4h-4z"/></g>
-     <g fill="#3c455c"><path d="M27 67h42v25H27zM20 73h8v23h-8zM68 73h8v23h-8z"/></g>
-     <g fill="#e2ebf3"><path d="M39 66h18v6H39zM32 77h10v3H32z"/></g>
-     <g fill="#c94157"><path d="M26 75h8v21h-8zM33 93h13v5H33zM53 93h16v5H53z"/></g>
-     <g fill="#1b2136"><path d="M35 90h10v9H35zM52 90h10v9H52z"/></g>
-     <g fill="#f2e9de"><path d="M28 99h20v5H25v-3h3zM51 99h19v5H49v-3h2z"/></g>
-     <g fill="#ff6c79"><path d="M15 71h7v14h-7z"/></g>
-     <g fill="#6bdaf3"><path d="M67 73h11v17H67z"/></g>
-     <g fill="#172338"><path d="M70 77h6v9h-6z"/></g>
-    </svg>
+    <img src="./assets/avatar-world001-human.svg" width="190" height="205" alt="" decoding="async"/>
    </span>
    <span class="fighter-label">HUMAN</span><span class="fighter-copy">STILL ONLINE.<br/>BARELY.</span>
   </button>
   <button type="button" class="fighter" data-character="bot" aria-pressed="false" aria-label="Choose Bot Chicken">
    <span class="art" aria-hidden="true">
-    <svg viewBox="0 0 96 112" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
-     <g fill="#e84561"><path d="M39 19h8V7h8v14h8V9h7v20H39z"/></g>
-     <g fill="#23334c"><path d="M23 29h46v8h8v14h7v22h-7v9h-8v9H28v-9h-8V68h-8V48h8V37h3z"/></g>
-     <g fill="#abbacd"><path d="M27 32h41v8h8v23h5v12h-9v11H29V76h-8V47h7z"/></g>
-     <g fill="#eaf2e9"><path d="M33 32h27v8h8v13H30V40h3z"/></g>
-     <g fill="#0b1b31"><path d="M34 42h30v20H34z"/></g>
-     <g fill="#65f5ff"><path d="M38 45h9v10h-9zM53 45h9v10h-9z"/></g>
-     <g fill="#ffffff"><path d="M39 46h3v4h-3zM54 46h3v4h-3z"/></g>
-     <g fill="#f4b34c"><path d="M62 58h17v6h-9v5h-8z"/></g>
-     <g fill="#d9e3ed"><path d="M14 55h14v15H14z"/></g>
-     <g fill="#4e657d"><path d="M16 58h9v9h-9zM28 77h44v5H28z"/></g>
-     <g fill="#ed5a63"><path d="M46 69h8v7h-8z"/></g>
-     <g fill="#15243c"><path d="M32 86h9v13h-9zM60 86h9v13h-9z"/></g>
-     <g fill="#ec9a34"><path d="M30 96h15v6H29zM58 96h15v6H57zM26 101h21v5H26zM55 101h21v5H55z"/></g>
-     <g fill="#5de9fd"><path d="M11 43h4v7h-4zM79 36h5v9h-5z"/></g>
-     <g fill="#e85c73"><path d="M10 39h6v5h-6z"/></g>
-    </svg>
+    <img src="./assets/avatar-world001-bot-chicken.svg" width="190" height="205" alt="" decoding="async"/>
    </span>
    <span class="fighter-label">BOT CHICKEN</span><span class="fighter-copy">PROGRAMMED TO<br/>PECK THE SYSTEM.</span>
   </button>
   <button type="button" class="fighter" data-character="mutant" aria-pressed="false" aria-label="Choose Chicken Mutant">
    <span class="art" aria-hidden="true">
-    <svg viewBox="0 0 96 112" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
-     <g fill="#ff4667"><path d="M33 25V11h9v11h5V6h9v16h6V10h9v22H35z"/></g>
-     <g fill="#14251e"><path d="M25 29h48v8h8v22h7v26h-9v11H22V84h-9V59h6V38h6z"/></g>
-     <g fill="#d8dbc7"><path d="M28 32h42v8h8v23h7v17H75v12H26V80h-9V62h5V42h6z"/></g>
-     <g fill="#f9eee0"><path d="M29 35h35v11H29zM21 57h14v23H21z"/></g>
-     <g fill="#a0c96a"><path d="M38 69h37v22H34zM70 64h12v19H70z"/></g>
-     <g fill="#77ed4c"><path d="M45 72h20v18H45zM16 86h10v9H16z"/></g>
-     <g fill="#e95460"><path d="M58 69h10v14H58z"/></g>
-     <g fill="#1e3229"><path d="M36 45h23v21H36z"/></g>
-     <g fill="#fff6de"><path d="M42 46h16v16H42z"/></g>
-     <g fill="#ff5263"><path d="M46 48h9v11h-9z"/></g>
-     <g fill="#262238"><path d="M49 50h5v7h-5z"/></g>
-     <g fill="#f6b746"><path d="M59 52h23v8H71v7H60z"/></g>
-     <g fill="#e53e69"><path d="M61 64h8v10h-8z"/></g>
-     <g fill="#243d2b"><path d="M27 86h10v14H27zM65 86h10v14H65z"/></g>
-     <g fill="#b4bd72"><path d="M22 98h22v6H21zM60 98h22v6H59z"/></g>
-     <g fill="#78ff63"><path d="M8 64h6v9H8zM82 75h8v14h-8zM13 93h6v6h-6z"/></g>
-    </svg>
+    <img src="./assets/avatar-world001-chicken-mutant.svg" width="190" height="205" alt="" decoding="async"/>
    </span>
    <span class="fighter-label">CHICKEN MUTANT</span><span class="fighter-copy">RADIOACTIVE.<br/>VERY HUNGRY.</span>
   </button>
   <button type="button" class="fighter" data-character="egg" aria-pressed="false" aria-label="Choose Egg Glitch">
    <span class="art" aria-hidden="true">
-    <svg viewBox="0 0 96 112" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
-     <g fill="#6e2c9c"><path d="M7 21h11v5H7zM76 20h12v5H76zM8 75h13v5H8zM73 86h15v6H73z"/></g>
-     <g fill="#10ebfb"><path d="M14 12h6v7h-6zM81 42h8v7h-8zM5 54h6v8H5zM82 71h8v7h-8z"/></g>
-     <g fill="#c339f0"><path d="M4 34h7v6H4zM86 57h6v9h-6zM14 91h8v7h-8z"/></g>
-     <g fill="#1d203e"><path d="M39 16h17v6h10v9h8v14h5v35h-5v10h-8v8H29v-8h-8V79h-6V45h6V32h7V23h11z"/></g>
-     <g fill="#faf0e1"><path d="M39 19h17v6h10v10h7v13h5v30h-6v11h-9v7H32v-7h-8V78h-6V47h6V34h7V26h8z"/></g>
-     <g fill="#c8c3da"><path d="M22 58h7v26h-7zM66 39h7v41h-7zM32 89h32v6H32z"/></g>
-     <g fill="#473452"><path d="M24 47h7v7h-7v7h8v-6h7v7h7v-7h7v6h8v-8h8v8h7v22h-6v10H32V75h-8z"/></g>
-     <g fill="#100f2c"><path d="M30 60h38v28H30z"/></g>
-     <g fill="#ef56f9"><path d="M33 61h5v5h-5zM41 69h5v5h-5zM33 69h5v5h-5zM41 61h5v5h-5z"/></g>
-     <g fill="#42eafd"><path d="M54 62h12v13H54z"/></g>
-     <g fill="#fbfaff"><path d="M57 64h5v5h-5z"/></g>
-     <g fill="#ef65f9"><path d="M36 79h6v5h-6zM46 83h7v4h-7zM58 79h7v5h-7z"/></g>
-     <g fill="#080b23"><path d="M41 77h17v4H41z"/></g>
-     <g fill="#e9f7ff"><path d="M32 32h6v6h-6zM38 26h10v4H38z"/></g>
-    </svg>
+    <img src="./assets/avatar-world001-egg-glitch.svg" width="190" height="205" alt="" decoding="async"/>
    </span>
    <span class="fighter-label">EGG GLITCH</span><span class="fighter-copy">404: LIFE<br/>NOT FOUND.</span>
   </button>
  </div>
  <section class="selection" aria-live="polite" aria-atomic="true">
   <div><span class="small">PLAYER 1 / SELECTED ORIGIN</span><h2 id="selected-name">HUMAN_</h2><p id="selected-desc">The last person still refreshing the page.</p><p class="tagline" id="selected-quote">"STILL ONLINE."</p></div>
-  <a href="./auth.html" class="enter" aria-label="Continue to sign in and enter World 001">CONTINUE TO WORLD →</a>
+  <a href="./auth.html?avatar=HUMAN" class="enter" id="enter-with-avatar" aria-label="Continue to sign in and enter World 001">CONTINUE TO WORLD →</a>
  </section>
- <p class="notice">DESIGN PREVIEW: Avatars are visual concepts only. Selecting a card here does not save or change your live account, battle power, or the current sign-in flow.</p>
+ <p class="notice">DESIGN PREVIEW: Avatars are visual concepts only. Your selected avatar carries into sign-in and one-time identity creation. Avatar powers are not active yet.</p>
 </main>
 <footer class="footer"><span>WORLD_001 / CHARACTER LAB</span><span>THE INTERNET IS DYING_</span></footer>
 </div>
 <script>
 (()=>{
  const details={
-  human:["HUMAN_","The last person still refreshing the page.","\"STILL ONLINE.\""],
-  bot:["BOT CHICKEN_","Half poultry. Half machine. Full-time system menace.","\"CLUCK.EXE HAS STOPPED RESPONDING.\""],
-  mutant:["CHICKEN MUTANT_","An internet-fed mutation with absolutely no off switch.","\"FEED ME YOUR DATA.\""],
-  egg:["EGG GLITCH_","An error that somehow hatched before the chicken.","\"404: LIFE NOT FOUND.\""]
+  human:["HUMAN_","The last person still refreshing the page.","\"STILL ONLINE.\"","HUMAN"],
+  bot:["BOT CHICKEN_","Half poultry. Half machine. Full-time system menace.","\"CLUCK.EXE HAS STOPPED RESPONDING.\"","BOT_CHICKEN"],
+  mutant:["CHICKEN MUTANT_","An internet-fed mutation with absolutely no off switch.","\"FEED ME YOUR DATA.\"","CHICKEN_MUTANT"],
+  egg:["EGG GLITCH_","An error that somehow hatched before the chicken.","\"404: LIFE NOT FOUND.\"","EGG_GLITCH"]
  };
+ const storageKey="iid_world001_avatar_choice_v1";
  const cards=[...document.querySelectorAll(".fighter")];
- cards.forEach(card=>card.addEventListener("click",()=>{
-  const key=card.dataset.character;
+ const enter=document.getElementById("enter-with-avatar");
+ const select=(card)=>{
+  const data=details[card.dataset.character];
   cards.forEach(item=>item.setAttribute("aria-pressed",String(item===card)));
-  document.getElementById("selected-name").textContent=details[key][0];
-  document.getElementById("selected-desc").textContent=details[key][1];
-  document.getElementById("selected-quote").textContent=details[key][2];
- }));
+  document.getElementById("selected-name").textContent=data[0];
+  document.getElementById("selected-desc").textContent=data[1];
+  document.getElementById("selected-quote").textContent=data[2];
+  enter.href="./auth.html?avatar="+encodeURIComponent(data[3]);
+  try{sessionStorage.setItem(storageKey,data[3]);}catch{/* URL fallback survives blocked storage. */}
+ };
+ cards.forEach(card=>card.addEventListener("click",()=>select(card)));
+ let stored;
+ try{stored=sessionStorage.getItem(storageKey);}catch{}
+ const initial=cards.find(card=>details[card.dataset.character][3]===stored)||cards[0];
+ select(initial);
 })();
 </script>
 </body>
