@@ -11,14 +11,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="./styles.css?v=7"/>
-  <link rel="stylesheet" href="./arena.css?v=9"/>
+  <link rel="stylesheet" href="./arena.css?v=10"/>
   <link rel="stylesheet" href="./hall-of-fame.css?v=2"/>
   <link rel="stylesheet" href="./tap-battle.css?v=3"/>
   <link rel="stylesheet" href="./daily-chaos.css?v=2"/>
   <link rel="stylesheet" href="./world-return.css?v=4"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./flow.js?v=27"></script>
+  <script type="module" src="./flow.js?v=28"></script>
 </head>
 <body data-page="arena" data-battle-mode="global">
   <div class="preview-bar" role="note">GLOBAL BATTLE ENGINE • CONTROLLED ROLLOUT</div>
@@ -114,7 +114,7 @@
           </div>
           <p class="arena-heart-text">ONE INTERNET. ONE LIFE.</p>
 
-          <div class="hud arena-hud">
+          <div class="hud arena-hud" id="arena-hud">
             <div class="arena-hud-label">SHARED WORLD HEALTH</div>
             <div class="hud-head">
               <div class="hud-numbers">
@@ -125,6 +125,12 @@
             </div>
             <div class="hp-track" role="progressbar" aria-label="Global internet HP" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="arena-progress">
               <div class="hp-fill" id="arena-fill"></div>
+            </div>
+            <p id="arena-hp-change" class="arena-hp-change" role="status" aria-live="polite" hidden></p>
+            <div id="arena-hp-pending" class="arena-hp-pending" hidden>
+              <span class="arena-hp-pending-title">V2 WAR IN PROGRESS • PENDING SETTLEMENT</span>
+              <span id="arena-hp-pending-score">SAVE +0 / KILL −0 WAR INFLUENCE</span>
+              <span class="arena-hp-pending-note">THE HP BAR CHANGES ONLY WHEN SERVER WORLD HP SETTLES.</span>
             </div>
             <div class="hud-foot">
               <span id="arena-percent">50.0% LIFE REMAINING</span>

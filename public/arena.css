@@ -187,7 +187,7 @@ body[data-page="arena"] .arena-hud .hp-track{
   margin:11px 0 9px;
   padding:4px;
 }
-body[data-page="arena"] .arena-hud .hp-fill{min-height:100%;transition:width .55s steps(20,end)}
+body[data-page="arena"] .arena-hud .hp-fill{min-height:100%;transition:width 1.05s ease-out;will-change:width}
 body[data-page="arena"] .arena-hud .hud-foot{font-size:15px;line-height:1.2;align-items:center}
 body[data-page="arena"] .arena-stage-footer{
   display:flex;justify-content:center;gap:7px;
@@ -435,3 +435,20 @@ body[data-page="arena"] .arena-custom-flag{display:grid;grid-template-columns:re
 body[data-page="arena"] .arena-custom-flag span{width:2px;height:2px}
 
 body[data-page="arena"] .arena-identity-line{display:flex;align-items:center;flex-wrap:wrap;column-gap:10px;row-gap:5px;min-width:0}
+
+/* The life meter always follows exact, server-verified World HP. */
+body[data-page="arena"] .arena-hp-change{margin:7px 0 4px;color:#9cecc3;font:10px/1.65 "Pixelify Sans",monospace;overflow-wrap:anywhere}
+body[data-page="arena"] .arena-hud[data-hp-direction="down"] .arena-hp-change{color:#ff8ca8}
+body[data-page="arena"] .arena-hud[data-hp-direction="up"] .hp-track{animation:world-hp-signal-up 1.25s ease-out}
+body[data-page="arena"] .arena-hud[data-hp-direction="down"] .hp-track{animation:world-hp-signal-down 1.25s ease-out}
+@keyframes world-hp-signal-up{30%{border-color:#7ce7b8;box-shadow:0 0 12px #54daa466}100%{border-color:#566780;box-shadow:none}}
+@keyframes world-hp-signal-down{30%{border-color:#ff738f;box-shadow:0 0 12px #ff738f66}100%{border-color:#566780;box-shadow:none}}
+body[data-page="arena"] .arena-hp-pending{display:flex;flex-direction:column;gap:5px;border-top:1px dashed #43576f;margin-top:12px;padding:10px 0 7px;text-align:left}
+body[data-page="arena"] .arena-hp-pending[hidden]{display:none}
+body[data-page="arena"] .arena-hp-pending-title{color:#e8c17f;font:8px/1.8 "Press Start 2P",monospace}
+body[data-page="arena"] .arena-hp-pending #arena-hp-pending-score{color:#c7d9e9;font:12px/1.6 "Pixelify Sans",monospace}
+body[data-page="arena"] .arena-hp-pending-note{color:#8d9fb6;font:10px/1.6 "Pixelify Sans",monospace}
+@media(prefers-reduced-motion:reduce){
+ body[data-page="arena"] .arena-hud .hp-fill{transition:none;will-change:auto}
+ body[data-page="arena"] .arena-hud .hp-track{animation:none!important}
+}
