@@ -91,6 +91,13 @@ jobs:
           grep -q 'CHICKEN-PROOF FIREWALL' /tmp/iid-arena.html
           grep -q 'THE COOP REPORT' /tmp/iid-arena.html
           grep -q 'ONE HUNGRY CHICKEN. TWO SIDES.' /tmp/iid-battle.js
+          grep -q 'world001-pecking-globe.svg' /tmp/iid-arena.html
+          grep -q 'arena.css?v=12' /tmp/iid-arena.html
+          curl -fsSL --max-time 15 "$ROOT/assets/world001-pecking-globe.svg" -o /tmp/iid-pecking-globe.svg
+          grep -q 'Four pixel chickens peck the internet globe' /tmp/iid-pecking-globe.svg
+          grep -q 'three comic bubbles saying PECK!' /tmp/iid-pecking-globe.svg
+          curl -fsSL --max-time 15 "$ROOT/arena.css?v=12" -o /tmp/iid-arena-css.css
+          grep -q 'world-core-signal{display:none}' /tmp/iid-arena-css.css
           curl -fsSL --max-time 15 "$ROOT/" -o /tmp/iid-landing.html
           grep -q 'id="join-btn" href="./prologue.html"' /tmp/iid-landing.html
           curl -fsSL --max-time 15 "$ROOT/prologue.html" -o /tmp/iid-prologue.html
