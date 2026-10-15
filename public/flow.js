@@ -195,6 +195,10 @@ if(page==="arena"){
    void import("./world-return.js?v=6")
      .then(({initWorldReturn})=>initWorldReturn({sb,nickname:p.nickname}))
      .catch(err=>console.warn("WORLD RETURN LOAD FAILED",err));
+   // Read-only Hall of Fame is isolated from battle gameplay, auth and timers.
+   void import("./hall-of-fame.js?v=1")
+     .then(({initHallOfFame})=>initHallOfFame({sb}))
+     .catch(err=>console.warn("HALL OF FAME LOAD FAILED",err));
    // NEXT CHAOS reads server-only votes; failure never blocks the battle arena.
    void import("./daily-chaos.js?v=2").then(({initDailyChaos})=>initDailyChaos({sb})).catch(e=>show("DAILY CHAOS PREVIEW COULD NOT LOAD: "+e.message,"warning"));
   }
