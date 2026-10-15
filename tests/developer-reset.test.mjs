@@ -1,5 +1,5 @@
 import {PGlite} from "@electric-sql/pglite";
-import {test} from "node:test";
+import {test,after} from "node:test";
 import assert from "node:assert/strict";
 import {readFile,readdir} from "node:fs/promises";
 import {initDeveloperMode} from "../public/developer-mode.js";
@@ -116,4 +116,4 @@ test("Arena contains hidden developer controls and does not reveal authorization
  assert.match(module,/iid_developer_reset/);
  assert.doesNotMatch(html,/dd9a984e/);
 });
-await db.close();
+after(()=>db.close());
