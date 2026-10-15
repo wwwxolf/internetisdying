@@ -1,6 +1,7 @@
 /* V3 account flow for THE INTERNET IS DYING.
    All arena rolls are LOCAL DEMOS, not real votes or purchases. */
 import {COUNTRIES,COUNTRY_CODES} from "./countries.js";
+import {FLAG_COLORS,renderCountryBadge} from "./identity-flag.js";
 (async()=>{
 "use strict";
 const $=id=>document.getElementById(id);
@@ -41,7 +42,7 @@ async function user(){
  return data?.user||null;
 }
 async function profile(id){
- const {data,error}=await sb.from("iid_profiles").select("user_id,nickname,origin").eq("user_id",id).maybeSingle();
+ const {data,error}=await sb.from("iid_profiles").select("user_id,nickname,origin,country_code,custom_flag").eq("user_id",id).maybeSingle();
  if(error)throw error;
  return data;
 }
@@ -129,7 +130,7 @@ if(page==="onboarding"){
   }));
   const search=$("country-search"), countryCode=$("country-code"), results=$("country-results"), selected=$("country-selected");
   const flagPanel=$("custom-flag-panel"), grid=$("flag-grid"), palette=$("flag-palette");
-  const colors=["#202938","#f2ead3","#d84b4b","#47b985"], pixels=Array(96).fill(0);
+  const colors=FLAG_COLORS, pixels=Array(96).fill(0);
   let paintColor=1;
   colors.forEach((color,i)=>{const swatch=document.createElement("button");swatch.type="button";swatch.className="flag-swatch";swatch.style.setProperty("--swatch",color);swatch.setAttribute("aria-label",`Color ${i+1}`);swatch.setAttribute("aria-pressed",String(i===paintColor));swatch.addEventListener("click",()=>{paintColor=i;palette.querySelectorAll("button").forEach((button,n)=>button.setAttribute("aria-pressed",String(n===i)));});palette.append(swatch);});
   const renderGrid=()=>{grid.replaceChildren();pixels.forEach((value,i)=>{const cell=document.createElement("button");cell.type="button";cell.className="flag-pixel";cell.style.setProperty("--pixel",colors[value]);cell.setAttribute("role","gridcell");cell.setAttribute("aria-label",`Pixel ${i+1}`);cell.addEventListener("click",()=>{pixels[i]=paintColor;cell.style.setProperty("--pixel",colors[paintColor]);});grid.append(cell);});};
@@ -174,6 +175,7 @@ if(page==="arena"){
   const p=await profile(u.id);if(!p){next("./onboarding.html");return;}
   $("arena-content").hidden=false;
   $("arena-identity").textContent=p.origin+" / "+p.nickname;
+  renderCountryBadge($("arena-country"),p);
   // Origin visuals are cosmetic. Preserve the stored enum and all gameplay rules.
   const originKey=["HUMAN","BOT","ALIEN","GLITCH"].includes(p.origin)?p.origin.toLowerCase():"human";
   $("arena-origin-avatar").src="./assets/avatar-"+originKey+".svg";
@@ -190,7 +192,7 @@ if(page==="arena"){
    const {initGlobalBattle}=await import("./global-battle.js?v=7");
    await initGlobalBattle({sb});
    // Verified return brief is independent from Tap Battle and NEXT CHAOS.
-   void import("./world-return.js?v=5")
+   void import("./world-return.js?v=6")
      .then(({initWorldReturn})=>initWorldReturn({sb,nickname:p.nickname}))
      .catch(err=>console.warn("WORLD RETURN LOAD FAILED",err));
    // NEXT CHAOS reads server-only votes; failure never blocks the battle arena.
