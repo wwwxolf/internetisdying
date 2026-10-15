@@ -37,3 +37,35 @@ body[data-page="arena"] .hof-hp-save{color:#72dfa6}
 body[data-page="arena"] .hof-hp-kill{color:#ff7894}
 body[data-page="arena"] .hof-entry .hof-hp + .hof-you-tag{grid-column:2/-1}
 @media(max-width:560px){body[data-page="arena"] .hof-hp{font-size:8px}}
+
+/* 30-day leaderboard cycle and responsive Legendary Battle top-three podium. */
+body[data-page="arena"] .hof-cycle-note{color:#efc985;font:9px/1.5 "Pixelify Sans",monospace;margin:5px 0 0}
+body[data-page="arena"] .hof-legendary{margin-top:18px;padding:13px;background:linear-gradient(180deg,#222131,#121d2b);border:2px solid #a78253;box-shadow:3px 3px 0 #050913}
+body[data-page="arena"] .hof-legendary[hidden]{display:none}
+body[data-page="arena"] .hof-legendary-header h3{font:clamp(10px,1.8vw,12px)/1.75 "Press Start 2P",monospace;color:#ffdd97;margin:0 0 5px}
+body[data-page="arena"] .hof-legendary-header p{font:11px/1.5 "Pixelify Sans",monospace;color:#bbad9d;margin:0 0 12px}
+body[data-page="arena"] .hof-legendary-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+body[data-page="arena"] .hof-legendary-card{min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px;padding:13px 8px;background:#121b2b;border:2px solid #536078;text-align:center;box-shadow:3px 3px #070b12}
+body[data-page="arena"] .hof-legendary-rank-1{border-color:#f6cc75;background:linear-gradient(180deg,#383029,#1a1d2a);box-shadow:3px 3px #080b12,inset 0 0 14px #a9832822}
+body[data-page="arena"] .hof-legendary-rank-2{border-color:#a4bfd4}
+body[data-page="arena"] .hof-legendary-rank-3{border-color:#bb927b}
+body[data-page="arena"] .hof-legendary-place{font:10px/1.5 "Press Start 2P",monospace;color:#ebce9e}
+body[data-page="arena"] .hof-legendary-rank-1 .hof-legendary-place{color:#ffd377}
+body[data-page="arena"] .hof-legendary-name{font:clamp(13px,2vw,16px)/1.3 "Pixelify Sans",monospace;color:#f6f2e9;overflow-wrap:anywhere}
+body[data-page="arena"] .hof-legendary-country{font-size:8px;justify-content:center}
+body[data-page="arena"] .hof-legendary-power{font:clamp(13px,2.3vw,19px)/1.5 "Press Start 2P",monospace;color:#f7d185;overflow-wrap:anywhere}
+body[data-page="arena"] .hof-legendary-unit{font:9px/1.3 "Pixelify Sans",monospace;color:#c8b8a3}
+body[data-page="arena"] .hof-legendary-side{font:10px/1.5 "Pixelify Sans",monospace}
+body[data-page="arena"] .hof-legendary-side.save{color:#80dfb4}
+body[data-page="arena"] .hof-legendary-side.kill{color:#fa8ba3}
+body[data-page="arena"] .hof-legendary-you{font:8px/1.3 "Press Start 2P",monospace;color:#95e7bf}
+body[data-page="arena"] .hof-legendary-empty{font:10px/1.5 "Pixelify Sans",monospace;color:#8797a9}
+body[data-page="arena"] .hof-legendary-awaiting{opacity:.78;justify-content:center;min-height:132px}
+@media(max-width:520px){
+ body[data-page="arena"] .hof-legendary{padding:9px}
+ body[data-page="arena"] .hof-legendary-list{gap:5px}
+ body[data-page="arena"] .hof-legendary-card{padding:10px 4px}
+ body[data-page="arena"] .hof-legendary-place{font-size:8px}
+ body[data-page="arena"] .hof-legendary-power{font-size:12px}
+ body[data-page="arena"] .hof-legendary-unit{font-size:8px}
+}
