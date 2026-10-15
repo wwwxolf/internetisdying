@@ -25,7 +25,7 @@ test("Pixel globe SVG embeds a compact self-contained PNG",async()=>{
  assert.ok(png.byteLength < 10000,"Keep asset small for mobile");
  assert.match(svg,/image-rendering="pixelated"/);
 });
-test("Only red core pulses, HP bar scans inside 50 percent; mobile and reduced motion",async()=>{
+test("Landing pulse remains intact while Arena shows the pecking globe; HP scans remain correct",async()=>{
  const css=await readFile("public/styles.css","utf8");
  const arena=await readFile("public/arena.html","utf8");
  assert.match(css,/\.world-core-img\{[\s\S]*image-rendering:pixelated/);
@@ -38,7 +38,7 @@ test("Only red core pulses, HP bar scans inside 50 percent; mobile and reduced m
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)[\s\S]*\.world-core-signal\{animation:none!important/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)[\s\S]*\.hero \.hud-minimal \.hp-fill::after\{animation:none!important/);
  assert.match(arena,/class="heart-zone world-core-zone"/);
- assert.match(arena,/src="\.\/assets\/dying-internet-core\.svg"/);
+ assert.match(arena,/src="\.\/assets\/world001-pecking-globe\.svg"/);
  assert.match(arena,/class="world-core-signal"/);
  assert.doesNotMatch(arena,/class="pixel-heart"/);
 });
