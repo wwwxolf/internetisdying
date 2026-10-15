@@ -1,0 +1,77 @@
+:root{color-scheme:dark;--bg:#0b101b;--panel:#111b2a;--line:#3d536c;--text:#e8f1fb;--muted:#91a9c2;--save:#71e5b0;--kill:#ff7695;--gold:#f4c87d}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:#0b101b;background-image:radial-gradient(#273448 1px,transparent 1px);background-size:24px 24px;color:var(--text);font:16px/1.45 "Pixelify Sans",monospace}
+button{font:8px/1.65 "Press Start 2P",monospace;cursor:pointer;touch-action:manipulation}
+button:disabled{cursor:default;opacity:.43}
+a{color:#bddce9}
+.lab-app{width:min(1080px,calc(100% - 24px));margin:0 auto}
+.lab-header{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:2px solid #34495f;padding:18px 0;flex-wrap:wrap}
+.lab-back{font:9px/1.7 "Press Start 2P",monospace;text-decoration:none}
+.lab-beta{color:var(--gold);font:8px/1.8 "Press Start 2P",monospace}
+.lab-title{text-align:center;padding:29px 10px 15px}
+.lab-eyebrow{font:9px/1.8 "Press Start 2P",monospace;color:var(--muted)}
+.lab-title h1{font:clamp(13px,3vw,23px)/1.8 "Press Start 2P",monospace;margin:15px 0;color:#fff}
+.lab-title p{color:var(--muted);font-size:19px;max-width:670px;margin:0 auto}
+.lab-warning{border:2px solid #977751;color:#ffda9d;background:#28221c;text-align:center;font:9px/1.8 "Press Start 2P",monospace;padding:12px;margin:16px 0}
+.lab-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:13px 0}
+.lab-stat{border:2px solid var(--line);background:var(--panel);padding:16px 12px;display:flex;flex-direction:column;gap:10px}
+.lab-stat span{font:8px/1.8 "Press Start 2P",monospace;color:var(--muted)}
+.lab-stat strong{font:clamp(14px,2.7vw,24px)/1.6 "Press Start 2P",monospace}
+.lab-stat.save strong{color:var(--save)}
+.lab-stat.kill strong{color:var(--kill)}
+.lab-world{border:3px solid #4b627d;background:linear-gradient(145deg,#172639,#0e192a);padding:20px 23px}
+.lab-world-heading{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.lab-world h2,.lab-rank-panel h2,.lab-panel h2{font:10px/1.9 "Press Start 2P",monospace;margin:0}
+.lab-world-heading span{font:8px/1.8 "Press Start 2P",monospace;color:var(--gold)}
+.lab-world-hp{display:flex;align-items:baseline;gap:14px;margin:14px 0 0;flex-wrap:wrap}
+.lab-world-hp strong{font:clamp(20px,4vw,32px)/1.7 "Press Start 2P",monospace}
+.lab-world-hp span{color:var(--muted);font:9px/1.8 "Press Start 2P",monospace}
+.lab-meter{margin:14px 0 9px;background:#08101b;border:3px solid #526782;height:28px;padding:3px;overflow:hidden}
+.lab-meter-fill{height:100%;background:repeating-linear-gradient(90deg,#ff678c 0 16px,transparent 16px 19px);transition:width .7s ease-out}
+.lab-world-meta{display:flex;justify-content:space-between;gap:12px;color:#adbfd1;font:10px/1.9 "Pixelify Sans",monospace;flex-wrap:wrap}
+.lab-pending{border-top:1px dashed #3b526c;padding-top:11px;margin:12px 0 0;color:var(--gold);font-size:15px}
+.lab-controls{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 22px}
+.lab-controls button{padding:14px 13px;border:2px solid #57748c;background:#1b3047;color:#e4f4fd;box-shadow:3px 3px 0 #04090f}
+.lab-controls button:active:not(:disabled){transform:translate(2px,2px);box-shadow:1px 1px #04090f}
+.lab-controls .lab-settle{background:#1e5440;border-color:#54b78b;color:#c8ffe2}
+.lab-controls .lab-restart{background:#322536;border-color:#865a7b;color:#f2d8e8}
+.lab-ranks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.lab-rank-panel{min-width:0;background:#101a29;border:2px solid #3e526a;padding:16px}
+.lab-rank-panel.save{border-top:4px solid var(--save)}
+.lab-rank-panel.kill{border-top:4px solid var(--kill)}
+.lab-rank-panel.save h2{color:var(--save)}
+.lab-rank-panel.kill h2{color:var(--kill)}
+.lab-rank-panel h2{margin-bottom:12px}
+.lab-empty{font-size:15px;color:#91a6bc;padding:12px 0}
+.lab-rank{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:8px;align-items:center;padding:10px 4px;border-bottom:1px solid #273b51}
+.lab-place{font:9px/1.6 "Press Start 2P",monospace;color:#b4c6dc}
+.lab-rank-name{font-size:17px;overflow-wrap:anywhere}
+.lab-country{font:10px/1.5 "Pixelify Sans",monospace;color:#bdcde1;white-space:nowrap}
+.lab-rank .lab-score{grid-column:2/-1;font:9px/1.5 "Press Start 2P",monospace;color:var(--save)}
+.lab-rank-panel.kill .lab-score{color:var(--kill)}
+.lab-bottom{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:14px;margin:16px 0 26px}
+.lab-panel{border:2px solid #3b5067;background:#111a29;padding:17px;min-width:0}
+.lab-panel h2{color:#e9edf7}
+.lab-panel>p{color:var(--muted);font-size:16px;margin:9px 0 13px}
+.lab-battles{display:grid;gap:7px}
+.lab-player{padding:10px;background:#101827;border:1px solid #2b4059;opacity:.6}
+.lab-player.played{background:#1a2937;opacity:1;border-color:#46637c}
+.lab-player-head{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.lab-player-number{color:#86a6c5;font:9px/1.5 "Press Start 2P",monospace}
+.lab-player-head strong{font-size:18px}
+.lab-origin{background:#263b50;padding:2px 6px;font:9px/1.5 "Pixelify Sans",monospace;color:#e8d6a0}
+.lab-player-detail{display:flex;gap:7px;justify-content:space-between;flex-wrap:wrap;margin-top:7px;color:var(--muted);font-size:12px}
+.lab-player-detail.positive{color:var(--save)}
+.lab-player-detail.negative{color:var(--kill)}
+.lab-player-detail strong{font-size:14px}
+.lab-idle{color:#9ab0c4}
+.lab-audit{display:grid;gap:8px}
+.lab-audit-row{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.lab-audit-pass{flex:none;color:var(--save);font:8px/1.7 "Press Start 2P",monospace}
+.lab-rule{border-top:2px dashed #38516d;margin-top:20px;padding-top:15px}
+.lab-rule strong{font:9px/1.75 "Press Start 2P",monospace;color:var(--gold)}
+.lab-rule p{color:var(--muted);font-size:15px;line-height:1.5}
+.lab-rule .lab-note{color:#f1cfa6}
+footer{padding:18px 0 25px;color:#7290a7;border-top:1px solid #32485c;text-align:center;font:8px/1.8 "Press Start 2P",monospace}
+@media(max-width:690px){.lab-bottom{grid-template-columns:1fr}.lab-ranks{grid-template-columns:1fr}.lab-stats{gap:5px}.lab-stat{padding:10px 7px}.lab-stat span{font-size:6px}.lab-stat strong{font-size:12px}.lab-title h1{font-size:14px}.lab-world{padding:14px}.lab-world-heading h2{font-size:9px}.lab-controls button{font-size:7px}}
+@media(prefers-reduced-motion:reduce){.lab-meter-fill{transition:none}}
