@@ -2,30 +2,48 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 
-test("all four origin cards use monochrome pixel icons, not letter glyphs",async()=>{
- const html=await readFile("public/onboarding.html","utf8");
- for(const type of ["human","bot","alien","glitch"]){
-  assert.match(html,new RegExp('data-origin="'+type.toUpperCase()+'"[^>]*>[\\s\\S]*?avatar-'+type+'\\.svg"'));
-  const svg=await readFile("public/assets/avatar-"+type+".svg","utf8");
-  assert.match(svg,/viewBox="0 0 44 44"/);
+const origins=[
+ ["HUMAN","human"],
+ ["BOT_CHICKEN","bot-chicken"],
+ ["CHICKEN_MUTANT","chicken-mutant"],
+ ["EGG_GLITCH","egg-glitch"]
+];
+
+test("World 001 onboarding and preview use four shared lightweight pixel sprites",async()=>{
+ const onboarding=await readFile("public/onboarding.html","utf8");
+ const preview=await readFile("public/avatars.html","utf8");
+ for(const [origin,asset] of origins){
+  const filename="avatar-world001-"+asset+".svg";
+  assert.match(onboarding,new RegExp('data-origin="'+origin+'"[^>]*>[\\s\\S]*?'+filename));
+  assert.match(preview,new RegExp('src="\\./assets/'+filename+'"'));
+  const svg=await readFile("public/assets/"+filename,"utf8");
+  assert.match(svg,/viewBox="0 0 96 112"/);
   assert.match(svg,/shape-rendering="crispEdges"/);
-  assert.match(svg,/fill="#F6F1E7"/);
-  assert.doesNotMatch(svg,/gradient|filter|<script|<image/i);
-  assert.ok(svg.length<6000,"sprite should stay lightweight");
+  assert.doesNotMatch(svg,/<script|<image|<foreignObject/i);
+  assert.ok(svg.length<3000,"sprites must stay lightweight");
  }
- assert.doesNotMatch(html,/<span class="avatar-icon" aria-hidden="true">[HBAG]<\/span>/);
+ assert.doesNotMatch(onboarding,/data-origin="ALIEN"/);
+ assert.doesNotMatch(onboarding,/<span class="avatar-icon" aria-hidden="true">[HBAG]<\\/span>/);
 });
 
-test("arena badge uses selected persisted character and does not mutate game state",async()=>{
- const html=await readFile("public/arena.html","utf8");
+test("chosen preview avatar survives sign-in and the Arena supports legacy origins",async()=>{
+ const preview=await readFile("public/avatars.html","utf8");
+ const auth=await readFile("public/auth.html","utf8");
+ const onboarding=await readFile("public/onboarding.html","utf8");
+ const arena=await readFile("public/arena.html","utf8");
  const js=await readFile("public/flow.js","utf8");
- assert.match(html,/id="arena-origin-avatar"/);
- assert.match(js,/\["HUMAN","BOT","ALIEN","GLITCH"\]\.includes\(p\.origin\)/);
- assert.match(js,/\$\("arena-origin-avatar"\)\.src="\.\/assets\/avatar-"\+originKey\+"\.svg"/);
- assert.match(js,/\$\("arena-identity"\)\.textContent=p\.origin\+" \/ "\+p\.nickname/);
- assert.match(html,/src="\.\/flow\.js\?v=33"/);
+ assert.match(preview,/iid_world001_avatar_choice_v1/);
+ assert.match(preview,/enter\.href="\.\/auth\.html\?avatar="/);
+ assert.match(js,/const requestedAvatar=avatarCodes\.includes\(avatarFromUrl\)/);
+ assert.match(js,/sessionStorage\.getItem\(avatarStoreKey\)/);
+ assert.match(js,/const onboardingDest="\.\/onboarding\.html"/);
+ assert.match(js,/\("arena-identity"\)\.textContent=\(originLabels\[p\.origin\]/);
+ for(const [origin,asset] of origins)assert.match(js,new RegExp(origin+':"world001-'+asset+'"'));
+ for(const origin of ["BOT","ALIEN","GLITCH"])assert.match(js,new RegExp(origin+':"'+origin.toLowerCase()+'"'));
+ assert.match(js,/\$\("arena-origin-avatar"\)\.src/);
+ for(const page of [auth,onboarding,arena])assert.match(page,/src="\.\/flow\.js\?v=34"/);
  const css=await readFile("public/styles.css","utf8");
  const arenaCss=await readFile("public/arena.css","utf8");
- assert.match(css,/\.avatar-icon img\{[^}]*image-rendering:pixelated/);
+ assert.match(css,/\.world001-characters .avatar-icon img\{[^}]*image-rendering:pixelated/);
  assert.match(arenaCss,/\.arena-origin-avatar\{[^}]*image-rendering:pixelated/);
 });
