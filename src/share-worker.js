@@ -1,3 +1,4 @@
+import {serveWarMomentum} from "./war-momentum.js";
 /* Share link OG renderer. Existing static site routes remain unchanged. */
 const SITE="https://internetisdying.wwwxolf.workers.dev";
 const DB="https://wywrahaqpocueddxmjjq.supabase.co";
@@ -180,8 +181,11 @@ function page(id,d){
  ].join("");
 }
 export default {
- async fetch(request,env){
+ async fetch(request,env,ctx){
   const url=new URL(request.url);
+  if(url.pathname==="/api/war-momentum"){
+   return serveWarMomentum(request,ctx);
+  }
   const match=url.pathname.match(/^\/share\/([a-f0-9-]{36})(\/image\.png)?\/?$/i);
   if(!match||!UUID.test(match[1])){
    return env.ASSETS?env.ASSETS.fetch(request):new Response("Not found",{status:404});
