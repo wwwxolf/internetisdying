@@ -207,7 +207,7 @@ test('V2 combat uses 2-second ready, 10-second play, 50 taps and compressed war 
  assert.equal(new Date(b.starts_at)-new Date(b.created_at),2000);
  assert.equal(new Date(b.ends_at)-new Date(b.starts_at),10000);
  await assert.rejects(rpc('tap_batch',[b.id,51],['uuid','integer']),/INVALID_TAP_TOTAL/);
- await admin("update public.iid_battles set created_at=statement_timestamp()-interval '16 seconds',starts_at=statement_timestamp()-interval '14 seconds',ends_at=statement_timestamp()-interval '2 seconds',counted_taps=50 where id='"+b.id+"'");
+ await admin("update public.iid_battles set created_at=statement_timestamp()-interval '14 seconds',starts_at=statement_timestamp()-interval '12 seconds',ends_at=statement_timestamp()-interval '2 seconds',counted_taps=50 where id='"+b.id+"'");
  const r=await settle(b.id);
  assert.ok(r.power>=100&&r.power<=5300);
  assert.ok([100,150,200].includes(r.critical));
@@ -237,7 +237,7 @@ test('V2 server-verified tier thresholds are 0–6% and +6% requires exactly 50 
   await fresh();
   await admin('update public.iid_economy_control set v2_enabled=true,activated_at=clock_timestamp()');
   const b=await start('HEAL');
-  await admin(`update public.iid_battles set starts_at=statement_timestamp()-interval '11 seconds',
+  await admin(`update public.iid_battles set created_at=statement_timestamp()-interval '13 seconds', starts_at=statement_timestamp()-interval '11 seconds',
     ends_at=statement_timestamp()-interval '1 second',counted_taps=${tapCount} where id='${b.id}'`);
   const settled=await settle(b.id);
   assert.equal(settled.bonus,bonus,'settled tap count '+tapCount);
@@ -253,7 +253,7 @@ test('V2 accepts up to 50 acknowledged taps in bounded idempotent batches; 51st 
  await admin('update public.iid_economy_control set v2_enabled=true,activated_at=clock_timestamp()');
  const b=await start('HEAL');
  const batches=async n=>rpc('tap_batch',[b.id,n],['uuid','integer']);
- await admin(`update public.iid_battles set starts_at=statement_timestamp()-interval '5 seconds',
+ await admin(`update public.iid_battles set created_at=statement_timestamp()-interval '7 seconds', starts_at=statement_timestamp()-interval '5 seconds',
    ends_at=statement_timestamp()+interval '5 seconds',last_tap_at=null where id='${b.id}'`);
  await assert.rejects(batches(51),/INVALID_TAP_TOTAL/);
  await assert.rejects(batches(11),/BATCH_TOO_LARGE/);
