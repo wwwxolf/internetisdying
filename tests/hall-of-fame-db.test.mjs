@@ -20,7 +20,7 @@ insert into public.iid_economy_control values(1,false);
 create table public.iid_battles(
  id uuid primary key default gen_random_uuid(),user_id uuid not null,
  action text not null,engine_version smallint not null default 1,
- power int,war_influence int,applied_hp int,settled_at timestamptz);
+ power int,war_influence int,applied_hp int,created_at timestamptz not null default now(),settled_at timestamptz);
 create function iid_private.require_player() returns uuid language plpgsql
  security definer set search_path='' as $$
 declare u uuid:=auth.uid();
@@ -39,6 +39,7 @@ await db.query("insert into public.iid_battles(user_id,action,engine_version,pow
 await db.exec(await readFile("supabase/migrations/20261015025000_phase2_hall_of_fame.sql","utf8"));
 await db.exec(await readFile("supabase/migrations/20261015032000_hof_verified_hp.sql","utf8"));
 await db.exec(await readFile("supabase/migrations/20261015041000_v2_hof_totals.sql","utf8"));
+await db.exec(await readFile("supabase/migrations/20261015100000_hof_faction_points_legendary_top3.sql","utf8").then(s=>s.slice(0,s.indexOf("-- Developer reset must clear"))));
 async function login(i=13,role="authenticated"){
  await db.exec("reset role");
  await db.query("select set_config('request.jwt.claims',$1,false)",[JSON.stringify({sub:user(i)})]);
