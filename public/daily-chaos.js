@@ -38,6 +38,18 @@ const ICON_RULES=[
   [/panic|outbreak|chaos|blackout|meltdown|crisis/i,"warning"],
   [/signal|broadcast|focus|quality|clean|filter|purification/i,"filter"]
 ];
+// World_001 display aliases for existing event IDs; do not mutate server event data.
+export function chickenEventCopy(title,description){
+ if(title==="GLOBAL FIREWALL")return {
+  title:"CHICKEN-PROOF FIREWALL",
+  description:"Defenders reinforce the internet core to block incoming pecks."
+ };
+ if(title==="BOT INVASION")return {
+  title:"PECK STORM",
+  description:"The chicken unleashes a furious pecking attack across the network."
+ };
+ return {title,description};
+}
 function pixelIcon(name,side) {
  const selected=ICON_RULES.find(([rule])=>rule.test(name))?.[1]||"signal";
  const matrix=PIXEL_ICONS[selected];
@@ -80,10 +92,12 @@ export async function initDailyChaos({sb}) {
    const p=data.event;
    if(!p)return textStatus("TODAY'S CHAOS PAIR IS UNAVAILABLE.");
    text("chaos-day","ROTATION "+String(data.day_rotation).padStart(2,"0")+" / 30");
-   text("chaos-damage-title",p.damage_title);
-   text("chaos-recovery-title",p.recovery_title);
-   text("chaos-damage-desc",p.damage_description);
-   text("chaos-recovery-desc",p.recovery_description);
+   const damageCopy=chickenEventCopy(p.damage_title,p.damage_description);
+   const recoveryCopy=chickenEventCopy(p.recovery_title,p.recovery_description);
+   text("chaos-damage-title",damageCopy.title);
+   text("chaos-recovery-title",recoveryCopy.title);
+   text("chaos-damage-desc",damageCopy.description);
+   text("chaos-recovery-desc",recoveryCopy.description);
    text("chaos-damage-impact","IMPACT SCALES WITH VOTES");
    text("chaos-recovery-impact","IMPACT SCALES WITH VOTES");
    $("chaos-damage-art").innerHTML=pixelIcon(p.damage_title,"damage");
