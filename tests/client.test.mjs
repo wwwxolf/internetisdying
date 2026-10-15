@@ -123,5 +123,5 @@ test('Arena health visuals never convert provisional influence into World HP',as
  assert.match(html,/PENDING SETTLEMENT/);
  assert.ok(css.includes('transition:width 1.05s ease-out'));
  assert.ok(!css.includes('transition:width .55s steps(20,end)'));
- assert.match(css,/@media\\(prefers-reduced-motion:reduce\\)/);
+ assert.ok(css.includes('@media(prefers-reduced-motion:reduce)'));
 });
