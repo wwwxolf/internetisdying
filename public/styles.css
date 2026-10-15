@@ -316,3 +316,7 @@ dialog::backdrop{background:rgba(0,0,0,.80)}
  .auth-google{font-size:8px}
  .avatar-label{font-size:7px}
 }
+
+/* Keep nickname input dark even when NES.css or browser autofill overrides it. */
+.auth-panel #nickname{background-color:#0b101b!important;color:var(--ink)!important;caret-color:var(--green);color-scheme:dark}
+.auth-panel #nickname:-webkit-autofill,.auth-panel #nickname:-webkit-autofill:hover,.auth-panel #nickname:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 1000px #0b101b inset!important;box-shadow:0 0 0 1000px #0b101b inset!important;-webkit-text-fill-color:#f3f3eb!important;caret-color:var(--green)}

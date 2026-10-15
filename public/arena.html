@@ -10,14 +10,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
-  <link rel="stylesheet" href="./styles.css?v=6"/>
-  <link rel="stylesheet" href="./arena.css?v=8"/>
+  <link rel="stylesheet" href="./styles.css?v=7"/>
+  <link rel="stylesheet" href="./arena.css?v=9"/>
   <link rel="stylesheet" href="./tap-battle.css?v=3"/>
   <link rel="stylesheet" href="./daily-chaos.css?v=2"/>
   <link rel="stylesheet" href="./world-return.css?v=4"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./flow.js?v=22"></script>
+  <script type="module" src="./flow.js?v=23"></script>
 </head>
 <body data-page="arena" data-battle-mode="global">
   <div class="preview-bar" role="note">GLOBAL BATTLE ENGINE • CONTROLLED ROLLOUT</div>
@@ -40,7 +40,10 @@
             <div class="arena-player-icon" aria-hidden="true"><img id="arena-origin-avatar" class="arena-origin-avatar" src="./assets/avatar-human.svg" width="44" height="44" alt="" decoding="async"/></div>
             <div class="arena-player-copy">
               <span class="arena-tiny">YOUR IDENTITY</span>
-              <span id="arena-identity">LOADING PLAYER</span>
+              <span class="arena-identity-line">
+                <span id="arena-identity">LOADING PLAYER</span>
+                <span id="arena-country" class="arena-country" aria-label="Country flag" hidden></span>
+              </span>
             </div>
           </div>
           <button type="button" id="signout" class="reset">SIGN OUT</button>
@@ -72,7 +75,7 @@
             <span class="world-return-tag">◈ INCOMING SIGNAL</span>
             <button type="button" id="world-return-dismiss" class="world-return-dismiss" aria-label="Dismiss this world report">✕</button>
           </div>
-          <p class="world-return-eyebrow">WHILE YOU WERE GONE_</p>
+          <p class="world-return-eyebrow" id="world-return-eyebrow">WHILE YOU WERE GONE_</p>
           <h2 class="world-return-title" id="world-return-title">CHECKING THE INTERNET...</h2>
           <p class="world-return-since" id="world-return-since">SYNCING SERVER HISTORY...</p>
           <p class="world-return-user">PLAYER: <span id="world-return-name">...</span></p>
