@@ -65,6 +65,21 @@ test('start is idempotent; separate request or opposite side resumes same pendin
   assert.equal(new Date(b.ends_at)-new Date(b.starts_at),20000);assert.equal(b.base,null);
   await assert.rejects(start(null),/INVALID_START/);
 });
+test('NULL action is rejected before creating, replaying or resuming V1/V2 battles',async()=>{
+  for (const v2 of [false,true]) {
+    await fresh();
+    if(v2)await admin('update public.iid_economy_control set v2_enabled=true');
+    await assert.rejects(start(null),/INVALID_START/);
+    assert.equal((await db.query('select count(*)::int as n from public.iid_battles')).rows[0].n,0);
+    const key=crypto.randomUUID(), b=await start('HEAL',key);
+    await assert.rejects(start(null,key),/INVALID_START/);
+    await assert.rejects(start(null),/INVALID_START/);
+    const rows=(await db.query('select id,action,engine_version from public.iid_battles')).rows;
+    assert.deepEqual(rows,[{id:b.id,action:'HEAL',engine_version:v2?2:1}]);
+    assert.equal((await db.query('select hp from public.iid_world')).rows[0].hp,500000);
+  }
+  await fresh();
+});
 test('early tap and early settlement rejected',async()=>{
   await fresh();const b=await start();await assert.rejects(tap(b.id,1),/TAP_WINDOW_CLOSED/);
   await assert.rejects(settle(b.id),/BATTLE_NOT_FINISHED/);
