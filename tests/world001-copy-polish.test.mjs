@@ -19,6 +19,16 @@ test("Arena World 001 uses chicken themed display copy and unchanged action prot
   "IMPACT SCALES WITH VOTES"
  ])assert.ok(arena.includes(copy),copy+" should be visible in Arena HTML");
  assert.match(arena,/data-arena-action="HEAL"/);
+ // Only presentation changes: existing HEAL/KILL battle actions remain unchanged.
+ assert.match(arena,/PATCH! PATCH! PATCH!/);
+ assert.match(arena,/BUILD YOUR FIREWALL/);
+ assert.match(arena,/PECK! PECK! PECK!/);
+ assert.match(arena,/class="tap-copy-kill">FEED THE CHICKEN/);
+ assert.doesNotMatch(arena,/BUILD YOUR POWER/);
+ assert.match(arena,/tap-battle\.css\?v=4/);
+ const tapCss=await readFile("public/tap-battle.css","utf8");
+ assert.match(tapCss,/\.tap-battle\[data-side="heal"\] \.tap-copy-kill/);
+ assert.match(tapCss,/\.tap-battle\[data-side="kill"\] \.tap-copy-save/);
  assert.match(arena,/data-arena-action="KILL"/);
  assert.match(arena,/data-chaos-choice="recovery"/);
  assert.match(arena,/data-chaos-choice="damage"/);
