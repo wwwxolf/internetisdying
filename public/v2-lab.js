@@ -94,7 +94,7 @@ function startLab(sample){
   $("lab-hp").textContent=fmt(simHp);
   $("lab-meter-fill").style.width=(simHp/10000)+"%";
   $("lab-meter").setAttribute("aria-valuenow",String(simHp/10000));
-  $("lab-hp-percent").textContent=(simHp/10000).toFixed(4).replace(/0+$/,"").replace(/\\.$/,"")+"%";
+  $("lab-hp-percent").textContent=(simHp/10000).toFixed(4).replace(/0+$/,"").replace(/\.$/,"")+"%";
   $("lab-pending").textContent=state.settled?
    "WINDOW CLOSED • VERIFIED IN SIMULATION: "+(score.applied>=0?"+":"")+fmt(score.applied)+" HP":
    "WINDOW OPEN • "+fmt(tally.save+tally.kill)+" WAR INFLUENCE PENDING • REAL HP UNCHANGED";
