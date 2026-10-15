@@ -34,7 +34,7 @@ test("Hall of Fame renders ten per side and YOU at true rank 13 without leaking 
   assert.equal(f.nodes.get("hof-save-total").textContent,"TOTAL SAVE +1,234 HP");
   assert.equal(f.nodes.get("hof-kill-total").textContent,"TOTAL KILL −55 HP");
   assert.equal(f.nodes.get("hof-kill-self").hidden,true);
-  assert.match(f.nodes.get("hof-scoring").textContent,/V1 PERSONAL POWER/);
+  assert.match(f.nodes.get("hof-scoring").textContent,/V1 • VERIFIED PERSONAL POWER/);
   await f.nodes.get("hof-refresh").on_click();
   assert.equal(calls,2);
  }finally{f.reset()}
