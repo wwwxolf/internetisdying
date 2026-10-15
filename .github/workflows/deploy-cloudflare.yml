@@ -43,6 +43,11 @@ jobs:
             echo "::error::Cloudflare deployment requires CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID repository secrets."
             exit 1
           fi
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
       - name: Publish internetisdying Worker and static assets
         uses: cloudflare/wrangler-action@v4
         with:
