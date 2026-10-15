@@ -2,6 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {evaluateWindows,utcDay,activeSlot} from '../public/utc-battle-windows.js';
+import {battlePollDelay,economyRefreshDue,jitterDelay} from '../public/arena-polling.js';
 import {readFile} from 'node:fs/promises';
 const source=await readFile('public/global-battle.js','utf8');
 const html=await readFile('public/arena.html','utf8');
@@ -9,9 +10,9 @@ function fixture(handler) {
   const nodes=new Map([...html.matchAll(/id="([^"]+)"/g)].map(m=>[m[1],{hidden:false,style:{},dataset:{},events:{},textContent:'',setAttribute(){},addEventListener(n,f){this.events[n]=f;}}]));
   const choices=['HEAL','KILL'].map(action=>({dataset:{arenaAction:action},events:{},addEventListener(n,f){this.events[n]=f;}}));
   const intervals=[];
-  const context={evaluateWindows,document:{getElementById:id=>{assert.ok(nodes.has(id),id+' exists in markup');return nodes.get(id);},querySelectorAll:()=>choices,addEventListener(){},removeEventListener(){}},
-    window:{addEventListener(){}},Date,Number,Math,crypto,setInterval:f=>intervals.push(f),clearInterval(){}};
-  const init=vm.runInNewContext(source.replace(/^import[^\n]*\n/,'').replace('export async function','async function')+';initGlobalBattle',context);
+  const context={evaluateWindows,battlePollDelay,economyRefreshDue,jitterDelay,document:{getElementById:id=>{assert.ok(nodes.has(id),id+' exists in markup');return nodes.get(id);},querySelectorAll:()=>choices,addEventListener(){},removeEventListener(){}},
+    window:{addEventListener(){}},Date,Number,Math,crypto,setInterval:f=>intervals.push(f),clearInterval(){},setTimeout:()=>1,clearTimeout(){}};
+  const init=vm.runInNewContext(source.replace(/^import[^\n]*\n/gm,'').replace('export async function','async function')+';initGlobalBattle',context);
   return {nodes,choices,intervals,init:()=>init({sb:{rpc:handler}})};
 }
 function state(extra={}) {return {server_now:new Date().toISOString(),world:{hp:500000,enabled:true},monthly:{month:'2026-10',nickname:'Tester',battle_count:0,heal_count:0,kill_count:0,heal_hp:0,kill_hp:0,tier:null},active:null,latest:null,rolling_count:0,next_battle_at:null,window_day:utcDay(Date.now()),window_slot:activeSlot(Date.now()),window_timezone:'UTC',window_used:[false,false,false,false,false,false],...extra};}
