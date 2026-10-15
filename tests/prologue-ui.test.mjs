@@ -128,7 +128,7 @@ test("landing Enter World connects to prologue, while server-authenticated Arena
  assert.match(landing,/href="\.\/prologue\.html\?replay=1"/);
  assert.doesNotMatch(flow.slice(flow.indexOf('if(page==="landing")'),flow.indexOf('if(page==="auth")')), /next\("\.\/auth\.html"\)/);
  assert.match(page,/prologue\.js\?v=2/);
- assert.match(page,/prologue\.css\?v=2/);
+ assert.match(page,/prologue\.css\?v=3/);
  assert.match(page,/id="prologue-back" disabled/);
  assert.match(page,/id="prologue-story-back"/);
  assert.match(page,/id="prologue-save" href="\.\/auth\.html"/);

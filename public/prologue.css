@@ -71,3 +71,10 @@
 @media(prefers-reduced-motion:reduce){
  .prologue-core,.prologue-chicken{transition:none}
 }
+
+/* Scene artwork only; captions, controls and timing stay unchanged. */
+.prologue-visual{background:#101b2a url("./assets/prologue-scene-1.svg") center/contain no-repeat}
+.prologue-visual .prologue-core,.prologue-visual .prologue-chicken,.prologue-grid,.prologue-stars{display:none}
+.prologue-frame[data-scene="1"] .prologue-visual{background:#101b2a url("./assets/prologue-scene-2.svg") center/contain no-repeat}
+.prologue-frame[data-scene="2"] .prologue-visual{background:#101b2a url("./assets/prologue-scene-3.svg") center/contain no-repeat}
+.prologue-frame[data-scene="3"] .prologue-visual{background:#0b101b url("./assets/prologue-scene-4.svg") center/contain no-repeat}
