@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {evaluateWindows,utcDay,activeSlot} from '../public/utc-battle-windows.js';
 import {battlePollDelay,economyRefreshDue,jitterDelay} from '../public/arena-polling.js';
+import {currentMomentum,slotStartMs} from '../public/live-war-momentum.js';
 import {readFile} from 'node:fs/promises';
 const source=await readFile('public/global-battle.js','utf8');
 const html=await readFile('public/arena.html','utf8');
@@ -10,7 +11,8 @@ function fixture(handler) {
   const nodes=new Map([...html.matchAll(/id="([^"]+)"/g)].map(m=>[m[1],{hidden:false,style:{},dataset:{},events:{},textContent:'',attrs:{},setAttribute(n,v){this.attrs[n]=v;},addEventListener(n,f){this.events[n]=f;}}]));
   const choices=['HEAL','KILL'].map(action=>({dataset:{arenaAction:action},events:{},addEventListener(n,f){this.events[n]=f;}}));
   const intervals=[];
-  const context={evaluateWindows,battlePollDelay,economyRefreshDue,jitterDelay,document:{getElementById:id=>{assert.ok(nodes.has(id),id+' exists in markup');return nodes.get(id);},querySelectorAll:()=>choices,addEventListener(){},removeEventListener(){}},
+  const context={evaluateWindows,battlePollDelay,economyRefreshDue,jitterDelay,currentMomentum,slotStartMs,
+    startLiveWarMomentum:()=>({stop(){},refresh(){}}),document:{getElementById:id=>{assert.ok(nodes.has(id),id+' exists in markup');return nodes.get(id);},querySelectorAll:()=>choices,addEventListener(){},removeEventListener(){}},
     window:{addEventListener(){}},Date,Number,Math,crypto,setInterval:f=>intervals.push(f),clearInterval(){},setTimeout:()=>1,clearTimeout(){}};
   const init=vm.runInNewContext(source.replace(/^import[^\n]*\n/gm,'').replace('export async function','async function')+';initGlobalBattle',context);
   return {nodes,choices,intervals,init:()=>init({sb:{rpc:handler}})};
@@ -87,7 +89,7 @@ test('expired session resumes settlement with same ID and displays server result
 test('V2 pending influence never fabricates HP; life bar follows exact verified server changes',async()=>{
   let hp=500000;
   const economy={enabled:true,save_influence:124,kill_influence:0,battle_count:1,
-    window_start:new Date().toISOString(),latest_window:null};
+    window_start:new Date(slotStartMs(Date.now())).toISOString(),latest_window:null};
   const f=fixture(async name=>name==='iid_economy_status'
     ?{data:economy}:{data:state({world:{hp,enabled:true}})});
   f.nodes.get('arena-hp-change').hidden=true; // mock DOM defaults hidden:false, unlike markup
