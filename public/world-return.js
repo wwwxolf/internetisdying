@@ -1,5 +1,21 @@
 /* WHILE YOU WERE GONE — world-ledger return digest. All numbers come
    directly from iid_return_digest; never manufacture global events. */
+/* WORLD RETURN narrative: presentation only, based on server-verified report values. */
+export function worldReturnHeadline(data){
+ if(data.first_visit)return "WELCOME TO WORLD_001_";
+ const net=Number(data.net_hp||0);
+ const quiet=net===0&&Number(data.heal_battles)===0
+  &&Number(data.kill_battles)===0&&Number(data.chaos_events)===0
+  &&Number(data.decay_pulses)===0;
+ if(quiet)return "NOT A SINGLE PECK WAS HEARD_";
+ if(net>0)return "THE INTERNET BITES BACK_";
+ if(net<0){
+  const kill=Math.max(0,Number(data.kill_hp||0));
+  const other=Math.max(0,Number(data.decay_hp||0))+Math.max(0,-Number(data.chaos_hp||0));
+  return kill>other?"THE CHICKEN IS WINNING_":"THE INTERNET TOOK A HIT_";
+ }
+ return "A PERFECT STALEMATE_";
+}
 export async function initWorldReturn({sb,nickname}) {
  const $=id=>document.getElementById(id);
  const root=$("world-return");
@@ -31,10 +47,8 @@ export async function initWorldReturn({sb,nickname}) {
     && Number(data.chaos_events)===0 && Number(data.decay_pulses)===0;
   const change=Number(data.net_hp||0);
   root.dataset.trend=change>0?"heal":change<0?"kill":"quiet";
-  text("world-return-eyebrow",visited?"WHILE YOU WERE GONE_":"FIRST VISIT_");
-  text("world-return-title",!visited?"WELCOME TO WORLD_001_"
-    :quiet?"THE INTERNET WAS QUIET_":change<0?"THE INTERNET TOOK A HIT_"
-    :change>0?"THE INTERNET FOUGHT BACK_":"A PERFECT STALEMATE_");
+  text("world-return-eyebrow",visited?"WHILE YOU WERE AWAY_":"FIRST VISIT_");
+  text("world-return-title",worldReturnHeadline(data));
   text("world-return-since",!visited?"FIRST VISIT • HISTORY STARTS NOW"
     :"YOU WERE AWAY FOR "+formatAge(data.from,data.until)+(data.time_limited?" • LAST 30 DAYS ONLY":""));
   text("world-return-heal","+"+fmt(data.heal_hp)+" HP");
