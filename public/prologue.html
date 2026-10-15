@@ -10,8 +10,8 @@
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
  <link rel="stylesheet" href="./styles.css?v=5"/>
- <link rel="stylesheet" href="./prologue.css?v=1"/>
- <script type="module" src="./prologue.js?v=1"></script>
+ <link rel="stylesheet" href="./prologue.css?v=2"/>
+ <script type="module" src="./prologue.js?v=2"></script>
 </head>
 <body data-page="prologue" class="prologue-page">
  <div class="page">
@@ -46,6 +46,7 @@
     <span class="prologue-dot" data-progress="3"></span>
    </div>
    <div class="prologue-controls">
+    <button type="button" class="prologue-back" id="prologue-back" disabled>← BACK</button>
     <button type="button" class="prologue-skip" id="prologue-skip">SKIP INTRO →</button>
     <button type="button" class="prologue-next" id="prologue-next">NEXT SCENE →</button>
    </div>
@@ -56,6 +57,7 @@
      <a class="prologue-choice prologue-choice-kill" id="prologue-kill" href="./auth.html">★ FEED THE CHICKEN</a>
     </div>
     <p class="prologue-fineprint">Sign in to enter the arena. Your side is chosen per battle.</p>
+    <button type="button" class="prologue-story-back" id="prologue-story-back">← BACK TO SCENE 04</button>
    </section>
    <noscript><p class="prologue-noscript">Enable JavaScript for the story, or <a href="./auth.html">continue to sign in →</a></p></noscript>
   </main>

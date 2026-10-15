@@ -25,10 +25,12 @@
 .prologue-dot{width:28px;height:6px;background:#344458}
 .prologue-dot.current{background:#b5f578}
 .prologue-dot.done{background:#648c7b}
-.prologue-controls{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.prologue-skip,.prologue-next{border:2px solid #51677c;padding:12px 14px;color:#d5dce8;background:#172437;cursor:pointer;font:8px/1.6 "Press Start 2P",monospace}
+.prologue-controls{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px}
+.prologue-back,.prologue-skip,.prologue-next{border:2px solid #51677c;padding:12px 14px;color:#d5dce8;background:#172437;cursor:pointer;font:8px/1.6 "Press Start 2P",monospace}
+.prologue-skip{justify-self:center}
+.prologue-back:disabled{opacity:.35;cursor:default}
 .prologue-next{color:#122319;background:#b5f578;border-color:#b5f578;box-shadow:3px 3px 0 #285a44}
-.prologue-skip:hover,.prologue-next:hover{filter:brightness(1.12)}
+.prologue-back:not(:disabled):hover,.prologue-skip:hover,.prologue-next:hover{filter:brightness(1.12)}
 .prologue-controls[hidden],.prologue-final[hidden]{display:none}
 .prologue-final{margin:17px 0 0;padding:18px 15px;border:2px solid #536984;background:#111c2b}
 .prologue-final-title{font:clamp(9px,2vw,12px)/1.9 "Press Start 2P",monospace;text-align:center;color:#f1deb5;margin:0 0 15px}
@@ -38,6 +40,8 @@
 .prologue-choice-save{background:#78dbaf;border:2px solid #b5ffe0}
 .prologue-choice-kill{background:#fa8794;border:2px solid #ffc0c6}
 .prologue-fineprint{font:13px/1.45 "Pixelify Sans",monospace;color:#9eb4c8;text-align:center;margin:14px 0 0}
+.prologue-story-back{display:block;margin:15px auto 0;padding:9px;border:0;background:transparent;color:#c0d1df;text-decoration:underline;cursor:pointer;font:8px/1.7 "Press Start 2P",monospace}
+.prologue-story-back:hover{color:#f2f5f7}
 .prologue-noscript{text-align:center;margin:24px;color:#ffc5af}
 .prologue-noscript a{color:#b5f578;text-decoration:underline}
 .prologue-frame[data-scene="1"] .prologue-chicken{opacity:1;transform:translateX(-50%) scale(.82)}
@@ -59,8 +63,10 @@
  .prologue-caption{min-height:158px;padding:18px 12px}
  .prologue-line{font-size:11px}
  .prologue-choice-grid{grid-template-columns:1fr}
- .prologue-controls{gap:8px}
- .prologue-skip,.prologue-next{font-size:7px;padding:11px 9px}
+ .prologue-controls{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"back next" "skip skip";gap:10px}
+ .prologue-back{grid-area:back}.prologue-next{grid-area:next}.prologue-skip{grid-area:skip}
+ .prologue-back,.prologue-skip,.prologue-next{font-size:7px;padding:11px 9px}
+ .prologue-story-back{font-size:7px}
 }
 @media(prefers-reduced-motion:reduce){
  .prologue-core,.prologue-chicken{transition:none}

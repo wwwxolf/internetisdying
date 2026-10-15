@@ -88,9 +88,13 @@ jobs:
           curl -fsSL --max-time 15 "$ROOT/" -o /tmp/iid-landing.html
           grep -q 'id="join-btn" href="./prologue.html"' /tmp/iid-landing.html
           curl -fsSL --max-time 15 "$ROOT/prologue.html" -o /tmp/iid-prologue.html
-          grep -q 'prologue.js?v=1' /tmp/iid-prologue.html
+          grep -q 'prologue.js?v=2' /tmp/iid-prologue.html
+          grep -q 'id="prologue-back"' /tmp/iid-prologue.html
+          grep -q 'id="prologue-story-back"' /tmp/iid-prologue.html
           grep -q 'FEED THE CHICKEN' /tmp/iid-prologue.html
           grep -q 'SAVE THE INTERNET' /tmp/iid-prologue.html
-          curl -fsSL --max-time 15 "$ROOT/prologue.js?v=1" -o /tmp/iid-prologue.js
+          curl --retry 5 --retry-delay 2 --retry-all-errors -fsSL --max-time 15 "$ROOT/prologue.js?v=2" -o /tmp/iid-prologue.js
+          curl --retry 5 --retry-delay 2 --retry-all-errors -fsSL --max-time 15 "$ROOT/prologue.css?v=2" -o /tmp/iid-prologue.css
+          grep -q 'prologue-back' /tmp/iid-prologue.css
           grep -q 'Then one chicken got hungry' /tmp/iid-prologue.js
           echo "Verified deployed Arena, landing prologue, Hall of Fame and V2 assets."
