@@ -44,15 +44,34 @@ test("empty verified leaderboards show UNRANKED; errors do not fabricate ranking
  try{
   const self={rank:null,qualified:false,in_top10:false,nickname:"Myself",country_code:"OTH",custom_flag:"0".repeat(48),hp:0,score:0};
   let fail=false;
-  await initHallOfFame({sb:{rpc:async()=>fail?{error:{message:"Offline"}}:{data:{engine_version:2,score_unit:"WAR INFLUENCE",save:{top:[],total_hp:300,self},kill:{top:[],total_hp:0,self}}}}});
+  await initHallOfFame({sb:{rpc:async()=>fail?{error:{message:"Offline"}}:{data:{engine_version:2,score_unit:"WAR INFLUENCE",save:{top:[],total_score:300,self},kill:{top:[],total_score:0,self}}}}});
   assert.equal(f.nodes.get("hof-save-list").children[0].textContent,"NO VERIFIED BATTLES YET");
   assert.equal(f.nodes.get("hof-save-self").children[1].children.at(-1).textContent,"UNRANKED");
-  assert.equal(f.nodes.get("hof-save-self").children[1].children[3].textContent,"+0 INFLUENCE");
-  assert.equal(f.nodes.get("hof-save-total").textContent,"HISTORIC V1 SAVE +300 HP");
-  assert.match(f.nodes.get("hof-scoring").textContent,/V2 WAR INFLUENCE/);
+  assert.equal(f.nodes.get("hof-save-self").children[1].children[3].textContent,"+0 WAR INFLUENCE");
+  assert.equal(f.nodes.get("hof-save-total").textContent,"TOTAL SAVE +300 WAR INFLUENCE");
+  assert.match(f.nodes.get("hof-scoring").textContent,/V2 • VERIFIED WAR INFLUENCE/);
   fail=true;
   await f.nodes.get("hof-refresh").on_click();
   assert.match(f.nodes.get("hof-status").textContent,/UNAVAILABLE/);
+ }finally{f.reset()}
+});
+test("V2 verified player appears at #1 with influence and no historic V1 labels",async()=>{
+ const f=fixture();
+ try{
+  const self={rank:1,qualified:true,in_top10:true,nickname:"OLF",country_code:"IDN",custom_flag:null,score:103,hp:0};
+  const data={engine_version:2,score_unit:"WAR INFLUENCE",
+   save:{top:[{...self,is_you:true}],total_score:103,self},
+   kill:{top:[],total_score:0,self:{...self,rank:null,qualified:false,in_top10:false,score:0}}};
+  await initHallOfFame({sb:{rpc:async()=>({data})}});
+  const first=f.nodes.get("hof-save-list").children[0];
+  assert.equal(first.children[0].textContent,"#1");
+  assert.equal(first.children[1].textContent,"OLF");
+  assert.equal(first.children[3].textContent,"+103 WAR INFLUENCE");
+  assert.equal(first.children[4].textContent,"YOU");
+  assert.equal(f.nodes.get("hof-save-total").textContent,"TOTAL SAVE +103 WAR INFLUENCE");
+  assert.equal(f.nodes.get("hof-kill-total").textContent,"TOTAL KILL −0 WAR INFLUENCE");
+  assert.equal(f.nodes.get("hof-save-self").hidden,true);
+  assert.doesNotMatch(f.nodes.get("hof-scoring").textContent,/HISTORIC|V1/);
  }finally{f.reset()}
 });
 test("Arena wires isolated Hall of Fame without changing game engine imports",async()=>{
