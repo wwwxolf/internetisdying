@@ -187,7 +187,7 @@ if(page==="arena"){
   });
   if(demoMode)demo(u.id,p);
   else {
-   const {initGlobalBattle}=await import("./global-battle.js?v=12");
+   const {initGlobalBattle}=await import("./global-battle.js?v=13");
    await initGlobalBattle({sb});
    // Private controls initialize only after verified Google login and profile.
    void import("./developer-mode.js?v=1")
