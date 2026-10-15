@@ -4,21 +4,21 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <meta name="theme-color" content="#0b101b"/>
-  <meta name="description" content="THE INTERNET IS DYING — choose SAVE or KILL in the pixel Chaos Arena."/>
-  <title>CHAOS ARENA — THE INTERNET IS DYING</title>
+  <meta name="description" content="THE INTERNET IS DYING — World 001 Chicken Apocalypse. Patch the net or feed the chicken."/>
+  <title>THE CHICKEN WAR — THE INTERNET IS DYING</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="./styles.css?v=7"/>
-  <link rel="stylesheet" href="./arena.css?v=10"/>
+  <link rel="stylesheet" href="./arena.css?v=11"/>
   <link rel="stylesheet" href="./hall-of-fame.css?v=3"/>
   <link rel="stylesheet" href="./tap-battle.css?v=3"/>
   <link rel="stylesheet" href="./daily-chaos.css?v=2"/>
   <link rel="stylesheet" href="./world-return.css?v=4"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="./flow.js?v=32"></script>
+  <script type="module" src="./flow.js?v=33"></script>
 </head>
 <body data-page="arena" data-battle-mode="global">
   <div class="preview-bar" role="note">GLOBAL BATTLE ENGINE • CONTROLLED ROLLOUT</div>
@@ -31,8 +31,8 @@
       </nav>
     </header>
     <main class="flow-shell arena-shell">
-      <p class="eyebrow">WORLD_001 / INTERNET CHAOS</p>
-      <h1 class="flow-title">CHAOS <span>ARENA_</span></h1>
+      <p class="eyebrow">WORLD_001 / CHICKEN APOCALYPSE</p>
+      <h1 class="flow-title">THE CHICKEN <span>WAR_</span></h1>
       <p id="flow-status" class="flow-message" role="status" aria-live="polite">Checking your account...</p>
 
       <section id="arena-content" hidden aria-label="Player arena">
@@ -40,7 +40,7 @@
           <div class="arena-player-left">
             <div class="arena-player-icon" aria-hidden="true"><img id="arena-origin-avatar" class="arena-origin-avatar" src="./assets/avatar-human.svg" width="44" height="44" alt="" decoding="async"/></div>
             <div class="arena-player-copy">
-              <span class="arena-tiny">YOUR IDENTITY</span>
+              <span class="arena-tiny">YOUR FIGHTER</span>
               <span class="arena-identity-line">
                 <span id="arena-identity">LOADING PLAYER</span>
                 <span id="arena-country" class="arena-country" aria-label="Country flag" hidden></span>
@@ -71,24 +71,24 @@
         </section>
 
         <!-- Per-user server-ledger recap. No historical data is fabricated. -->
-        <section id="world-return" class="world-return" aria-label="While you were gone world report" hidden>
+        <section id="world-return" class="world-return" aria-label="World 001 coop report" hidden>
           <div class="world-return-top">
-            <span class="world-return-tag">◈ INCOMING SIGNAL</span>
+            <span class="world-return-tag">◈ THE COOP REPORT</span>
             <button type="button" id="world-return-dismiss" class="world-return-dismiss" aria-label="Dismiss this world report">✕</button>
           </div>
-          <p class="world-return-eyebrow" id="world-return-eyebrow">WHILE YOU WERE GONE_</p>
+          <p class="world-return-eyebrow" id="world-return-eyebrow">WHILE YOU WERE AWAY_</p>
           <h2 class="world-return-title" id="world-return-title">CHECKING THE INTERNET...</h2>
           <p class="world-return-since" id="world-return-since">SYNCING SERVER HISTORY...</p>
           <p class="world-return-user">PLAYER: <span id="world-return-name">...</span></p>
           <div class="world-return-grid">
-            <div class="world-return-stat heal"><span>WORLD SAVE</span><strong id="world-return-heal">—</strong></div>
-            <div class="world-return-stat kill"><span>WORLD KILL</span><strong id="world-return-kill">—</strong></div>
-            <div class="world-return-stat decay"><span>WORLD DECAY</span><strong id="world-return-decay">—</strong></div>
+            <div class="world-return-stat heal"><span>INTERNET REPAIRED</span><strong id="world-return-heal">—</strong></div>
+            <div class="world-return-stat kill"><span>CHICKEN DAMAGE</span><strong id="world-return-kill">—</strong></div>
+            <div class="world-return-stat decay"><span>NATURAL DECAY</span><strong id="world-return-decay">—</strong></div>
             <div class="world-return-stat chaos"><span>DAILY CHAOS</span><strong id="world-return-chaos">—</strong></div>
           </div>
           <div class="world-return-final">
-            <div><span>NET WORLD CHANGE</span><strong id="world-return-net">—</strong></div>
-            <div><span>WORLD HP NOW</span><strong id="world-return-world">—</strong></div>
+            <div><span>NET INTERNET CHANGE</span><strong id="world-return-net">—</strong></div>
+            <div><span>INTERNET HEALTH NOW</span><strong id="world-return-world">—</strong></div>
           </div>
           <p class="world-return-activity" id="world-return-activity">ONLY VERIFIED WORLD EVENTS ARE SHOWN.</p>
           <p class="world-return-event" id="world-return-event"></p>
@@ -112,7 +112,7 @@
               </div>
             </div>
           </div>
-          <p class="arena-heart-text">ONE INTERNET. ONE LIFE.</p>
+          <p class="arena-heart-text">ONE INTERNET. ONE HUNGRY CHICKEN.</p>
 
           <div class="hud arena-hud" id="arena-hud">
             <div class="arena-hud-label">SHARED WORLD HEALTH</div>
@@ -149,23 +149,23 @@
           </div>
 
           <div class="choices arena-choices">
-            <button type="button" class="choice heal arena-choice" data-arena-action="HEAL" aria-label="Save the internet" disabled>
+            <button type="button" class="choice heal arena-choice" data-arena-action="HEAL" aria-label="Patch the net to save the internet" disabled>
               <span class="arena-choice-icon" aria-hidden="true">
                 <svg viewBox="0 0 12 12" shape-rendering="crispEdges"><path d="M4 0h4v4h4v4H8v4H4V8H0V4h4z"/></svg>
               </span>
-              <strong class="choice-title">SAVE</strong>
-              <span class="choice-caption">KEEP IT ALIVE</span>
+              <strong class="choice-title">PATCH THE NET</strong>
+              <span class="choice-caption">KEEP IT AWAY FROM THE CHICKEN</span>
               <span class="arena-choice-caption2" id="save-impact-caption">+ RANDOM HP</span>
             </button>
-            <button type="button" class="choice kill arena-choice" data-arena-action="KILL" aria-label="Damage the internet" disabled>
+            <button type="button" class="choice kill arena-choice" data-arena-action="KILL" aria-label="Feed the chicken to damage the internet" disabled>
               <span class="arena-choice-icon" aria-hidden="true">
                 <svg viewBox="0 0 12 12" shape-rendering="crispEdges">
                   <path d="M2 1h8v1h1v5h-2v2H7v1H5V9H3V7H1V2h1z"/>
                   <path fill="#310f19" d="M3 4h2v2H3z M7 4h2v2H7z M5 7h2v1H5z"/>
                 </svg>
               </span>
-              <strong class="choice-title">KILL</strong>
-              <span class="choice-caption">FINISH THE JOB</span>
+              <strong class="choice-title">FEED THE CHICKEN</strong>
+              <span class="choice-caption">LET IT EAT THE INTERNET</span>
               <span class="arena-choice-caption2" id="kill-impact-caption">− RANDOM HP</span>
             </button>
           </div>
@@ -242,14 +242,14 @@
             <button type="button" class="chaos-event recovery" data-chaos-choice="recovery" aria-pressed="false" aria-label="Vote for the defense event" disabled>
               <span class="chaos-event-label">✦ DEFENSE EVENT</span>
               <span class="chaos-pixel-art" id="chaos-recovery-art" aria-hidden="true"></span>
-              <strong class="chaos-event-name" id="chaos-recovery-title">GLOBAL FIREWALL</strong>
+              <strong class="chaos-event-name" id="chaos-recovery-title">CHICKEN-PROOF FIREWALL</strong>
               <span class="chaos-event-desc" id="chaos-recovery-desc">Loading event…</span>
               <strong class="chaos-event-impact" id="chaos-recovery-impact">IMPACT SCALES WITH VOTES</strong>
             </button>
             <button type="button" class="chaos-event damage" data-chaos-choice="damage" aria-pressed="false" aria-label="Vote for the chaos event" disabled>
               <span class="chaos-event-label">⚠ CHAOS EVENT</span>
               <span class="chaos-pixel-art" id="chaos-damage-art" aria-hidden="true"></span>
-              <strong class="chaos-event-name" id="chaos-damage-title">BOT INVASION</strong>
+              <strong class="chaos-event-name" id="chaos-damage-title">PECK STORM</strong>
               <span class="chaos-event-desc" id="chaos-damage-desc">Loading event…</span>
               <strong class="chaos-event-impact" id="chaos-damage-impact">IMPACT SCALES WITH VOTES</strong>
             </button>
