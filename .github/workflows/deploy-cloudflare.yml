@@ -62,15 +62,19 @@ jobs:
           ROOT="https://internetisdying.wwwxolf.workers.dev"
           for i in 1 2 3 4 5 6; do
             curl -fsSL --max-time 12 "$ROOT/arena.html" -o /tmp/iid-arena.html || true
-            if grep -q 'flow.js?v=31' /tmp/iid-arena.html 2>/dev/null; then
+            if grep -q 'flow.js?v=32' /tmp/iid-arena.html 2>/dev/null; then
               break
             fi
             sleep 5
           done
-          grep -q 'flow.js?v=31' /tmp/iid-arena.html
-          curl -fsSL --max-time 15 "$ROOT/hall-of-fame.js?v=3" -o /tmp/iid-hof.js
+          grep -q 'flow.js?v=32' /tmp/iid-arena.html
+          curl -fsSL --max-time 15 "$ROOT/hall-of-fame.js?v=4" -o /tmp/iid-hof.js
           grep -q 'iid_hall_of_fame' /tmp/iid-hof.js
-          grep -q 'hall-of-fame.css?v=2' /tmp/iid-arena.html
+          grep -q 'LEGENDARY' /tmp/iid-arena.html
+          grep -q 'FACTION POINTS' /tmp/iid-arena.html
+          grep -q 'hof-legendary-list' /tmp/iid-arena.html
+          grep -q 'renderLegendary' /tmp/iid-hof.js
+          grep -q 'hall-of-fame.css?v=3' /tmp/iid-arena.html
           curl -fsSL --max-time 15 "$ROOT/v2-tap-config.js" -o /tmp/iid-v2-config.js
           grep -q 'V2_MAX_TAPS=50' /tmp/iid-v2-config.js
           grep -q 'V2_DURATION_SECONDS=10' /tmp/iid-v2-config.js

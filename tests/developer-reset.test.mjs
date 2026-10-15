@@ -67,7 +67,7 @@ test("repeated reset clears battle/world/ranking/momentum but preserves develope
  assert.equal((await readAdmin("select count(*)::int n from public.iid_v2_live_buckets")).n,1);
  const one=await reset();
  assert.deepEqual([one.ok,one.world_hp,one.previous_hp,one.deleted_battles,one.player_identity_kept],[true,500000,502000,1,true]);
- for(const table of ["iid_battles","iid_hof_totals","iid_v2_live_buckets","iid_v2_window_results","iid_player_presence","iid_share_cards","iid_chaos_votes","iid_decay_pulses"]){
+ for(const table of ["iid_battles","iid_hof_totals","iid_hof_season_totals","iid_v2_live_buckets","iid_v2_window_results","iid_player_presence","iid_share_cards","iid_chaos_votes","iid_decay_pulses"]){
   const count=(await readAdmin("select count(*)::int n from public."+table)).n;
   assert.equal(count,0,table);
  }

@@ -18,7 +18,7 @@ export async function initHallOfFame({sb}){
   const hp=Math.max(0,Number(item.hp)||0);
   if(version===2){
    const influence=Math.max(0,Number(item.score)||0);
-   return (side==="save"?"+":"−")+fmt(influence)+" WAR INFLUENCE";
+   return (side==="save"?"+":"−")+fmt(influence)+" FACTION POINTS";
   }
   return (side==="save"?"+":"−")+fmt(hp)+" HP";
  };
@@ -41,7 +41,7 @@ export async function initHallOfFame({sb}){
   if(total){
    if(version===2){
     total.textContent="TOTAL "+(side==="save"?"SAVE +":"KILL −")+
-      fmt(Math.max(0,Number(data?.total_score)||0))+" WAR INFLUENCE";
+      fmt(Math.max(0,Number(data?.total_score)||0))+" FACTION POINTS";
    }else{
     total.textContent="TOTAL "+(side==="save"?"SAVE +":"KILL −")+
       fmt(Math.max(0,Number(data?.total_hp)||0))+" HP";
@@ -72,6 +72,35 @@ export async function initHallOfFame({sb}){
    footer.append(row);
   }
  };
+
+ const renderLegendary=(items,enabled)=>{
+  const section=$("hof-legendary"),list=$("hof-legendary-list");
+  if(!section||!list)return;
+  section.hidden=!enabled;
+  list.replaceChildren();
+  if(!enabled)return;
+  const records=Array.isArray(items)?items.slice(0,3):[];
+  for(let i=0;i<3;i++){
+   const item=records[i];
+   const podium=create("article","hof-legendary-card hof-legendary-rank-"+(i+1));
+   podium.append(create("span","hof-legendary-place","#"+(i+1)));
+   if(item){
+    podium.append(create("span","hof-legendary-name",item.nickname||"PLAYER"));
+    const badge=create("span","arena-country hof-legendary-country");
+    renderCountryBadge(badge,item);
+    podium.append(badge);
+    podium.append(create("strong","hof-legendary-power",fmt(item.power)));
+    podium.append(create("span","hof-legendary-unit","PERSONAL POWER"));
+    podium.append(create("span","hof-legendary-side "+(item.action==="HEAL"?"save":"kill"),
+      item.action==="HEAL"?"✦ SAVE":"✕ KILL"));
+    if(item.is_you)podium.append(create("span","hof-legendary-you","YOU"));
+   }else{
+    podium.className+=" hof-legendary-awaiting";
+    podium.append(create("span","hof-legendary-empty","AWAITING VERIFIED BATTLE"));
+   }
+   list.append(podium);
+  }
+ };
  let busy=false;
  async function reload(){
   if(busy)return;
@@ -82,9 +111,17 @@ export async function initHallOfFame({sb}){
    if(!data||!data.save||!data.kill)throw Error("Unexpected response");
    showSide("save",data.save,data.engine_version);
    showSide("kill",data.kill,data.engine_version);
+   const season=data.season;
    scoring.textContent=data.engine_version===2
-    ?"V2 • VERIFIED WAR INFLUENCE • WORLD HP SETTLES EACH 4H WINDOW"
+    ?"SEASON "+String(season?.number||1).padStart(2,"0")+" • 30-DAY FACTION RANKINGS • 4H WORLD SETTLEMENT"
     :"V1 • VERIFIED PERSONAL POWER";
+   const note=$("hof-cycle-note");
+   if(note){
+    note.textContent=data.engine_version===2 && season?.ends_at
+     ?"LEADERBOARD ENDS "+new Date(season.ends_at).toLocaleDateString("en-US",{timeZone:"UTC",day:"numeric",month:"short",year:"numeric"}).toUpperCase()+" UTC • WORLD EPOCH V3 NOT ACTIVE"
+     :"LEGACY ALL-TIME RANKINGS • WORLD EPOCH V3 NOT ACTIVE";
+   }
+   renderLegendary(data.legendary,data.engine_version===2);
    status.textContent="SERVER VERIFIED • UPDATED";
   }catch(e){
    status.textContent="RANKINGS TEMPORARILY UNAVAILABLE • TAP RETRY";

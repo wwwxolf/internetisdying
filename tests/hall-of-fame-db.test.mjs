@@ -20,7 +20,7 @@ insert into public.iid_economy_control values(1,false);
 create table public.iid_battles(
  id uuid primary key default gen_random_uuid(),user_id uuid not null,
  action text not null,engine_version smallint not null default 1,
- power int,war_influence int,applied_hp int,settled_at timestamptz);
+ power int,war_influence int,applied_hp int,created_at timestamptz not null default now(),settled_at timestamptz);
 create function iid_private.require_player() returns uuid language plpgsql
  security definer set search_path='' as $$
 declare u uuid:=auth.uid();
@@ -39,6 +39,7 @@ await db.query("insert into public.iid_battles(user_id,action,engine_version,pow
 await db.exec(await readFile("supabase/migrations/20261015025000_phase2_hall_of_fame.sql","utf8"));
 await db.exec(await readFile("supabase/migrations/20261015032000_hof_verified_hp.sql","utf8"));
 await db.exec(await readFile("supabase/migrations/20261015041000_v2_hof_totals.sql","utf8"));
+await db.exec(await readFile("supabase/migrations/20261015100000_hof_faction_points_legendary_top3.sql","utf8").then(s=>s.slice(0,s.indexOf("-- Developer reset must clear"))));
 async function login(i=13,role="authenticated"){
  await db.exec("reset role");
  await db.query("select set_config('request.jwt.claims',$1,false)",[JSON.stringify({sub:user(i)})]);
@@ -105,15 +106,57 @@ test("KILL and V2 War Influence remain distinct; V2 does not inherit V1 scores",
  await asAdmin("update public.iid_economy_control set v2_enabled=true where id=1");
  const v2Ranks=await hall();
  assert.equal(v2Ranks.engine_version,2);
- assert.equal(v2Ranks.score_unit,"WAR INFLUENCE");
+ assert.equal(v2Ranks.score_unit,"FACTION POINTS");
  assert.equal(v2Ranks.save.top.length,2);
  assert.equal(Number(v2Ranks.save.total_score),500);
  assert.equal(Number(v2Ranks.kill.total_score),0);
  assert.equal(v2Ranks.save.top[0].nickname,"Player_13");
  assert.equal(v2Ranks.save.self.rank,1);
  assert.equal(v2Ranks.save.self.score,300);
- assert.equal(v2Ranks.save.self.hp,158,"V2 is influence, not invented individual HP");
+ assert.equal(v2Ranks.save.self.score,300,"V2 faction points are verified; no individual World HP is fabricated");
  assert.equal(v2Ranks.kill.top.length,0);
  await asAdmin("update public.iid_economy_control set v2_enabled=false where id=1");
  assert.equal((await hall()).save.self.rank,13);
+});
+
+test("30-day Legendary Top 3 uses single strongest verified V2 battle per unique player",async()=>{
+ await asAdmin("update public.iid_economy_control set v2_enabled=true where id=1");
+ const records=[
+  [1,"HEAL",900,140],
+  [1,"KILL",1400,185],
+  [1,"HEAL",1200,165],
+  [2,"HEAL",1300,175],
+  [3,"KILL",1100,165],
+  [4,"HEAL",1000,150]
+ ];
+ let repeatedId=null;
+ for(const [person,action,power,influence] of records){
+  const t=await asAdmin(
+   "insert into public.iid_battles(user_id,action,engine_version,power,war_influence,applied_hp) values($1,$2,2,$3,$4,0) returning id",
+   [user(person),action,power,influence]);
+  const battle=t.rows[0].id;
+  await asAdmin("update public.iid_battles set settled_at=now() where id=$1",[battle]);
+  if(person===2)repeatedId=battle;
+ }
+ const rank=await hall();
+ assert.equal(rank.engine_version,2);
+ assert.equal(rank.score_unit,"FACTION POINTS");
+ assert.equal(rank.period,"30-DAY LEADERBOARD CYCLE");
+ assert.equal(rank.legendary.length,3);
+ assert.deepEqual(rank.legendary.map(x=>x.nickname),["Player_1","Player_2","Player_3"]);
+ assert.deepEqual(rank.legendary.map(x=>x.power),[1400,1300,1100]);
+ assert.deepEqual(rank.legendary.map(x=>x.action),["KILL","HEAL","KILL"]);
+ assert.equal(rank.save.top[0].nickname,"Player_1");
+ assert.equal(rank.save.top[0].score,140+165);
+ assert.ok(rank.season.ends_at);
+ assert.doesNotMatch(JSON.stringify(rank),/10000000-0000-4000|email/);
+ const before=(await asAdmin("select save_points,kill_points from public.iid_hof_season_totals where user_id=$1 and season_no=$2",[user(2),rank.season.number])).rows[0];
+ await asAdmin("update public.iid_battles set settled_at=now() where id=$1",[repeatedId]);
+ const after=(await asAdmin("select save_points,kill_points from public.iid_hof_season_totals where user_id=$1 and season_no=$2",[user(2),rank.season.number])).rows[0];
+ assert.deepEqual(after,before,"re-settlement cannot inflate points");
+ await login(13,"anon");
+ await assert.rejects(db.query("select * from public.iid_hof_season_totals"),/permission denied/);
+ await assert.rejects(hall(),/permission denied/);
+ await login(13);
+ await asAdmin("update public.iid_economy_control set v2_enabled=false where id=1");
 });

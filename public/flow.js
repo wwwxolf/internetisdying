@@ -200,7 +200,7 @@ if(page==="arena"){
      .then(({initWorldReturn})=>initWorldReturn({sb,nickname:p.nickname}))
      .catch(err=>console.warn("WORLD RETURN LOAD FAILED",err));
    // Read-only Hall of Fame is isolated from battle gameplay, auth and timers.
-   void import("./hall-of-fame.js?v=3")
+   void import("./hall-of-fame.js?v=4")
      .then(({initHallOfFame})=>initHallOfFame({sb}))
      .catch(err=>console.warn("HALL OF FAME LOAD FAILED",err));
    // NEXT CHAOS reads server-only votes; failure never blocks the battle arena.
