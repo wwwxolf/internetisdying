@@ -23,7 +23,7 @@ test("arena badge uses selected persisted character and does not mutate game sta
  assert.match(js,/\["HUMAN","BOT","ALIEN","GLITCH"\]\.includes\(p\.origin\)/);
  assert.match(js,/\$\("arena-origin-avatar"\)\.src="\.\/assets\/avatar-"\+originKey\+"\.svg"/);
  assert.match(js,/\$\("arena-identity"\)\.textContent=p\.origin\+" \/ "\+p\.nickname/);
- assert.match(html,/src="\.\/flow\.js\?v=25"/);
+ assert.match(html,/src="\.\/flow\.js\?v=26"/);
  const css=await readFile("public/styles.css","utf8");
  const arenaCss=await readFile("public/arena.css","utf8");
  assert.match(css,/\.avatar-icon img\{[^}]*image-rendering:pixelated/);
