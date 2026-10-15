@@ -30,7 +30,11 @@ test("Arena player-facing actions use SAVE without changing internal HEAL protoc
   assert.match(global,/p_action:action/);
   assert.match(demo,/action !== "HEAL" && action !== "KILL"/);
   assert.match(report,/world-return-heal/);
-  assert.match(await readFile("public/breaking-share-card.js","utf8"),/WORLD SAVE/);
+  const share=await readFile("public/breaking-share-card.js","utf8");
+  const labels=await readFile("public/share-story.js","utf8");
+  assert.match(share,/SHARE_LABELS\.heal/);
+  assert.match(labels,/INTERNET REPAIRED/);
+  assert.match(labels,/CHICKEN DAMAGE/);
   assert.match(report,/" SAVE \/ "/);
 });
 test("Landing global pulses are fetched from public read-only RPC, not browser clicks or local storage",async()=>{
