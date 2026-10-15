@@ -433,3 +433,5 @@ body[data-page="arena"] .arena-country[hidden]{display:none}
 body[data-page="arena"] .arena-country img{display:block;width:28px;height:19px;object-fit:cover;image-rendering:pixelated;border:1px solid #6f8299}
 body[data-page="arena"] .arena-custom-flag{display:grid;grid-template-columns:repeat(12,2px);grid-template-rows:repeat(8,2px);width:24px;height:16px;box-shadow:0 0 0 1px #6f8299}
 body[data-page="arena"] .arena-custom-flag span{width:2px;height:2px}
+
+body[data-page="arena"] .arena-identity-line{display:flex;align-items:center;flex-wrap:wrap;column-gap:10px;row-gap:5px;min-width:0}
