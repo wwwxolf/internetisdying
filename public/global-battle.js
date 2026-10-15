@@ -189,7 +189,14 @@ export async function initGlobalBattle({sb}) {
   async function settle() {
     if(!battle||settling||refreshBusy||tapBusy||now()<retryAfter)return;
     settling=true;render();
-    try {const r=await rpc('settle',{p_battle_id:battle.id});showResult(r);battle=null;}
+    try {
+      const r=await rpc('settle',{p_battle_id:battle.id});
+      showResult(r);battle=null;
+      // Leaderboard is a separate read-only module; notify after verified settlement.
+      if(typeof document.dispatchEvent==='function'){
+        document.dispatchEvent(new Event('iid:battle-settled'));
+      }
+    }
     catch(e){retryAfter=now()+3000;message('Result pending: '+e.message+'. Retrying the same battle safely…');}
     finally{settling=false;if(!battle)await refresh();render();}
   }
