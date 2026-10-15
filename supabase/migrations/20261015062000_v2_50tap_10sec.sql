@@ -8,6 +8,19 @@ begin
  then raise exception 'V2_TAP_UPGRADE_PENDING_BATTLES'; end if;
 end $safety$;
 
+-- Keep historical 12-second V2 records valid, while new V2 starts are 10 seconds.
+-- Only the server can INSERT/UPDATE iid_battles; clients cannot choose a legacy duration.
+alter table public.iid_battles drop constraint iid_battles_v2_duration;
+alter table public.iid_battles add constraint iid_battles_v2_duration check (
+ (engine_version=1 and ends_at=starts_at+interval '20 seconds')
+ or (engine_version=2 and ends_at in (starts_at+interval '10 seconds',starts_at+interval '12 seconds'))
+);
+alter table public.iid_battles drop constraint iid_battles_v2_taps;
+alter table public.iid_battles add constraint iid_battles_v2_taps check (
+ (engine_version=1 and counted_taps between 0 and 50)
+ or (engine_version=2 and counted_taps between 0 and 50)
+);
+
 -- V2 tap tiers: all tap counts are server-verified; no client-provided bonuses.
 create or replace function iid_private.v2_tap_bonus(p_taps integer)
 returns integer language sql immutable strict set search_path='' as $$
