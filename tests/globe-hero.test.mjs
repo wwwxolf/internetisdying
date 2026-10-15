@@ -2,16 +2,17 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 
-test("Landing uses pixel globe and compact demo HP bar without numeric text",async()=>{
+test("Landing offers one active world and four distinct locked worlds without fake timing",async()=>{
  const html=await readFile("public/index.html","utf8");
- assert.match(html,/src="\.\/assets\/dying-internet-core\.svg"/);
- assert.match(html,/class="heart-zone world-core-zone"/);
- assert.match(html,/class="world-core-signal"/);
- assert.doesNotMatch(html,/class="pixel-heart"/);
- assert.doesNotMatch(html,/id="hp-label"|id="hp-percent"|50\.0% LIFE REMAINING|500,000|\/ 1,000,000 HP/);
- assert.match(html,/aria-valuenow="50"/);
- assert.match(html,/LOCAL DEMO ONLY/);
- assert.match(html,/JOIN THE CHAOS/);
+ assert.equal((html.match(/class="world-active"/g)||[]).length,1);
+ assert.equal((html.match(/class="world-locked"/g)||[]).length,4);
+ assert.match(html,/id="join-btn" href="\.\/auth\.html"/);
+ assert.match(html,/ACTIVE NOW/);assert.match(html,/30-DAY WORLD/);
+ assert.match(html,/World rotation is coming soon/);
+ assert.doesNotMatch(html,/id="countdown"|aria-valuenow="50"|DESIGN DEMO/);
+ const assets=[...html.matchAll(/src="\.\/assets\/(world-[a-z]+\.svg)"/g)].map(m=>m[1]);
+ assert.equal(new Set(assets).size,5);
+ for(const asset of assets){const svg=await readFile("public/assets/"+asset,"utf8");assert.match(svg,/shape-rendering="crispEdges"/);assert.ok(svg.length<20000);assert.doesNotMatch(svg,/<script|<image/);}
 });
 test("Pixel globe SVG embeds a compact self-contained PNG",async()=>{
  const svg=await readFile("public/assets/dying-internet-core.svg","utf8");

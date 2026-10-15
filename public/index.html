@@ -4,70 +4,76 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <meta name="theme-color" content="#0b101b"/>
-  <meta name="description" content="The Internet Is Dying — one internet, two sides, one life. A pixel arcade social game in design preview."/>
-  <title>THE INTERNET IS DYING — Internet Chaos</title>
+  <meta name="description" content="Five worlds. One internet. Only one survives at a time. Explore the pixel multiverse."/>
+  <title>THE INTERNET IS DYING — Explore the Multiverse</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
   <link href="./styles.css?v=5" rel="stylesheet"/>
+  <link href="./multiverse.css?v=1" rel="stylesheet"/>
   <script src="./config.js?v=5"></script>
   
   <script type="module" src="./flow.js?v=6"></script>
   <script type="module" src="./global-pulses.js?v=1"></script>
 </head>
-<body>
-  <div class="preview-bar" role="note">DESIGN DEMO • NO LIVE HP, REAL ACCOUNTS, OR PAYMENTS</div>
+<body class="multiverse" data-page="landing">
   <div class="page">
     <header class="header">
       <a class="brand" href="#top" aria-label="The Internet Is Dying home">THE INTERNET<br><span>IS DYING_</span></a>
       <nav class="header-right" aria-label="Main menu">
         <a class="navlink" href="#hall">HALL OF FAME</a>
-        <span class="tiny-pill">DEMO</span>
+        <a class="navlink save-nav" href="./auth.html" aria-label="Sign in to save the internet">SAVE</a>
+        <a class="navlink kill-nav" href="./auth.html" aria-label="Sign in to kill the internet">KILL</a>
       </nav>
     </header>
     <main id="top">
       <section class="hero" aria-labelledby="main-title">
-        <div class="eyebrow">WORLD_001 / INTERNET CHAOS</div>
         <h1 id="main-title">THE INTERNET <span>IS DYING_</span></h1>
-        <p class="tagline">ONE INTERNET. TWO SIDES. ONE LIFE.</p>
-        <div class="heart-zone world-core-zone" id="heart-zone" data-stage="critical">
-          <div class="world-core-visual">
-            <img class="world-core-img" src="./assets/dying-internet-core.svg" width="96" height="96" alt="Glitched pixel internet globe with a damaged, glowing red core" decoding="async" fetchpriority="high"/>
-            <span class="world-core-signal" aria-hidden="true"></span>
-          </div>
-        </div>
-
-        <div class="hud hud-minimal" aria-label="Local demo internet health">
-          <div class="hud-head">
-            <span class="status" id="state-label">● CRITICAL</span>
-          </div>
-          <div class="hp-track" role="progressbar" aria-label="Local demo internet health, 50 percent, critical" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" id="hp-progress"><div class="hp-fill" id="hp-fill"></div></div>
-          <div class="hud-foot"><span class="demo-marker">LOCAL DEMO ONLY</span></div>
-        </div>
-
-        <div class="prompt"><h2 id="story-title">THE INTERNET IS HALF DEAD.</h2><p>Will you save it — or finish it?</p></div>
-        <div class="choices" aria-label="SAVE and KILL available after registration">
-          <div class="choice heal preview-only"><span class="choice-title"><span class="icon-square" aria-hidden="true">♥</span> SAVE</span><span class="choice-caption">KEEP IT ALIVE</span></div>
-          <div class="choice kill preview-only"><span class="choice-title"><span class="icon-square" aria-hidden="true">☠</span> KILL</span><span class="choice-caption">FINISH THE JOB</span></div>
-        </div>
-        <button type="button" class="cta" id="join-btn">JOIN THE CHAOS →</button>
-        <p class="mini" id="landing-status" role="status" aria-live="polite"></p>
-        <p class="hero-note">JOIN FIRST. CREATE YOUR IDENTITY. THEN PICK A SIDE.</p>
-        <section class="global-pulses" aria-labelledby="global-pulses-title">
-          <h2 id="global-pulses-title">◈ GLOBAL PULSES_</h2>
-          <strong class="global-pulses-total" id="global-pulses-total" aria-live="polite" aria-atomic="true">—</strong>
-          <p class="global-pulses-tagline">EVERY PULSE COUNTS.</p>
-          <p class="global-pulses-status" id="global-pulses-status" role="status">CONNECTING TO WORLD LEDGER...</p>
-        </section>
+        <p class="tagline">Five worlds. One internet. Only one survives at a time.</p>
       </section>
-
-      <section class="below" aria-label="Countdown and Hall of Fame preview">
-        <section class="panel" aria-labelledby="countdown-title">
-          <div class="panel-title"><h3 id="countdown-title">⌛ NEXT WORLD PULSE</h3><span class="sample">PREVIEW</span></div>
-          <div class="timer" id="timer" aria-label="Demo countdown to midnight UTC">--:--:--</div>
-          <p>UTC MIDNIGHT COUNTDOWN. REAL DECAY IS NOT ACTIVE YET.</p>
-        </section>
+      <section class="worlds" aria-labelledby="multiverse-title">
+        <div class="multiverse-heading"><h2 id="multiverse-title">EXPLORE THE MULTIVERSE_</h2><span class="world-count">01 OPEN / 05 WORLDS</span></div>
+        <a class="world-active" id="join-btn" href="./auth.html" aria-label="Enter World 001: Chicken Eats the Internet">
+          <div class="art-stage"><img class="world-art" src="./assets/world-chicken.svg" width="160" height="96" alt="Pixel chicken eating a glowing internet globe and scattered data" decoding="async" fetchpriority="high"/></div>
+          <div class="world-content">
+            <div class="world-meta"><span class="world-id">WORLD_001</span><span class="world-status">ACTIVE NOW</span></div>
+            <h3>CHICKEN EATS<br><span>THE INTERNET</span></h3>
+            <p class="world-description">The chicken was hungry. The internet was delicious.</p>
+            <span class="world-duration">30-DAY WORLD</span><span class="world-enter">ENTER WORLD →</span>
+          </div>
+        </a>
+        <div class="locked-worlds" aria-label="Four locked worlds">
+          <article class="world-locked" aria-label="World 002: THE CATS TAKE OVER, locked">
+            <div class="locked-art"><img class="world-art" src="./assets/world-cat.svg" width="160" height="96" alt="Pixel cat wearing a crown over a captured computer" decoding="async"/></div>
+            <div class="locked-meta"><span>WORLD_002</span><span class="lock-label"><i class="pixel-lock" aria-hidden="true"></i>LOCKED</span></div>
+            <h3>THE CATS TAKE OVER</h3>
+          </article>
+          <article class="world-locked" aria-label="World 003: THE COW ATE THE CLOUD, locked">
+            <div class="locked-art"><img class="world-art" src="./assets/world-cow.svg" width="160" height="96" alt="Pixel cow taking a bite out of a digital cloud" decoding="async"/></div>
+            <div class="locked-meta"><span>WORLD_003</span><span class="lock-label"><i class="pixel-lock" aria-hidden="true"></i>LOCKED</span></div>
+            <h3>THE COW ATE THE CLOUD</h3>
+          </article>
+          <article class="world-locked" aria-label="World 004: THE PIGEONS STOLE THE WI-FI, locked">
+            <div class="locked-art"><img class="world-art" src="./assets/world-pigeon.svg" width="160" height="96" alt="Pixel pigeon carrying stolen Wi-Fi signals" decoding="async"/></div>
+            <div class="locked-meta"><span>WORLD_004</span><span class="lock-label"><i class="pixel-lock" aria-hidden="true"></i>LOCKED</span></div>
+            <h3>THE PIGEONS STOLE THE WI-FI</h3>
+          </article>
+          <article class="world-locked" aria-label="World 005: THE MONKEYS BROKE THE ALGORITHM, locked">
+            <div class="locked-art"><img class="world-art" src="./assets/world-monkey.svg" width="160" height="96" alt="Pixel monkey tangling an algorithm network" decoding="async"/></div>
+            <div class="locked-meta"><span>WORLD_005</span><span class="lock-label"><i class="pixel-lock" aria-hidden="true"></i>LOCKED</span></div>
+            <h3>THE MONKEYS BROKE THE ALGORITHM</h3>
+          </article>
+        </div>
+        <p class="world-concept">The plan: one world at a time, each lasting up to 30 days.<br>World rotation is coming soon. No live countdown yet.</p>
+        <p class="mini" id="landing-status" role="status" aria-live="polite"></p>
+      </section>
+      <section class="global-pulses" aria-labelledby="global-pulses-title">
+        <h2 id="global-pulses-title">GLOBAL PULSES_</h2>
+        <strong class="global-pulses-total" id="global-pulses-total" aria-live="polite" aria-atomic="true">—</strong>
+        <p class="global-pulses-status" id="global-pulses-status" role="status">CONNECTING TO WORLD LEDGER...</p>
+      </section>
+      <section class="below" aria-label="Hall of Fame preview">
         <section class="panel" id="hall" aria-labelledby="hall-title">
           <div class="panel-title"><h3 id="hall-title">★ HALL OF FAME</h3><span class="sample">SAMPLE DATA</span></div>
           <div class="rank"><span class="rank-number">01</span><span class="rank-name">PIXELGHOST</span><span class="rank-points">725 CP</span></div>
@@ -78,16 +84,8 @@
         </section>
       </section>
 
-      <section class="how" id="how" aria-labelledby="how-title">
-        <h2 id="how-title">HOW TO PLAY_</h2>
-        <div class="steps">
-          <article class="step"><div class="step-id">01 / EXIST</div><h4>CHOOSE YOUR ORIGIN</h4><p>Human, Bot, Alien, or Glitch. Create your nickname.</p></article>
-          <article class="step"><div class="step-id">02 / DECIDE</div><h4>SAVE OR KILL</h4><p>Choose a side. Then reveal your random power.</p></article>
-          <article class="step"><div class="step-id">03 / BECOME LEGEND</div><h4>MAKE HISTORY</h4><p>One day, join the global Hall of Fame.</p></article>
-        </div>
-      </section>
     </main>
-    <footer><span>© THE INTERNET IS DYING • V3 ONBOARDING</span><span>NO GLOBAL VOTES • NO EMAIL COLLECTION • NO PAYMENTS</span></footer>
+    <footer><span>© THE INTERNET IS DYING_</span><span>FIVE WORLDS. ONE INTERNET.</span></footer>
   </div>
 
 </body>

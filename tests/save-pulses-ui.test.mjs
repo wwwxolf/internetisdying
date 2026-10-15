@@ -2,18 +2,18 @@ import {test} from "node:test";
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 
-test("Landing uses SAVE vs KILL and shows read-only Global Pulses under JOIN CTA",async()=>{
+test("Landing uses SAVE vs KILL and shows read-only Global Pulses below world entry",async()=>{
   const html=await readFile("public/index.html","utf8");
   const btn=html.indexOf('id="join-btn"'),counter=html.indexOf('id="global-pulses-total"');
   assert.ok(btn>0&&counter>btn,"Global Pulses must be below primary CTA");
   assert.match(html,/GLOBAL PULSES_/);
-  assert.match(html,/EVERY PULSE COUNTS/);
+
   assert.match(html,/id="global-pulses-total"[^>]*>—/);
-  assert.match(html,/> SAVE</);
-  assert.match(html,/SAVE OR KILL/);
+  assert.match(html,/>SAVE</);
+  assert.match(html,/>KILL</);
   assert.doesNotMatch(html,/> HEAL</);
   assert.match(html,/src="\.\/global-pulses\.js\?v=1"/);
-  assert.match(html,/JOIN THE CHAOS/);
+  assert.match(html,/ENTER WORLD/);
 });
 test("Arena player-facing actions use SAVE without changing internal HEAL protocol",async()=>{
   const arena=await readFile("public/arena.html","utf8");

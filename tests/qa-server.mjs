@@ -28,7 +28,7 @@ http.createServer(async(req,res)=>{
     }
     const file=path.resolve(root,'.'+decodeURIComponent(url.pathname==='/'?'/index.html':url.pathname));
     if(!file.startsWith(root+path.sep)){res.writeHead(403).end();return;}
-    res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':'text/html');
+    res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':file.endsWith('.svg')?'image/svg+xml':'text/html');
     res.end(await readFile(file));
   }catch{res.writeHead(404).end('Not found');}
 }).listen(4387,'127.0.0.1',()=>console.log('Local QA: http://127.0.0.1:4387/__qa'));
