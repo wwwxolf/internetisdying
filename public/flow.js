@@ -189,14 +189,14 @@ if(page==="arena"){
   });
   if(demoMode)demo(u.id,p);
   else {
-   const {initGlobalBattle}=await import("./global-battle.js?v=8");
+   const {initGlobalBattle}=await import("./global-battle.js?v=9");
    await initGlobalBattle({sb});
    // Verified return brief is independent from Tap Battle and NEXT CHAOS.
    void import("./world-return.js?v=6")
      .then(({initWorldReturn})=>initWorldReturn({sb,nickname:p.nickname}))
      .catch(err=>console.warn("WORLD RETURN LOAD FAILED",err));
    // Read-only Hall of Fame is isolated from battle gameplay, auth and timers.
-   void import("./hall-of-fame.js?v=2")
+   void import("./hall-of-fame.js?v=3")
      .then(({initHallOfFame})=>initHallOfFame({sb}))
      .catch(err=>console.warn("HALL OF FAME LOAD FAILED",err));
    // NEXT CHAOS reads server-only votes; failure never blocks the battle arena.
