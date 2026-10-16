@@ -66,3 +66,20 @@ select iid_v4.summary() is null as no_published_v4;
 Expected: `iid-v4-settlement` schedule `* * * * *`, `active=false`; zero V4 epochs, null published summary, V2 cron still active.
 
 Do not enable a scheduler or publish an epoch without separate owner authorization.
+
+## Production staging verification — 2026-10-16, after migrations
+
+- Installed: `v4_scheduler_core_staged` (owner-only `iid_v4.scheduler_tick()`) and `v4_cron_registered_disabled` (`pg_cron` 1.6.4).
+- `cron.job`: `iid-v4-settlement` schedule `* * * * *`, `active=false`, command `select iid_v4.scheduler_tick()`, owner `postgres`. `iid-v2-world-tick` remains `active=true`, schedule `*/2 * * * *`.
+- Owner-only read probe: `iid_v4.scheduler_tick()` returned `{"status":"IDLE","settled":0,"remaining_due":0}`; V4 cron run count remained 0. `anon` and `authenticated` lack EXECUTE.
+- `iid_v4.epochs=0`, `iid_v4.events=0`, `iid_v4.share_cards=0`, `iid_v4.summary() IS NULL`. The V2 world remained enabled, V2 economy enabled, world HP=506000 at verification.
+- At verification, 0 unfinished/due V2 battles; the five latest V2 cron runs were `succeeded` (last observed at 2026-10-16 10:58 UTC).
+- GitHub V4 isolated PostgreSQL CI and global application regression passed. Cloudflare staging asset deployment succeeded. This **does not** qualify as browser/mobile V4 end-to-end verification, and **does not authorize activation**.
+
+### Remaining blocking requirements
+
+- Finalize V2 mutation freeze and settlement cutoff under all entry points, with real server-backed tests; `iid_world.enabled=false` blocks starts but is **not** proven to block every existing settle handler. Do not rely on a single toggle.
+- Obtain a complete restorable backup including Supabase Auth. Agree on exact UTC boundary with the owner.
+- Confirm mobile OAuth, actual V4 battle/vote, personal stats, World Return, Pixel Card PNG and WhatsApp Open Graph in a disposable environment.
+- Define alarm/monitoring for failed `cron.job_run_details`, stale V4 summary version and due-event backlog. The scheduler runner returns backlog status, but alert delivery is not implemented.
+- Only after explicit authorization, enable the existing disabled cron and publish an approved V4 epoch using the cutover phases above.
