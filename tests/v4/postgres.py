@@ -26,6 +26,7 @@ file('supabase/migrations/20261015010610_phase1_player_identity.sql')
 file('sql/v4/engine.sql')
 file('supabase/migrations/20261016145800_v4_paused_admission_settlement.sql')
 file('supabase/migrations/20261016171500_v4_readonly_rankings_return.sql')
+file('supabase/migrations/20261016175500_v4_immutable_share_cards.sql')
 sql(f"insert into auth.users(id)values('{U}'),('{V}');insert into auth.identities values('{U}','google'),('{V}','google');insert into auth.sessions values('{S}','{U}',null),('{V}','{V}',null);insert into public.iid_profiles(user_id,nickname,origin)values('{U}','PlayerOne','HUMAN'),('{V}','PlayerTwo','GLITCH');")
 def rpc(expr,u=U,fail=False):
  claims=json.dumps({'sub':u,'session_id':S if u==U else V,'app_metadata':{'provider':'google'}})
@@ -100,6 +101,34 @@ assert third['save_power']==0 and third['kill_power']==0
 assert rpc("public.iid_v4_return_report()")['net_hp']==0
 assert sql("select visits from iid_v4.return_cursors where user_id='"+U+"'")=='4'
 print('PASS V4 authenticated top10, Legendary Top3, personal stats, private cursors and world HP accounting')
+# Immutable anonymous V4 share is strictly the settled, current-epoch, last-24h ledger.
+assert 'permission denied' in sql('set role anon;select public.iid_v4_publish_share_card();',True)
+assert 'permission denied' in sql('set role anon;select * from iid_v4.share_cards;',True)
+assert 'permission denied' in sql('set role authenticated;select * from iid_v4.share_cards;',True)
+published=rpc('public.iid_v4_publish_share_card()')
+assert published['snapshot']['engine_version']==4
+assert published['snapshot']['source']=='V4_SETTLED_LEDGER_SHARE'
+assert published['snapshot']['period']=='LAST_24H'
+assert published['snapshot']['net_hp']==-27
+assert published['snapshot']['decay_hp']==27
+assert published['snapshot']['heal_hp']==0 and published['snapshot']['kill_hp']==0
+assert published['snapshot']['world_hp']==499973
+assert published['snapshot']['battle_windows']>=0
+assert 'user_id' not in published['snapshot'] and 'nickname' not in published['snapshot']
+frozen=sql("select public.iid_v4_public_share_card('"+published['id']+"')")
+assert json.loads(frozen)==published['snapshot']
+sql("update iid_v4.events set applied=-42 where kind='DECAY' and seq=1;update iid_v4.epochs set hp=499958;")
+assert json.loads(sql("select public.iid_v4_public_share_card('"+published['id']+"')"))==published['snapshot']
+again=rpc('public.iid_v4_publish_share_card()')
+assert again['snapshot']['world_hp']==499958
+assert again['snapshot']['decay_hp']==42
+assert again['snapshot']['net_hp']==-42
+assert again['id']!=published['id']
+assert rpc("public.iid_v4_public_share_card('"+published['id']+"')") == published['snapshot']
+assert json.loads(sql("set role anon;select public.iid_v4_public_share_card('"+published['id']+"')")) == published['snapshot']
+assert sql("select public.iid_v4_public_share_card(gen_random_uuid())") == ''
+print('PASS V4 anonymous immutable share, corrected live cards, applied HP, privacy and V2 isolation')
+
 
 # Admission pauses new input but MUST NOT stop settlement of already scheduled
 # events. This test uses a disposable epoch and never touches production.
