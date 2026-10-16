@@ -122,5 +122,7 @@ jobs:
           python3 -c 'import json; d=json.load(open("/tmp/iid-v4-summary.json")); assert d is None or (0 <= d["hp"] <= 1000000 and d["status"] in ("ACTIVE","FINAL"))'
           curl -fsSL --max-time 15 "$ROOT/v4-battle.js?v=1" -o /tmp/iid-v4-battle.js
           grep -q 'iid_v4_' /tmp/iid-v4-battle.js
+          grep -q "dataset.side=round.action.toLowerCase()" /tmp/iid-v4-battle.js
+          grep -q "'next-chaos').hidden=false" /tmp/iid-v4-battle.js
           echo "Verified deployed Arena, legacy assets and staged V4 routing."
 
