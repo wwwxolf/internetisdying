@@ -1,3 +1,4 @@
+import {validateV4Share,v4ToArtFields,v4ShareStory,V4_SHARE_LABELS} from "../public/v4-share-data.js";
 import {serveV4Summary} from "./v4-summary.js";
 import {shareStory,SHARE_LABELS} from "../public/share-story.js";
 import {serveWarMomentum} from "./war-momentum.js";
@@ -33,6 +34,15 @@ async function readCard(id,fetcher=fetch){
  });
  if(!response.ok)throw Error("Snapshot service unavailable");
  const data=await response.json();return data?verify(data):null;
+}
+async function readV4Card(id,fetcher=fetch){
+ const response=await fetcher(DB+"/rest/v1/rpc/iid_v4_public_share_card",{
+  method:"POST",headers:{"apikey":KEY,"content-type":"application/json"},
+  body:JSON.stringify({p_id:id}),signal:AbortSignal.timeout(5500)
+ });
+ if(!response.ok)throw Error("V4 snapshot service unavailable");
+ const data=await response.json();
+ return data?validateV4Share(data):null;
 }
 const font={
 A:["01110","10001","10001","11111","10001","10001","10001"],
@@ -115,15 +125,16 @@ function chunk(name,payload){
 }
 function fmt(n){return Math.abs(n).toLocaleString("en-US");}
 function signed(n){return (n>0?"+":n<0?"-":"")+fmt(n);}
-export async function makePNG(d){
+export async function makePNG(d,options={}){
  verify(d);
+ const labels=options.labels||SHARE_LABELS;
+ const story=options.story||shareStory(d);
  const p=painter(),{rect,txt,panel,bytes}=p;
  rect(0,0,W,H,C.bg);
  for(let y=8;y<H;y+=14)for(let x=8;x<W;x+=14)rect(x,y,2,2,[21,48,71]);
  panel(15,12,570,48);
  txt("WORLD_001 // CHICKEN EATS THE INTERNET",30,29,2,C.mute);
- txt("WHILE YOU WERE GONE",31,80,2,C.mute);
- const story=shareStory(d);
+ txt(options.eyebrow||"WHILE YOU WERE GONE",31,80,2,C.mute);
  const tint=story.tone==="heal"?C.green:story.tone==="neutral"?C.gold:C.pink;
  txt(story.headline[0],28,116,Math.min(5,Math.floor(345/(6*story.headline[0].length))),C.pink);
  txt(story.headline[1],28,168,Math.min(4,Math.floor(350/(6*story.headline[1].length))),C.white);
@@ -147,24 +158,24 @@ export async function makePNG(d){
  for(let i=0;i<15;i++)rect(384+(i*53)%185,112+(i*61)%164,6+(i%3)*3,3,i%2?C.pink:C.mute);
  txt(story.detail[0],30,289,Math.min(3,Math.floor(350/(6*story.detail[0].length))),tint);
  txt(story.detail[1],30,320,Math.min(3,Math.floor(350/(6*story.detail[1].length))),tint);
- const cards=[[SHARE_LABELS.heal,"+"+fmt(d.heal_hp)+" HP",C.green,18,365],
- [SHARE_LABELS.kill,"-"+fmt(d.kill_hp)+" HP",C.pink,308,365],
- [SHARE_LABELS.decay,"-"+fmt(d.decay_hp)+" HP",C.pink,18,457],
- [SHARE_LABELS.chaos,signed(d.chaos_hp)+" HP",C.gold,308,457]];
+ const cards=[[labels.heal,"+"+fmt(d.heal_hp)+" HP",C.green,18,365],
+ [labels.kill,"-"+fmt(d.kill_hp)+" HP",C.pink,308,365],
+ [labels.decay,"-"+fmt(d.decay_hp)+" HP",C.pink,18,457],
+ [labels.chaos,signed(d.chaos_hp)+" HP",C.gold,308,457]];
  for(const [label,number,color,x,y] of cards){
   panel(x,y,274,81);txt(label,x+12,y+13,Math.min(2,Math.floor(245/(6*label.length))),C.mute);
   txt(number,x+12,y+43,number.length>16?2:3,color);
  }
  panel(18,553,564,155);
- txt(SHARE_LABELS.net,31,570,2,C.mute);
+ txt(labels.net,31,570,2,C.mute);
  txt(signed(d.net_hp)+" HP",31,609,3,d.net_hp<0?C.pink:C.gold);
- txt(SHARE_LABELS.health,323,570,2,C.mute);
+ txt(labels.health,323,570,2,C.mute);
  rect(321,597,249,36,C.border);rect(325,601,241,28,C.bg);
  const lit=Math.round(d.world_hp/50000);
  for(let i=0;i<20;i++)rect(331+i*11,607,8,16,i<lit?C.pink:C.panel);
  txt(healthStage(d.world_hp),323,650,2,C.pink);
  rect(20,723,558,3,C.border);
- txt("SERVER VERIFIED",29,735,1,C.mute);
+ txt(options.footer||"SERVER VERIFIED",29,735,1,C.mute);
  txt("THE INTERNET IS DYING",363,735,1,C.white);
  const compressed=new Uint8Array(await new Response(
   new Blob([bytes]).stream().pipeThrough(new CompressionStream("deflate"))).arrayBuffer());
@@ -177,10 +188,14 @@ export async function makePNG(d){
  for(const part of chunks){out.set(part,offset);offset+=part.length;}
  return out;
 }
-function page(id,d){
- const image=SITE+"/share/"+id+"/image.png",link=SITE+"/share/"+id;
- const title="CHICKEN EATS THE INTERNET — "+worldHeadline(d);
- const desc=SHARE_LABELS.heal+" +"+fmt(d.heal_hp)+" HP | "+SHARE_LABELS.kill+" -"+fmt(d.kill_hp)+" HP | "+healthStage(d.world_hp)+". Will you SAVE it or KILL it?";
+function page(id,d,isV4=false){
+ const prefix=isV4?"/v4/share/":"/share/";
+ const image=SITE+prefix+id+"/image.png",link=SITE+prefix+id;
+ const story=isV4?v4ShareStory(d):shareStory(d);
+ const labels=isV4?V4_SHARE_LABELS:SHARE_LABELS;
+ const title="CHICKEN EATS THE INTERNET — "+story.headline.join(" ");
+ const desc=labels.heal+" +"+fmt(d.heal_hp)+" HP | "+labels.kill+" -"+fmt(d.kill_hp)+
+  " HP | "+healthStage(d.world_hp)+". Will you SAVE it or KILL it?";
  return ['<!doctype html><html lang="en"><head><meta charset="utf-8">',
  '<meta name="viewport" content="width=device-width,initial-scale=1">',
  '<title>',title,'</title><meta name="description" content="',desc,'">',
@@ -205,24 +220,30 @@ export default {
   if(url.pathname==="/api/war-momentum"){
    return serveWarMomentum(request,ctx);
   }
-  const match=url.pathname.match(/^\/share\/([a-f0-9-]{36})(\/image\.png)?\/?$/i);
+  const v4match=url.pathname.match(/^\/v4\/share\/([a-f0-9-]{36})(\/image\.png)?\/?$/i);
+  const legacyMatch=url.pathname.match(/^\/share\/([a-f0-9-]{36})(\/image\.png)?\/?$/i);
+  const match=v4match||legacyMatch,isV4=!!v4match;
   if(!match||!UUID.test(match[1])){
    return env.ASSETS?env.ASSETS.fetch(request):new Response("Not found",{status:404});
   }
   if(request.method!=="GET"&&request.method!=="HEAD")return new Response("Method not allowed",{status:405});
   let d;
-  try{d=await readCard(match[1]);}
+  try{d=isV4?await readV4Card(match[1]):await readCard(match[1]);}
   catch{return new Response("Share currently unavailable",{status:503,headers:{"Cache-Control":"no-store"}});}
   if(!d)return new Response("Unknown share",{status:404});
   const headers={"Cache-Control":"public,max-age=300","X-Content-Type-Options":"nosniff"};
   if(match[2]){
    try{
-    const img=await makePNG(d);
+    const art=isV4?v4ToArtFields(d):d;
+    const img=await makePNG(art,isV4?{
+     labels:V4_SHARE_LABELS,story:v4ShareStory(d),
+     eyebrow:"LAST 24H SETTLED EVENTS",footer:"V4 VERIFIED WORLD HP"
+    }:{});
     return new Response(request.method==="HEAD"?null:img,{
      headers:{...headers,"Content-Type":"image/png","Content-Length":String(img.length)}});
    }catch{return new Response("Image unavailable",{status:503});}
   }
-  return new Response(request.method==="HEAD"?null:page(match[1],d),{
+  return new Response(request.method==="HEAD"?null:page(match[1],d,isV4),{
    headers:{...headers,"Content-Type":"text/html; charset=utf-8",
    "Referrer-Policy":"no-referrer",
    "Content-Security-Policy":"default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'"}});
