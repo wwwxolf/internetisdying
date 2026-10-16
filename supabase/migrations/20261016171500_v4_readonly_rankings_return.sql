@@ -1,5 +1,11 @@
 -- V4-only presentation APIs. Never modify/activate legacy world or V4 epoch.
 -- The ledger distinguishes FACTION POWER (contributions) from APPLIED WORLD HP.
+-- Bound leaderboard and report reads to the currently published epoch.
+create index v4_save_leaders on iid_v4.player_totals(epoch_id,save_power desc,user_id) where save_power>0;
+create index v4_kill_leaders on iid_v4.player_totals(epoch_id,kill_power desc,user_id) where kill_power>0;
+create index v4_verified_personal_best on iid_v4.attempts(epoch_id,user_id,power desc,completed_at,id) where completed_at is not null;
+create index v4_report_settled on iid_v4.events(epoch_id,settled_at) where settled_at is not null;
+create index v4_report_completed on iid_v4.attempts(epoch_id,completed_at) where completed_at is not null;
 create table iid_v4.return_cursors(
   epoch_id uuid not null references iid_v4.epochs(id),
   user_id uuid not null references auth.users(id),
