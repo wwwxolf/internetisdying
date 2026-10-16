@@ -6,6 +6,7 @@
     "binding": "ASSETS",
     "run_worker_first": [
       "/share/*",
+      "/v4/share/*",
       "/api/war-momentum",
       "/api/v4-summary"
     ]
