@@ -224,6 +224,13 @@ assert 'V4_CLOSED' in rpc(f"public.iid_v4_start('{uuid.uuid4()}','HEAL')",fail=T
 sql('update iid_v4.epochs set published=true,admission=false;')
 assert json.loads(sql('select iid_v4.summary()'))['admission'] is False
 assert 'V4_CLOSED' in rpc(f"public.iid_v4_start('{uuid.uuid4()}','HEAL')",fail=True)
+# A newly published epoch may contain due events since UTC midnight.
+# Drain them BEFORE opening admission; this is a mandatory cutover gate.
+while True:
+ pre=json.loads(sql('select iid_v4.scheduler_tick()'))
+ if pre['remaining_due']==0:break
+assert pre['status'] in ('CURRENT','FINAL'),pre
+assert pre['status']=='CURRENT','a finalized epoch must never admit new players'
 sql('update iid_v4.epochs set admission=true;')
 accepted=rpc(f"public.iid_v4_start('{uuid.uuid4()}','HEAL')")
 assert accepted['action']=='HEAL' and accepted['completed_at'] is None
