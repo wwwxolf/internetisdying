@@ -1,3 +1,4 @@
+import {serveV4Summary} from "./v4-summary.js";
 import {shareStory,SHARE_LABELS} from "../public/share-story.js";
 import {serveWarMomentum} from "./war-momentum.js";
 /* Share link OG renderer. Existing static site routes remain unchanged. */
@@ -200,6 +201,7 @@ function page(id,d){
 export default {
  async fetch(request,env,ctx){
   const url=new URL(request.url);
+  if(url.pathname==="/api/v4-summary")return serveV4Summary(request,ctx);
   if(url.pathname==="/api/war-momentum"){
    return serveWarMomentum(request,ctx);
   }
@@ -226,3 +228,4 @@ export default {
    "Content-Security-Policy":"default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'"}});
  }
 };
+

@@ -201,6 +201,15 @@ if(page==="arena"){
   });
   if(demoMode)demo(u.id,p);
   else {
+   // Cached routing snapshot; fail closed if the engine cannot be identified.
+   const engineResponse=await fetch('/api/v4-summary');
+   if(!engineResponse.ok)throw new Error('World sync unavailable. Please retry.');
+   const v4World=await engineResponse.json();
+   if(v4World?.id){
+    const {initV4Battle}=await import('./v4-battle.js?v=1');
+    await initV4Battle({sb});
+    return;
+   }
    const {initGlobalBattle}=await import("./global-battle.js?v=13");
    await initGlobalBattle({sb});
    // Private controls initialize only after verified Google login and profile.
@@ -229,3 +238,4 @@ function demo(id,p){
  });
 }
 })();
+

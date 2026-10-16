@@ -31,5 +31,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test tests/v4/formulas.test.mjs
+      - run: node --test tests/v4/*.test.mjs
       - run: python3 tests/v4/postgres.py
+      - run: npm install --no-audit --no-fund
+      - run: npm test

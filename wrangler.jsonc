@@ -6,8 +6,10 @@
     "binding": "ASSETS",
     "run_worker_first": [
       "/share/*",
-      "/api/war-momentum"
+      "/api/war-momentum",
+      "/api/v4-summary"
     ]
   },
   "main": "./src/share-worker.js"
 }
+

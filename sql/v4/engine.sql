@@ -8,7 +8,7 @@ create table iid_v4.epochs(
  deadline_at timestamptz not null, hp integer not null default 500000 check(hp between 0 and 1000000),
  status text not null default 'ACTIVE' check(status in ('ACTIVE','FINAL')),
  winner text check(winner in ('SAVE','KILL')), ended_at timestamptz,
- admission boolean not null default false, version bigint not null default 0,
+ published boolean not null default false, admission boolean not null default false, version bigint not null default 0,
  parameters text not null default 'V4:12000:4000:10000:24000:3000:9:20:100:105',
  check(starts_at=date_trunc('day',starts_at at time zone 'UTC') at time zone 'UTC'),
  check(deadline_at=starts_at+interval '720 hours'),
@@ -97,7 +97,7 @@ begin
 end $$;
 create function iid_v4.check_open(e iid_v4.epochs,t timestamptz) returns void language plpgsql set search_path='' as $$
 begin
- if not e.admission or e.status<>'ACTIVE' or t<e.starts_at or t>=e.deadline_at then raise exception 'V4_CLOSED';end if;
+ if not e.published or not e.admission or e.status<>'ACTIVE' or t<e.starts_at or t>=e.deadline_at then raise exception 'V4_CLOSED';end if;
  if exists(select 1 from iid_v4.events where epoch_id=e.id and settled_at is null and scheduled_at<=t) then raise exception 'V4_SYNC_PENDING';end if;
 end $$;
 create function iid_v4.add_power(e uuid,k text,n integer,u uuid,s bigint,d bigint)returns void language sql set search_path='' as $$
@@ -168,7 +168,7 @@ create function iid_v4.settle_due()returns integer language plpgsql set search_p
 declare e iid_v4.epochs;g iid_v4.events;s bigint;k bigint;d integer;v_hp integer;n integer:=0;
 begin
  if not pg_try_advisory_xact_lock(484944,4)then return 0;end if;
- select * into e from iid_v4.epochs where status='ACTIVE' and admission for update;
+ select * into e from iid_v4.epochs where status='ACTIVE' and published and admission for update;
  if not found then return 0;end if;
  for g in select * from iid_v4.events where epoch_id=e.id and settled_at is null and scheduled_at<=clock_timestamp() order by scheduled_at,priority limit 16 for update loop
  select coalesce(sum(save_sum),0),coalesce(sum(kill_sum),0)into s,k from iid_v4.buckets where epoch_id=e.id and kind=g.kind and seq=g.seq;
@@ -183,12 +183,12 @@ begin
 end $$;
 create function iid_v4.summary()returns jsonb language sql stable security definer set search_path='' as $$
  select jsonb_build_object('id',id,'hp',hp,'max_hp',1000000,'status',status,'winner',winner,'starts_at',starts_at,'deadline_at',deadline_at,'version',version,'admission',admission)
- from iid_v4.epochs order by starts_at desc limit 1;
+ from iid_v4.epochs where published order by starts_at desc limit 1;
 $$;
 create function iid_v4.bootstrap()returns jsonb language plpgsql security definer set search_path='' as $$
 declare u uuid:=iid_private.require_player();e iid_v4.epochs;t timestamptz:=clock_timestamp();b iid_v4.attempts;v iid_v4.votes;
 begin
- select * into e from iid_v4.epochs order by starts_at desc limit 1;
+ select * into e from iid_v4.epochs where published order by starts_at desc limit 1;
  select * into b from iid_v4.attempts where epoch_id=e.id and user_id=u and seq=floor(extract(epoch from(t-e.starts_at))/14400)::integer+1;
  select * into v from iid_v4.votes where epoch_id=e.id and user_id=u and seq=floor(extract(epoch from(t-e.starts_at))/86400)::integer+1;
  return jsonb_build_object('server_now',t,'world',iid_v4.summary(),'battle',to_jsonb(b),'vote',to_jsonb(v),'sync_pending',exists(select 1 from iid_v4.events where epoch_id=e.id and settled_at is null and scheduled_at<=t));

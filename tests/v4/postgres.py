@@ -33,7 +33,7 @@ def fresh():
  sql('truncate iid_v4.epochs cascade;')
  e=sql("select iid_v4.prepare_epoch(date_trunc('day',clock_timestamp() at time zone 'UTC') at time zone 'UTC');")
  # Move past periods to closed in fixture only; actual scheduler tested separately.
- sql("update iid_v4.epochs set admission=true;update iid_v4.events set settled_at=clock_timestamp() where scheduled_at<=clock_timestamp();")
+ sql("update iid_v4.epochs set published=true,admission=true;update iid_v4.events set settled_at=clock_timestamp() where scheduled_at<=clock_timestamp();")
  return e
 # SQL contract parity: exact expected cases, all powers, signed ties, overflow.
 assert sql('select iid_v4.battle_delta(73500,31500),iid_v4.chaos_delta(10,0),iid_v4.decay_cumulative(2592000)')=='4624|143|510000'
@@ -70,7 +70,7 @@ print('PASS formula parity, 331-event schedule, RLS, ownership, replay, parallel
 # Catch-up and duplicate scheduler, all-empty world. No input changes between runs.
 def abandoned(parallel):
  sql('truncate iid_v4.epochs cascade;')
- sql("select iid_v4.prepare_epoch((date_trunc('day',clock_timestamp() at time zone 'UTC') at time zone 'UTC')-interval '31 days');update iid_v4.epochs set admission=true;")
+ sql("select iid_v4.prepare_epoch((date_trunc('day',clock_timestamp() at time zone 'UTC') at time zone 'UTC')-interval '31 days');update iid_v4.epochs set published=true,admission=true;")
  for _ in range(24):
   if parallel:
    with concurrent.futures.ThreadPoolExecutor(4) as ex:list(ex.map(lambda _:sql('select iid_v4.settle_due()'),range(4)))
@@ -83,3 +83,23 @@ one=abandoned(False);many=abandoned(True);assert one==many
 assert one[0]=='0|FINAL|KILL|2566800',one[0]
 print('PASS chronological catch-up, duplicate scheduler, abandonment, terminal immutability')
 print('NOT COVERED: production load, OAuth browser flow, timed cutoff races, deployment integration')
+# Wait until a real exclusive gate lock is visible, then submit an input which
+# was valid before waiting but is expired when its shared lock is granted.
+for operation in ['finish','vote']:
+ fresh()
+ if operation=='finish':
+  b=rpc(f"public.iid_v4_start('{uuid.uuid4()}','HEAL')")
+  sql(f"update iid_v4.attempts set started_at=clock_timestamp()-interval '13 seconds' where id='{b['id']}'")
+  expr=f"public.iid_v4_finish('{b['id']}',50)";kind='BATTLE';seq=b['seq']
+ else:
+  expr=f"public.iid_v4_vote('{uuid.uuid4()}','HEAL')";kind='CHAOS';seq=int(sql("select floor(extract(epoch from(clock_timestamp()-starts_at))/86400)::integer+1 from iid_v4.epochs"))
+ sql(f"update iid_v4.events set scheduled_at=clock_timestamp()+interval '1 second' where kind='{kind}' and seq={seq}")
+ holder=subprocess.Popen(['psql','-XAt','-v','ON_ERROR_STOP=1','-c',"begin;set application_name='v4_gate_test';select id from iid_v4.epochs for update;select pg_sleep(2);commit;"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+ for _ in range(50):
+  if sql("select count(*) from pg_stat_activity where application_name='v4_gate_test' and wait_event='PgSleep'")=='1':break
+  time.sleep(.02)
+ else:raise AssertionError('gate holder not observed')
+ err=rpc(expr,fail=True);assert 'V4_SYNC_PENDING' in err or 'WINDOW_CLOSED' in err or 'VOTE_CLOSED' in err,err
+ holder.communicate(timeout=5);assert holder.returncode==0
+ assert sql('select count(*) from iid_v4.buckets')=='0'
+print('PASS real lock-wait finish/cutoff and vote/cutoff races; no late contribution')

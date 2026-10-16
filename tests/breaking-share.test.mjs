@@ -40,7 +40,7 @@ test("Share UI has exactly two actions and a per-snapshot OG preview URL",async(
  }
  assert.doesNotMatch(html,/id="share-card-native"|id="share-card-copy"/);
  assert.ok(html.includes("world-return.css?v=4"));
- assert.ok(html.includes('src="./flow.js?v=35"'));
+ assert.ok(html.includes('src="./flow.js?v=36"'));
  assert.ok(flow.includes('import("./world-return.js?v=8")'));
  assert.ok(js.includes('sb.rpc("iid_publish_share_card")'));
  assert.ok(js.includes("renderBreakingCard(snapshot)"));
@@ -75,3 +75,4 @@ test("card rejects missing and misleading inputs rather than fabricating values"
  assert.throws(()=>validateSnapshot({...sample,world_hp:1000001}),/Invalid world health/);
  assert.throws(()=>validateSnapshot({...sample,heal_hp:-1,net_hp:-1}),/Invalid applied impact/);
 });
+
