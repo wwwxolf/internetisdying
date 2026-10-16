@@ -164,7 +164,7 @@ test("scheduled V4 clean launch is atomic, fails closed, resets game profiles bu
  $fn$;`);
  await admin("insert into cron.job values(1,'iid-v2-world-tick',true),(2,'iid-v4-settlement',false);");
  const migration=await readFile("supabase/migrations/20261016210500_v4_scheduled_clean_launch.sql","utf8");
- const fn=migration.match(/create function iid_v4\\.execute_clean_launch\\(\\) returns jsonb[\\s\\S]*?end \\$\\$;/)?.[0];
+ const fn=migration.match(/create function iid_v4\.execute_clean_launch\(\) returns jsonb[\s\S]*?end \$\$;/)?.[0];
  assert.ok(fn,'schedule function extracted from production SQL');
  const injected=fn.replace("t:=clock_timestamp();","t:=ctl.launch_at+interval '1 second';")
   .replace("create function iid_v4.execute_clean_launch","create or replace function iid_v4.execute_clean_launch");
