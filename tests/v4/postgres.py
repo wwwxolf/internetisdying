@@ -27,6 +27,7 @@ file('sql/v4/engine.sql')
 file('supabase/migrations/20261016145800_v4_paused_admission_settlement.sql')
 file('supabase/migrations/20261016171500_v4_readonly_rankings_return.sql')
 file('supabase/migrations/20261016175500_v4_immutable_share_cards.sql')
+file('supabase/migrations/20261016184500_v4_scheduler_core_staged.sql')
 sql(f"insert into auth.users(id)values('{U}'),('{V}');insert into auth.identities values('{U}','google'),('{V}','google');insert into auth.sessions values('{S}','{U}',null),('{V}','{V}',null);insert into public.iid_profiles(user_id,nickname,origin)values('{U}','PlayerOne','HUMAN'),('{V}','PlayerTwo','GLITCH');")
 def rpc(expr,u=U,fail=False):
  claims=json.dumps({'sub':u,'session_id':S if u==U else V,'app_metadata':{'provider':'google'}})
@@ -177,3 +178,55 @@ for operation in ['finish','vote']:
  holder.communicate(timeout=5);assert holder.returncode==0
  assert sql('select count(*) from iid_v4.buckets')=='0'
 print('PASS real lock-wait finish/cutoff and vote/cutoff races; no late contribution')
+
+# Scheduler wrapper: explicit no-epoch idle; no anonymous/browser execution.
+sql('truncate iid_v4.epochs cascade;')
+idle=json.loads(sql('select iid_v4.scheduler_tick()'))
+assert idle=={'status':'IDLE','settled':0,'remaining_due':0},idle
+assert 'permission denied' in sql('set role anon;select iid_v4.scheduler_tick();',True)
+assert 'permission denied' in sql('set role authenticated;select iid_v4.scheduler_tick();',True)
+
+# 12 days of abandoned events: <=64 per tick, deterministic chronological catch-up.
+# Admission remains CLOSED so settlement must not be prevented by maintenance mode.
+sql("select iid_v4.prepare_epoch((date_trunc('day',clock_timestamp() at time zone 'UTC') at time zone 'UTC')-interval '12 days');")
+sql("update iid_v4.epochs set published=true,admission=false,hp=800000;")
+due_before=int(sql("select count(*) from iid_v4.events where settled_at is null and scheduled_at<=clock_timestamp()"))
+assert due_before>64,due_before
+first_tick=json.loads(sql('select iid_v4.scheduler_tick()'))
+assert first_tick['settled']==64 and first_tick['status']=='CATCHING_UP',first_tick
+assert first_tick['remaining_due']==due_before-64,first_tick
+assert sql("select admission::text from iid_v4.epochs")=='false'
+replayed=first_tick['settled']
+while True:
+ nxt=json.loads(sql('select iid_v4.scheduler_tick()'))
+ replayed+=nxt['settled']
+ if nxt['remaining_due']==0:break
+ assert replayed<=331,'unexpected event replay'
+assert replayed==due_before,replayed
+assert nxt['status']=='CURRENT' and int(sql('select version from iid_v4.epochs'))==due_before
+assert json.loads(sql('select iid_v4.scheduler_tick()'))['settled']==0
+assert int(sql('select count(*) from iid_v4.events where settled_at is not null'))==due_before
+assert sql('select hp from public.iid_world where id=1')=='500000'
+print('PASS scheduler max64/tick, idle fail-closed, admission paused, recovery idempotence and V2 HP isolation')
+
+# Disposable cutover rehearsal. V2 is turned off BEFORE V4 publication.
+# This is NOT a production cutover and must not be run in production.
+sql('truncate iid_v4.epochs cascade;')
+sql("update public.iid_world set enabled=true,hp=506000 where id=1;")
+assert sql('select enabled::text from public.iid_world where id=1')=='true'
+assert json.loads(sql('select iid_v4.scheduler_tick()'))['status']=='IDLE'
+sql("update public.iid_world set enabled=false where id=1;")
+assert 'BATTLE_PAUSED' in rpc(f"public.iid_battle_start('{uuid.uuid4()}','HEAL')",fail=True)
+sql("select iid_v4.prepare_epoch(date_trunc('day',clock_timestamp() at time zone 'UTC') at time zone 'UTC');")
+assert sql('select count(*) from iid_v4.events')=='331'
+assert sql('select count(*) from iid_v4.epochs where published')=='0'
+assert 'V4_CLOSED' in rpc(f"public.iid_v4_start('{uuid.uuid4()}','HEAL')",fail=True)
+sql('update iid_v4.epochs set published=true,admission=false;')
+assert json.loads(sql('select iid_v4.summary()'))['admission'] is False
+assert 'V4_CLOSED' in rpc(f"public.iid_v4_start('{uuid.uuid4()}','HEAL')",fail=True)
+sql('update iid_v4.epochs set admission=true;')
+accepted=rpc(f"public.iid_v4_start('{uuid.uuid4()}','HEAL')")
+assert accepted['action']=='HEAL' and accepted['completed_at'] is None
+assert sql('select hp from public.iid_world where id=1')=='506000'
+assert sql('select enabled::text from public.iid_world where id=1')=='false'
+print('PASS isolated V2->V4 cutover rehearsal: old writer paused, epoch prepared privately, V4 admission explicit; V2 HP unchanged')
