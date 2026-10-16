@@ -83,3 +83,18 @@ Do not enable a scheduler or publish an epoch without separate owner authorizati
 - Confirm mobile OAuth, actual V4 battle/vote, personal stats, World Return, Pixel Card PNG and WhatsApp Open Graph in a disposable environment.
 - Define alarm/monitoring for failed `cron.job_run_details`, stale V4 summary version and due-event backlog. The scheduler runner returns backlog status, but alert delivery is not implemented.
 - Only after explicit authorization, enable the existing disabled cron and publish an approved V4 epoch using the cutover phases above.
+
+## Pre-cutover HP protection and diagnostics (2026-10-16)
+
+See [PRODUCTION_READINESS.md](./PRODUCTION_READINESS.md) for the five live PostgreSQL legacy HP writers, the private backup and restore requirements, E2E acceptance tests, and the monitoring/incident checklist.
+
+Two **additive, inert** production migrations were installed and validated:
+
+1. `20261016192500_v4_legacy_world_freeze_guard.sql`: private singleton `iid_v4.cutover_control` defaults to `legacy_frozen=false`; guarded `public.iid_world` UPDATE/DELETE/TRUNCATE rejects all writes if the flag is later armed by a trusted owner **or** a V4 epoch is published. No owner cutover flag was changed during this deployment. It protects HP and world row integrity, **not every V2 battle/vote input path**.
+2. `20261016192600_v4_owner_readiness_status.sql`: an owner-only, read-only `SELECT iid_v4.cutover_readiness()` report of world HP/version, unfinished/overdue V2 battles, V2/V4 cron status and last runs, V4 epoch/backlog count, and cutover freeze status. Returns `production_ready=false` and `cutover_authorized=false` independently of technical checks, because backup/restore, real mobile E2E and human approval are outstanding.
+
+Verified directly in production after installation: two triggers are present on `public.iid_world`, both owner-only functions and the cutover table are inaccessible to browser roles, `legacy_frozen=false`, published V4 epochs=0, V4 job disabled, V2 job active, V2 HP=506000 (world version 3). A V2 cron execution completed successfully at 11:16 UTC; V2 battle pending=0 at inspection.
+
+Disposable PostgreSQL tests cover no-op V2 running state, explicit freeze rejection of UPDATE/DELETE/TRUNCATE, rejection once a V4 epoch is published, and read-only owner diagnostics. Tests cannot replace a production backup, browser E2E or operational cutover approval.
+
+**Hard STOP:** Do not arm `legacy_frozen` until *after* V2 admission is blocked and its accepted events/settlements are drained. Arming it early makes old world writes fail. The current deployment did not arm it and did not modify either engine's HP.
