@@ -282,3 +282,47 @@ assert 'LEGACY_WORLD_FROZEN' in sql('update public.iid_world set hp=503775 where
 assert json.loads(sql('select iid_v4.cutover_readiness()'))['v4']['published_epochs']==1
 assert sql('select hp from public.iid_world where id=1')=='503776'
 print('PASS dormant cutover guard, legacy freeze, published-world HP protection, private readiness status and cron diagnostics')
+
+# Population stress rehearsal: 100 completed verified SAVE + 100 completed
+# verified KILL battles, in one fully disposable transaction. No fake
+# production users or HP mutations; all calls invoke real V4 SQL functions.
+sql('truncate iid_v4.epochs cascade;')
+sql("select iid_v4.prepare_epoch(date_trunc('day',clock_timestamp() at time zone 'UTC') at time zone 'UTC');")
+sql("update iid_v4.epochs set published=true,admission=true;update iid_v4.events set settled_at=clock_timestamp() where scheduled_at<=clock_timestamp();")
+sql(r"""
+do $simulate$
+declare
+ idx integer; uid uuid; sid uuid; req uuid; action text;
+ started jsonb; completed jsonb;
+begin
+ for idx in 1..200 loop
+   uid:=gen_random_uuid();sid:=gen_random_uuid();req:=gen_random_uuid();
+   action:=case when idx<=100 then 'HEAL' else 'KILL' end;
+   insert into auth.users(id) values(uid);
+   insert into auth.identities(user_id,provider) values(uid,'google');
+   insert into auth.sessions(id,user_id,not_after) values(sid,uid,null);
+   insert into public.iid_profiles(user_id,nickname,origin)
+    values(uid,'SIM_'||lpad(idx::text,3,'0'),'HUMAN');
+   perform set_config('request.jwt.claims',jsonb_build_object(
+      'sub',uid,'session_id',sid,'app_metadata',
+      jsonb_build_object('provider','google'))::text,true);
+   started:=iid_v4.start_battle(req,action);
+   update iid_v4.attempts set started_at=clock_timestamp()-interval '13 seconds'
+    where id=(started->>'id')::uuid;
+   completed:=iid_v4.finish_battle((started->>'id')::uuid,50);
+   if completed->>'action' <> action or (completed->>'power')::integer<100 then
+    raise exception 'LOAD_SIMULATION_BAD_FINISH_%',idx;
+   end if;
+ end loop;
+end $simulate$;
+""")
+stats=sql("select count(*),count(*) filter(where action='HEAL'),count(*) filter(where action='KILL') from iid_v4.attempts")
+assert stats=='200|100|100',stats
+assert sql("select count(*) from iid_v4.player_totals")=='200'
+assert sql("select count(*) from iid_v4.attempts where completed_at is null")=='0'
+assert sql("select sum(save_power)>0 and sum(kill_power)>0 from iid_v4.player_totals")=='t'
+assert sql("select hp from iid_v4.epochs")=='500000','power is not applied HP until event settles'
+assert sql("select hp from public.iid_world where id=1")=='503776','legacy HP must be immutable across V4 load simulation'
+assert json.loads(rpc('public.iid_v4_hall_of_fame()'))['save']['top'][0]['score']>=100
+assert len(json.loads(rpc('public.iid_v4_hall_of_fame()'))['legendary'])==3
+print('PASS 100 verified SAVE + 100 verified KILL completed V4 battles; isolated score and HP ledgers')
