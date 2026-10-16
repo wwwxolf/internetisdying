@@ -92,7 +92,7 @@ async function imageOrNull(url) {
 function dateUTC(d){
  return new Date(d).toISOString().replace("T"," ").slice(0,16)+" UTC";
 }
-export async function renderBreakingCard(data){
+export async function renderBreakingCard(data,options={}){
  validateSnapshot(data);
  if(document.fonts?.load) {
   try{await document.fonts.load('32px "Press Start 2P"');}catch{/* system pixel fallback */}
@@ -109,8 +109,9 @@ export async function renderBreakingCard(data){
  frame(ctx,30,28,1020,66,C.bg);
  fitText(ctx,"WORLD_001 // CHICKEN EATS THE INTERNET",55,71,860,23,C.muted,15);
  for(let i=0;i<3;i++)px(ctx,950+i*25,52,17,17,i===2?C.pink:"#2c5276");
- pixelText(ctx,"WHILE YOU WERE GONE...",65,174,24,C.muted);
- const story=shareStory(data);
+ pixelText(ctx,options.eyebrow||"WHILE YOU WERE GONE...",65,174,24,C.muted);
+ const story=options.story||shareStory(data);
+ const labels=options.labels||SHARE_LABELS;
  const accent=story.tone==="heal"?C.green:story.tone==="neutral"?C.gold:C.pink;
  fitText(ctx,story.headline[0],62,280,635,59,C.pink,24);
  fitText(ctx,story.headline[1],62,359,635,53,C.white,24);
@@ -128,22 +129,22 @@ export async function renderBreakingCard(data){
  pixelText(ctx,"SERVER SNAPSHOT",62,619,17,C.gold);
  pixelText(ctx,dateUTC(data.snapshot_at),350,619,17,C.muted);
 
- stat(ctx,35,660,497,158,SHARE_LABELS.heal,"+"+fmt(data.heal_hp)+" HP",C.green,"save");
- stat(ctx,548,660,497,158,SHARE_LABELS.kill,"-"+fmt(data.kill_hp)+" HP",C.pink,"kill");
- stat(ctx,35,838,497,158,SHARE_LABELS.decay,"-"+fmt(data.decay_hp)+" HP",C.pink,"decay");
- stat(ctx,548,838,497,158,SHARE_LABELS.chaos,sign(data.chaos_hp),C.gold,"chaos");
+ stat(ctx,35,660,497,158,labels.heal,"+"+fmt(data.heal_hp)+" HP",C.green,"save");
+ stat(ctx,548,660,497,158,labels.kill,"-"+fmt(data.kill_hp)+" HP",C.pink,"kill");
+ stat(ctx,35,838,497,158,labels.decay,"-"+fmt(data.decay_hp)+" HP",C.pink,"decay");
+ stat(ctx,548,838,497,158,labels.chaos,sign(data.chaos_hp),C.gold,"chaos");
 
  frame(ctx,35,1017,1010,229,C.panel2);
- fitText(ctx,SHARE_LABELS.net,62,1070,460,22,C.muted,15);
+ fitText(ctx,labels.net,62,1070,460,22,C.muted,15);
  const netColor=data.net_hp>0?C.green:data.net_hp<0?C.pink:C.gold;
  fitText(ctx,sign(data.net_hp,true),62,1168,480,48,netColor,22);
  px(ctx,546,1041,5,178,C.border);
- fitText(ctx,SHARE_LABELS.health,576,1070,440,22,C.muted,15);
+ fitText(ctx,labels.health,576,1070,440,22,C.muted,15);
  healthBar(ctx,Number(data.world_hp),575,1095,443,55);
  pixelText(ctx,"● "+worldStage(data.world_hp),578,1195,24,C.pink);
 
  px(ctx,35,1280,1010,5,C.border);
- pixelText(ctx,"SERVER VERIFIED // SNAPSHOT",43,1321,16,C.muted);
+ pixelText(ctx,options.footer||"SERVER VERIFIED // SNAPSHOT",43,1321,16,C.muted);
  pixelText(ctx,"THE INTERNET IS DYING_",1030,1321,16,C.white,"right");
  return new Promise((resolve,reject)=>{
   canvas.toBlob(blob=>blob?resolve(blob):reject(Error("PNG generation failed")),"image/png");
