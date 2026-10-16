@@ -1,3 +1,4 @@
+import {initV4ShareUI} from "./v4-share-ui.js";
 /* V4 return report is independent from legacy V2 reporting and sharing.
    Display verified settled HP, never equate faction power to applied world HP. */
 export function v4ReturnHeadline(data){
@@ -19,9 +20,8 @@ export async function initV4WorldReturn({sb,nickname}){
  const root=$('world-return');
  if(!root)return;
  root.hidden=false;
- $('world-return-share').disabled=true;
- $('world-return-share').textContent='V4 PIXEL CARD • COMING SOON';
- $('world-return-share').title='V4 snapshot sharing is not available yet; legacy V2 cards cannot be used.';
+ // V4 has its own immutable share publisher; never reuse iid_publish_share_card (V2).
+ initV4ShareUI({sb});
  const statLabel=(cls,label)=>{
   const el=root.querySelector('.world-return-stat.'+cls+' span');
   if(el)el.textContent=label;
