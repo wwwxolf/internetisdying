@@ -23,7 +23,7 @@ After that decision, in a separately reviewed maintenance operation:
 5. Register scheduler calls as owner at UTC 0,4,5,8,11,12,16,17,20,23 plus a 15-minute recovery heartbeat. iid_v4.settle_due() handles at most 16 events per transaction with a nonblocking advisory lock. A runner can invoke it at most four times in separate transactions. No scheduler is installed by staging SQL.
 6. Verify public summary, version and cron jobs read-only. Do not create test battles/votes/accounts in production.
 
-A complete cutover automation and V4-specific share-card publisher are not implemented. V4 leaderboard, personal statistics, and return-digest presentation are now staged separately and never call legacy V2 APIs; do not activate until end-to-end account testing, V4 share cards, scheduled settlement, and transition controls are complete.
+A complete cutover automation is not implemented. V4 leaderboard, personal statistics, return digest, and immutable V4 share cards are staged separately from V2. Do not activate until end-to-end account testing, automated settlement, and transition controls are complete.
 
 ## Verification
 
@@ -61,7 +61,7 @@ Security advisors report informational RLS-without-policy entries for private V4
 - `iid_v4_hall_of_fame()`: verified authenticated player only; current published epoch only. Top 10 per faction by **FACTION POWER**, personal faction totals and number of verified battles, and global Legendary Top 3 (one highest settled personal power per player). Ties deterministic. Player UUID and auth details are not returned.
 - `iid_v4_return_report()`: verified authenticated player only; first visit covers epoch history, subsequent visits cover the range since the player's previous authenticated report open, tracked through a private per-epoch cursor. The report distinguishes **SAVE/KILL FACTION POWER** from **WORLD HP** actually applied when battle, chaos and decay events settled. Reported net HP sums only actual settled ledger impacts, not raw power or provisional influence. Cursor tables are private: direct anon/authenticated table SELECT is revoked and RLS remains enabled.
 - The existing Hall of Fame presentation renders V4 rankings only on the V4 route; the existing V2 implementation remains unchanged. V4 World Return has a standalone presenter; legacy World Return and `iid_publish_share_card` are not used on the V4 route.
-- **V4 Pixel Card is deliberately disabled.** The legacy immutable pixel share service reads V2 world history; connecting it to a V4 report would fabricate or misattribute effects. V4-specific immutable sharing and WhatsApp Open Graph generation are still a blocking pre-activation product task.
+- **V4 Pixel Card is now implemented as an isolated, staged feature.** It publishes an authenticated, immutable snapshot of the last 24 hours of **settled World HP** with V4-specific labels and deterministic copy; the anonymous OG image is served at `/v4/share/:id/image.png`, never at the V2 share URL. It stays dormant until a V4 epoch exists. A real mobile V4 end-to-end share test remains necessary before activation.
 - PostgreSQL 17 CI covers authenticated/anonymous permissions, leaderboard ranking, single-best-battle Legendary records, two-player isolation, no UUID leaks, first-visit cursor, subsequent delta reports, actual applied HP, and replay prevention. Browser OAuth end-to-end and production throughput have not been validated.
 
 ### Read-only preactivation audit, after staging
@@ -75,7 +75,7 @@ Security advisors report informational RLS-without-policy entries for private V4
 ### Pre-activation cutover checklist — not authorization to cut over
 
 1. Decide and announce a final V2 world cutoff and new V4 UTC-midnight start. The transition is globally consequential, so owner approval is mandatory.
-2. Complete V4 share cards, verify V4 personal/legendary display from a realistic synthetic dataset, and validate actual mobile OAuth login, return digest and V4 battle/vote end-to-end in a non-production environment.
+2. Verify V4 share cards and V4 personal/legendary display from realistic synthetic datasets; validate actual mobile OAuth login, return digest, share/WhatsApp preview, and V4 battle/vote end-to-end in a non-production environment.
 3. Verify no pending legacy battles or due V2 settlements remain before shutting the legacy mutation paths. Take a complete restorable database backup including relevant Auth records; the earlier table snapshots are not a sufficient restoration point.
 4. In a single reviewed runbook, gate **all** legacy entry points, disable `iid-v2-world-tick`, and verify there are no live legacy writers. Merely changing `v2_enabled` switches back toward V1 and is not an effective safety gate.
 5. Prepare an isolated new V4 epoch at an approved UTC midnight; inspect its 331 events and all grants before publishing. Keep `admission=false` while preparing. Publishing is the routing switch; a published but admission-paused epoch must **not** route players back to V2.
@@ -83,3 +83,14 @@ Security advisors report informational RLS-without-policy entries for private V4
 7. Perform explicit go/no-go checks and record rollback conditions before opening new V4 input. Preserve both era ledgers and all player histories.
 
 Until all gates pass, V2 remains authoritative and V4 remains inactive.
+
+## Immutable V4 Pixel Card (2026-10-16, staged, deployed)
+
+- Additive migration `20261016175500_v4_immutable_share_cards.sql` installed in Supabase (`v4_immutable_share_cards` recorded). No V4 epoch created; no legacy HP mutation, V2 flag change or new cron.
+- `iid_v4_publish_share_card()` requires a verified authenticated Google player, an already published V4 epoch, and maximum 30 new cards per user per hour. Each call takes a **fresh** frozen snapshot and stores it in the private `iid_v4.share_cards` table with RLS and no browser table grants. It never uses `iid_return_digest`, `iid_share_snapshot` or `iid_publish_share_card`.
+- Snapshot window is explicitly `LAST_24H` (clamped to epoch start). The summary includes settled V4 battle-window impact: positive applied World HP as **NET BATTLE REPAIRS**, negative as **NET BATTLE DAMAGE**; it does not pretend individual faction power is World HP. Decay, chaos, net change and world health also use actual applied settlement values. Unsettled battles/votes are excluded.
+- Open Graph and PNG live at `/v4/share/<uuid>` and `/v4/share/<uuid>/image.png`, separate from existing V2 `/share/<uuid>` links. Both use the shared `v4ShareStory` rules; exported PNG is 1080×1350 and OG thumbnail 600×750. URLs show **no player identity**. Previously published snapshots are not recalculated when live HP changes.
+- The V4 World Return panel now enables **CREATE V4 PIXEL SHARE CARD**, preview, **SAVE PNG** and **SHARE TO WHATSAPP**. No AI runtime, random text, or legacy fallback.
+- Local PostgreSQL concurrency/auth tests include snapshot immutability after world changes, anonymous read only by share ID, private-table denial, cross-version isolation and exact applied-HP arithmetic. JavaScript regression covers verified story, 24h period, PNG headers, OG metadata, and V2 routes.
+- Production verification after migration: `iid_v4.epochs=0`, `iid_v4.share_cards=0`, `iid_v4.summary()=null`; existing V2 still enabled and cron `iid-v2-world-tick` still running. The V4 UI/share path **cannot yet be exercised with real player data** until the separate owner-approved epoch cutover. Synthetic test evidence must not be described as a successful production V4 share.
+- Security linter reports private V4 tables with RLS but no policies as an informational deny-by-default condition. See [Supabase RLS advisory](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy).
