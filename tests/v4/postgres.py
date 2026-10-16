@@ -23,6 +23,7 @@ grant usage on schema auth to anon,authenticated;''')
 file('supabase/migrations/20261014003346_create_iid_profiles_with_rls.sql')
 file('supabase/migrations/20261014033444_global_battle_engine.sql')
 file('sql/v4/engine.sql')
+file('supabase/migrations/20261016145800_v4_paused_admission_settlement.sql')
 sql(f"insert into auth.users(id)values('{U}'),('{V}');insert into auth.identities values('{U}','google'),('{V}','google');insert into auth.sessions values('{S}','{U}',null),('{V}','{V}',null);insert into public.iid_profiles(user_id,nickname,origin)values('{U}','PlayerOne','HUMAN'),('{V}','PlayerTwo','GLITCH');")
 def rpc(expr,u=U,fail=False):
  claims=json.dumps({'sub':u,'session_id':S if u==U else V,'app_metadata':{'provider':'google'}})
@@ -67,6 +68,16 @@ assert all(v==vs[0] for v in vs)
 assert sql("select sum(save_sum) from iid_v4.buckets where kind='CHAOS'")=='1'
 assert 'REQUEST_CONFLICT' in rpc(f"public.iid_v4_vote('{key}','KILL')",fail=True)
 print('PASS formula parity, 331-event schedule, RLS, ownership, replay, parallel duplicate finish/vote')
+# Admission pauses new input but MUST NOT stop settlement of already scheduled
+# events. This test uses a disposable epoch and never touches production.
+sql('truncate iid_v4.epochs cascade;')
+sql("select iid_v4.prepare_epoch((date_trunc('day',clock_timestamp() at time zone 'UTC') at time zone 'UTC')-interval '1 day');update iid_v4.epochs set published=true,admission=false;")
+assert sql('select iid_v4.settle_due()')!='0', 'paused epoch must drain due events'
+assert int(sql('select version from iid_v4.epochs'))>0, 'settled event must update epoch version'
+assert 'V4_CLOSED' in rpc(f"public.iid_v4_start('{uuid.uuid4()}','HEAL')",fail=True)
+assert 'V4_CLOSED' in rpc(f"public.iid_v4_vote('{uuid.uuid4()}','KILL')",fail=True)
+print('PASS admission=false disables inputs while preserving chronological event recovery')
+
 # Catch-up and duplicate scheduler, all-empty world. No input changes between runs.
 def abandoned(parallel):
  sql('truncate iid_v4.epochs cascade;')
