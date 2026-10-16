@@ -40,7 +40,7 @@ test("Share UI has exactly two actions and a per-snapshot OG preview URL",async(
  }
  assert.doesNotMatch(html,/id="share-card-native"|id="share-card-copy"/);
  assert.ok(html.includes("world-return.css?v=4"));
- assert.ok(html.includes('src="./flow.js?v=37"'));
+ assert.ok(html.includes('src="./flow.js?v=38"'));
  assert.ok(flow.includes('import("./world-return.js?v=8")'));
  assert.ok(js.includes('sb.rpc("iid_publish_share_card")'));
  assert.ok(js.includes("renderBreakingCard(snapshot)"));
