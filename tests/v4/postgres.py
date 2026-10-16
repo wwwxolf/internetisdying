@@ -24,6 +24,7 @@ file('supabase/migrations/20261014003346_create_iid_profiles_with_rls.sql')
 file('supabase/migrations/20261014033444_global_battle_engine.sql')
 file('sql/v4/engine.sql')
 file('supabase/migrations/20261016145800_v4_paused_admission_settlement.sql')
+file('supabase/migrations/20261016171500_v4_readonly_rankings_return.sql')
 sql(f"insert into auth.users(id)values('{U}'),('{V}');insert into auth.identities values('{U}','google'),('{V}','google');insert into auth.sessions values('{S}','{U}',null),('{V}','{V}',null);insert into public.iid_profiles(user_id,nickname,origin)values('{U}','PlayerOne','HUMAN'),('{V}','PlayerTwo','GLITCH');")
 def rpc(expr,u=U,fail=False):
  claims=json.dumps({'sub':u,'session_id':S if u==U else V,'app_metadata':{'provider':'google'}})
@@ -68,6 +69,37 @@ assert all(v==vs[0] for v in vs)
 assert sql("select sum(save_sum) from iid_v4.buckets where kind='CHAOS'")=='1'
 assert 'REQUEST_CONFLICT' in rpc(f"public.iid_v4_vote('{key}','KILL')",fail=True)
 print('PASS formula parity, 331-event schedule, RLS, ownership, replay, parallel duplicate finish/vote')
+# Read-only V4 leaderboard is authenticated, rank ordered, scoped to epoch,
+# and never exposes auth UUIDs or repackages faction power as settled World HP.
+assert 'permission denied' in sql('set role anon;select public.iid_v4_hall_of_fame();',True)
+assert 'permission denied' in sql('set role anon;select public.iid_v4_return_report();',True)
+assert 'permission denied' in sql('set role authenticated;select * from iid_v4.return_cursors;',True)
+hof=rpc("public.iid_v4_hall_of_fame()")
+assert hof['engine_version']==4 and hof['score_unit']=='FACTION POWER'
+assert hof['personal']=={'battles':1,'save_power':rs[0]['power'],'kill_power':0},hof['personal']
+assert hof['save']['top'][0]['nickname']=='PlayerOne',hof['save']
+assert hof['save']['top'][0]['rank']==1
+assert hof['kill']['top'][0]['nickname']=='PlayerTwo'
+assert len(hof['legendary'])==2 and hof['legendary'][0]['power']>=hof['legendary'][1]['power']
+assert hof['legendary'][0]['is_you'] is True
+assert '"user_id"' not in json.dumps(hof) and U not in json.dumps(hof)
+other=rpc("public.iid_v4_hall_of_fame()",u=V)
+assert other['save']['self']['qualified'] is False
+assert other['kill']['self']['rank']==1
+first=rpc("public.iid_v4_return_report()")
+assert first['source']=='V4_SETTLED_LEDGER' and first['first_visit'] is True
+assert first['save_power']==rs[0]['power'] and first['kill_power']==r2['power']
+second=rpc("public.iid_v4_return_report()")
+assert second['first_visit'] is False and second['save_power']==0 and second['kill_power']==0
+sql("update iid_v4.events set settled_at=clock_timestamp(),applied=-27 where kind='DECAY' and seq=1;update iid_v4.epochs set hp=499973;")
+third=rpc("public.iid_v4_return_report()")
+assert third['net_hp']==-27 and third['decay_hp']==27 and third['chaos_hp']==0,third
+assert third['world_hp']==499973 and third['decay_pulses']==1
+assert third['save_power']==0 and third['kill_power']==0
+assert rpc("public.iid_v4_return_report()")['net_hp']==0
+assert sql("select visits from iid_v4.return_cursors where user_id='"+U+"'")=='4'
+print('PASS V4 authenticated top10, Legendary Top3, personal stats, private cursors and world HP accounting')
+
 # Admission pauses new input but MUST NOT stop settlement of already scheduled
 # events. This test uses a disposable epoch and never touches production.
 sql('truncate iid_v4.epochs cascade;')
