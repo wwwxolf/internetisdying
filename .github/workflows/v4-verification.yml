@@ -8,6 +8,9 @@ on:
       - 'sql/v4/**'
       - 'tests/v4/**'
       - 'supabase/migrations/*v4*'
+      - 'package.json'
+      - 'tests/battle.test.mjs'
+      - 'tests/developer-reset.test.mjs'
       - '.github/workflows/v4-verification.yml'
   workflow_dispatch:
 permissions:
