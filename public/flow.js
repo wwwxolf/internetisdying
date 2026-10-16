@@ -212,7 +212,7 @@ if(page==="arena"){
     void import("./hall-of-fame.js?v=5")
       .then(({initHallOfFame})=>initHallOfFame({sb,rpcName:"iid_v4_hall_of_fame"}))
       .catch(e=>console.warn("V4 HALL OF FAME UNAVAILABLE",e));
-    void import("./v4-world-return.js?v=1")
+    void import("./v4-world-return.js?v=2")
       .then(({initV4WorldReturn})=>initV4WorldReturn({sb,nickname:p.nickname}))
       .catch(e=>console.warn("V4 WORLD RETURN UNAVAILABLE",e));
     return;
