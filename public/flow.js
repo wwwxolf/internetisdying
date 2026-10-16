@@ -206,8 +206,15 @@ if(page==="arena"){
    if(!engineResponse.ok)throw new Error('World sync unavailable. Please retry.');
    const v4World=await engineResponse.json();
    if(v4World?.id){
-    const {initV4Battle}=await import('./v4-battle.js?v=1');
+    const {initV4Battle}=await import('./v4-battle.js?v=2');
     await initV4Battle({sb});
+    // V4 exclusively reads its own verified ledgers; never mix in V2 statistics.
+    void import("./hall-of-fame.js?v=5")
+      .then(({initHallOfFame})=>initHallOfFame({sb,rpcName:"iid_v4_hall_of_fame"}))
+      .catch(e=>console.warn("V4 HALL OF FAME UNAVAILABLE",e));
+    void import("./v4-world-return.js?v=1")
+      .then(({initV4WorldReturn})=>initV4WorldReturn({sb,nickname:p.nickname}))
+      .catch(e=>console.warn("V4 WORLD RETURN UNAVAILABLE",e));
     return;
    }
    const {initGlobalBattle}=await import("./global-battle.js?v=13");
