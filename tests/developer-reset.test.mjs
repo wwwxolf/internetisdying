@@ -117,4 +117,42 @@ test("Arena contains hidden developer controls and does not reveal authorization
  assert.match(module,/iid_developer_reset/);
  assert.doesNotMatch(html,/dd9a984e/);
 });
+test("V4 cutover freeze blocks stale V1/V2 inputs but lets accepted battles drain without erasing identities",async()=>{
+ // Disposable PGlite fixture with REAL production migrations; never touch Supabase.
+ await role();
+ await reset();
+ await admin("update public.iid_world set hp=504100,version=5,enabled=true;update public.iid_economy_control set v2_enabled=true");
+ const first=(await db.query("select public.iid_battle_start(gen_random_uuid(),'HEAL') j")).rows[0].j;
+ assert.equal(first.engine_version,2);
+ const control=await readAdmin("select legacy_admission_open,legacy_admission_paused_at from iid_v4.cutover_control where id=1");
+ assert.deepEqual(control,{legacy_admission_open:true,legacy_admission_paused_at:null});
+ await admin("update iid_v4.cutover_control set legacy_admission_open=false,legacy_admission_paused_at=clock_timestamp() where id=1");
+ assert.equal((await readAdmin("select legacy_admission_open from iid_v4.cutover_control")).legacy_admission_open,false);
+ // Same accepted session may complete, including a reconnect from a stale tab.
+ await admin(`update public.iid_battles set created_at=clock_timestamp()-interval '13 seconds',
+   starts_at=clock_timestamp()-interval '11 seconds',
+   ends_at=clock_timestamp()-interval '1 second',counted_taps=50 where id='${first.id}'`);
+ const settled=(await db.query("select public.iid_battle_settle($1::uuid) j",[first.id])).rows[0].j;
+ assert.equal(settled.engine_version,2);
+ assert.equal(settled.counted_taps,50);
+ assert.ok(settled.settled_at);
+ const repeated=(await db.query("select public.iid_battle_start($1::uuid,'HEAL') j",[first.request_id])).rows[0].j;
+ assert.equal(repeated.id,first.id,'old accepted idempotency remains read-safe');
+ // A direct row insert models a late browser/API attempting a new legacy start,
+ // bypassing any UI/JS/old RPC selection logic: the DB must still reject it.
+ await assert.rejects(admin(`insert into public.iid_battles(user_id,request_id,nickname,action,engine_version,created_at,starts_at,ends_at)
+   values('${U}',gen_random_uuid(),'OLF','KILL',2,clock_timestamp(),clock_timestamp()+interval '2 seconds',clock_timestamp()+interval '12 seconds')`),/LEGACY_ADMISSION_CLOSED/);
+ await assert.rejects(admin(`insert into public.iid_chaos_votes(day_utc,user_id,choice)
+  values((clock_timestamp() at time zone 'UTC')::date,'${U}','damage')`),/LEGACY_ADMISSION_CLOSED/);
+ // All archived ledgers are protected from developer reset and direct deletion.
+ await assert.rejects(reset(),/LEGACY_HISTORY_PROTECTED/);
+ await assert.rejects(admin("delete from public.iid_battles"),/LEGACY_HISTORY_PROTECTED/);
+ await assert.rejects(admin("truncate public.iid_share_cards"),/LEGACY_HISTORY_PROTECTED/);
+ assert.equal((await readAdmin("select count(*)::int n from auth.users")).n,1);
+ assert.equal((await readAdmin("select count(*)::int n from public.iid_profiles")).n,1);
+ assert.equal((await readAdmin("select count(*)::int n from public.iid_battles")).n,1);
+ assert.equal((await readAdmin("select hp from public.iid_world where id=1")).hp,504100);
+ // Only simulation reopens; production code never changes admission state.
+ await admin("update iid_v4.cutover_control set legacy_admission_open=true,legacy_admission_paused_at=null where id=1");
+});
 after(()=>db.close());
