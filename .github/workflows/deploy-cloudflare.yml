@@ -24,7 +24,9 @@ jobs:
       - name: Install test dependencies
         run: npm install --no-audit --no-fund
       - name: Test all application code and SQL migrations
-        run: npm test
+        run: |
+          npm test
+          node --test tests/v4/*.test.mjs
 
   deploy:
     name: Deploy existing Cloudflare Worker
@@ -116,5 +118,9 @@ jobs:
           grep -q 'INTERNET REPAIRED' /tmp/iid-share-story.js
           grep -q 'CHICKEN DAMAGE' /tmp/iid-share-story.js
           grep -q 'CHAOS BURST' /tmp/iid-share-story.js
-          echo "Verified deployed Arena, landing prologue, Hall of Fame and V2 assets."
+          curl -fsSL --max-time 15 "$ROOT/api/v4-summary" -o /tmp/iid-v4-summary.json
+          python3 -c 'import json; d=json.load(open("/tmp/iid-v4-summary.json")); assert d is None or (0 <= d["hp"] <= 1000000 and d["status"] in ("ACTIVE","FINAL"))'
+          curl -fsSL --max-time 15 "$ROOT/v4-battle.js?v=1" -o /tmp/iid-v4-battle.js
+          grep -q 'iid_v4_' /tmp/iid-v4-battle.js
+          echo "Verified deployed Arena, legacy assets and staged V4 routing."
 

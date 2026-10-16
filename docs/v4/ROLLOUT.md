@@ -37,3 +37,13 @@ A complete cutover automation and V4 leaderboard/return-digest presentation are 
 Before activation: revert the frontend commit to the previous deploy. The additive empty schema may remain installed; do not delete it as an automatic rollback. Remove inactive V4 routing only after confirming no published epoch exists.
 
 After activation: pause admission, preserve all V4 ledgers and investigate. Never reset/delete epochs or send V4 state through V2 formulas. A repair must respect already finalized results.
+
+## Staging deployment evidence (2026-10-16)
+
+Migration applied: 20261016065704_power_balance_v4_staged. SQL content matches the CLI-generated migration tested in CI (CLI original version 20261016065200; committed version matches Supabase history). After installation: epochs=0, public summary=null, legacy enabled=true and HP=506000. No cron added.
+
+GitHub Actions run 38863582097 passed 7 focused Node tests, PostgreSQL transaction/cutoff tests and 126 existing regression tests with the additive migration loaded. Real browser OAuth and production load remain unverified.
+
+A consistent read snapshot of all 16 public game tables was saved outside the repository before migration. It does not include Supabase Auth or a complete PostgreSQL backup. No existing schema/data was overwritten.
+
+Security advisors report informational RLS-without-policy entries for private V4 tables: deliberate deny-by-default with checked RPC access. Existing public V1/V2 definer-function warnings remain outside this change. See [RLS advisor explanation](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy).
