@@ -34,4 +34,10 @@ jobs:
       - run: node --test tests/v4/*.test.mjs
       - run: python3 tests/v4/postgres.py
       - run: npm install --no-audit --no-fund
+      - name: Generate and validate additive migration
+        run: |
+          npx supabase migration new power_balance_v4_staged
+          target=$(find supabase/migrations -name '*_power_balance_v4_staged.sql')
+          cp sql/v4/engine.sql "$target"
+          echo "V4_MIGRATION=$target"
       - run: npm test

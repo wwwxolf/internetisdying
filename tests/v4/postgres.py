@@ -82,7 +82,7 @@ def abandoned(parallel):
 one=abandoned(False);many=abandoned(True);assert one==many
 assert one[0]=='0|FINAL|KILL|2566800',one[0]
 print('PASS chronological catch-up, duplicate scheduler, abandonment, terminal immutability')
-print('NOT COVERED: production load, OAuth browser flow, timed cutoff races, deployment integration')
+print('NOT COVERED: production load, OAuth browser flow, deployment integration')
 # Wait until a real exclusive gate lock is visible, then submit an input which
 # was valid before waiting but is expired when its shared lock is granted.
 for operation in ['finish','vote']:

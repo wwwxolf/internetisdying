@@ -47,9 +47,10 @@ test("Arena shows UTC exactly once in battle windows heading, never in tiles",as
  assert.match(section,/BATTLE WINDOWS_ <span class="battle-timezone">UTC<\/span>/);
  assert.ok(!section.includes("WIB"));
  assert.match(html,/arena\.css\?v=12/);
- assert.match(html,/flow\.js\?v=35/);
+ assert.match(html,/flow\.js\?v=36/);
  assert.match(ui,/evaluateWindows\(state,now\(\)\)/);
  assert.match(ui,/SLOT USED.*NEXT WINDOW IN/);
  assert.doesNotMatch(ui,/\/6 IN LAST 24H|rolling_count.*\/6|WIB/);
  assert.match(css,/grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/);
 });
+
