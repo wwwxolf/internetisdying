@@ -88,3 +88,29 @@ test("Arena wires isolated Hall of Fame without changing game engine imports",as
  const hof=await readFile("public/hall-of-fame.js","utf8");
  assert.match(hof,/document\.addEventListener\("iid:battle-settled",onBattleSettled\)/);
 });
+
+test("V4 leaderboard shows faction power, per-epoch stats and independent Legendary records",async()=>{
+ const f=fixture();
+ try{
+  const me={rank:1,nickname:"PlayerOne",country_code:"IDN",custom_flag:null,
+   score:210,qualified:true,in_top10:true,is_you:true};
+  const unranked={...me,rank:null,score:0,qualified:false,in_top10:false};
+  const data={engine_version:4,score_unit:"FACTION POWER",
+   ends_at:"2026-11-16T00:00:00Z",
+   save:{total_score:210,top:[me],self:me},
+   kill:{total_score:0,top:[],self:unranked},
+   personal:{battles:2,save_power:210,kill_power:0},
+   legendary:[{nickname:"PlayerOne",country_code:"IDN",custom_flag:null,
+     power:110,action:"HEAL",is_you:true}]};
+  await initHallOfFame({sb:{rpc:async name=>{assert.equal(name,"iid_v4_hall_of_fame");return {data};}},
+   rpcName:"iid_v4_hall_of_fame"});
+  assert.equal(f.nodes.get("hof-save-list").children[0].children[3].textContent,"+210 FACTION POWER");
+  assert.equal(f.nodes.get("hof-save-total").textContent,"TOTAL SAVE +210 FACTION POWER");
+  assert.equal(f.nodes.get("hof-kill-total").textContent,"TOTAL KILL −0 FACTION POWER");
+  assert.match(f.nodes.get("hof-scoring").textContent,/V4 • 30-DAY EPOCH/);
+  assert.match(f.nodes.get("hof-cycle-note").textContent,/WORLD ENDS/);
+  assert.match(f.nodes.get("monthly-summary").textContent,/VERIFIED BATTLES 2/);
+  assert.match(f.nodes.get("monthly-summary").textContent,/WORLD HP IS SETTLED SEPARATELY/);
+  assert.equal(f.nodes.get("hof-legendary-list").children.length,3);
+ }finally{f.reset();}
+});
