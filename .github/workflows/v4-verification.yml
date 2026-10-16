@@ -1,7 +1,15 @@
 name: V4 isolated verification
 on:
   push:
-    branches: [v4-implementation]
+    branches: [main, v4-implementation]
+    paths:
+      - 'public/v4-battle.js'
+      - 'src/v4/**'
+      - 'sql/v4/**'
+      - 'tests/v4/**'
+      - 'supabase/migrations/*v4*'
+      - '.github/workflows/v4-verification.yml'
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -33,6 +41,7 @@ jobs:
           node-version: '22'
       - run: node --test tests/v4/*.test.mjs
       - run: python3 tests/v4/postgres.py
+        # Includes post-staging pause-safe scheduler SQL in disposable PostgreSQL.
       - run: npm install --no-audit --no-fund
       - name: Verify committed migration matches tested SQL
         run: cmp sql/v4/engine.sql supabase/migrations/20261016065704_power_balance_v4_staged.sql
