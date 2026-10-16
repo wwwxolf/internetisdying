@@ -18,7 +18,7 @@ await db.exec(`create role anon;create role authenticated;create schema auth;
  insert into auth.identities values('${U}','google');
  insert into auth.sessions values('${S}','${U}',null);
 `);
-for(const f of (await readdir("supabase/migrations")).filter(x=>x.endsWith(".sql")&&!x.includes("_game_economy_v2_scheduler_staged.sql")).sort()){
+for(const f of (await readdir("supabase/migrations")).filter(x=>x.endsWith(".sql")&&!x.includes("_game_economy_v2_scheduler_staged.sql")&&!x.includes("_v4_cron_registered_disabled.sql")).sort()){
  await db.exec(await readFile("supabase/migrations/"+f,"utf8"));
 }
 await db.query("insert into public.iid_profiles(user_id,nickname,origin,country_code,custom_flag) values($1,'OLF','BOT','IDN',null)",[U]);
