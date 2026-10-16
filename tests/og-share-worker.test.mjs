@@ -11,7 +11,7 @@ const snapshot={source:"SERVER_LEDGER",snapshot_at:"2026-10-14T09:50:00Z",from:"
 test("Cloudflare routes OG shares and public momentum through worker; all other assets stay static",async()=>{
  const json=JSON.parse(await readFile("wrangler.jsonc","utf8"));
  assert.equal(json.main,"./src/share-worker.js");
- assert.deepEqual(json.assets.run_worker_first,["/share/*","/api/war-momentum","/api/v4-summary"]);
+ assert.deepEqual(json.assets.run_worker_first,["/share/*","/v4/share/*","/api/war-momentum","/api/v4-summary"]);
  assert.equal(json.assets.binding,"ASSETS");
  assert.equal(json.assets.directory,"./public");
  const assets={ASSETS:{fetch:async()=>new Response("Static asset preserved",{status:200})}};
