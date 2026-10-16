@@ -1,15 +1,21 @@
-const DB='https://wywrahaqpocueddxmjjq.supabase.co';
-const KEY='sb_publishable_F8_CrtwDngDwWJ_Pda8oUw_-vMMOlYh';
-export async function serveV4Summary(request,ctx,{fetcher=fetch,cache=globalThis.caches?.default}={}){
- if(request.method!=='GET')return new Response('Method not allowed',{status:405});
- const url=new URL(request.url);url.search='';const key=new Request(url.toString());
- const hit=await cache?.match(key);if(hit)return hit;
- try{
-  const r=await fetcher(DB+'/rest/v1/rpc/iid_v4_summary',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:'{}',signal:AbortSignal.timeout(4500)});
-  if(!r.ok)throw Error('summary unavailable');
-  const d=await r.json();
-  if(d!==null&&(!Number.isInteger(d.hp)||d.hp<0||d.hp>1000000||!['ACTIVE','FINAL'].includes(d.status)))throw Error('invalid summary');
-  const response=Response.json(d,{headers:{'Cache-Control':'public, max-age=60'}});
-  if(cache)ctx.waitUntil(cache.put(key,response.clone()));return response;
- }catch{return Response.json({error:'WORLD_SYNC_UNAVAILABLE'},{status:503,headers:{'Cache-Control':'no-store'}});}
-}
+import {test} from 'node:test';import assert from 'node:assert/strict';import {serveV4Summary} from '../../src/v4-summary.js';
+test('cache strips personal headers and query strings; never caches errors',async()=>{
+ let sent,key;const pending=[];const ctx={waitUntil:p=>pending.push(p)};
+ const cache={match:async k=>{key=k;return null;},put:async()=>{}};
+ const req=new Request('https://game.test/api/v4-summary?user=secret',{headers:{Authorization:'secret',Cookie:'private'}});
+ const r=await serveV4Summary(req,ctx,{cache,fetcher:async(u,o)=>{sent=o;return Response.json(null);}});
+ assert.equal(await r.json(),null);assert.equal(key.url,'https://game.test/api/v4-summary?cache=v4-launch');assert.equal(sent.headers.Authorization,undefined);assert.equal(sent.headers.Cookie,undefined);assert.equal(r.headers.get('Cache-Control'),'no-store');await Promise.all(pending);
+ const bad=await serveV4Summary(req,ctx,{cache,fetcher:async()=>new Response('',{status:500})});assert.equal(bad.status,503);assert.equal(bad.headers.get('Cache-Control'),'no-store');
+});
+
+test('published V4 summary is briefly cached, but prelaunch null never persists',async()=>{
+ let writes=0;const ctx={waitUntil(){}},cache={match:async()=>null,put:async()=>{writes++;}};
+ const valid={id:'epoch',hp:500000,status:'ACTIVE',admission:true};
+ const req=new Request('https://game.test/api/v4-summary');
+ const res=await serveV4Summary(req,ctx,{cache,fetcher:async()=>Response.json(valid)});
+ assert.equal(res.headers.get('Cache-Control'),'public, max-age=10');
+ assert.equal(writes,1);
+ const absent=await serveV4Summary(req,ctx,{cache,fetcher:async()=>Response.json(null)});
+ assert.equal(absent.headers.get('Cache-Control'),'no-store');
+ assert.equal(writes,1);
+});
