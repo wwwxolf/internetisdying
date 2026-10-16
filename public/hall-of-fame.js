@@ -1,7 +1,7 @@
 import {renderCountryBadge} from "./identity-flag.js";
 
 /* Read-only leaderboard: all ranking data is calculated by authenticated RPC. */
-export async function initHallOfFame({sb}){
+export async function initHallOfFame({sb,rpcName="iid_hall_of_fame"}){
  const $=id=>document.getElementById(id);
  const root=$("hall-of-fame");
  if(!root)return;
@@ -16,9 +16,9 @@ export async function initHallOfFame({sb}){
  const fmt=n=>Number(n||0).toLocaleString("en-US");
  const scoreLabel=(item,side,version)=>{
   const hp=Math.max(0,Number(item.hp)||0);
-  if(version===2){
+  if(version===2||version===4){
    const influence=Math.max(0,Number(item.score)||0);
-   return (side==="save"?"+":"−")+fmt(influence)+" FACTION POINTS";
+   return (side==="save"?"+":"−")+fmt(influence)+(version===4?" FACTION POWER":" FACTION POINTS");
   }
   return (side==="save"?"+":"−")+fmt(hp)+" HP";
  };
@@ -39,9 +39,9 @@ export async function initHallOfFame({sb}){
  const showSide=(side,data,version)=>{
   const total=$("hof-"+side+"-total");
   if(total){
-   if(version===2){
+   if(version===2||version===4){
     total.textContent="TOTAL "+(side==="save"?"SAVE +":"KILL −")+
-      fmt(Math.max(0,Number(data?.total_score)||0))+" FACTION POINTS";
+      fmt(Math.max(0,Number(data?.total_score)||0))+(version===4?" FACTION POWER":" FACTION POINTS");
    }else{
     total.textContent="TOTAL "+(side==="save"?"SAVE +":"KILL −")+
       fmt(Math.max(0,Number(data?.total_hp)||0))+" HP";
@@ -106,22 +106,35 @@ export async function initHallOfFame({sb}){
   if(busy)return;
   busy=true;refresh.disabled=true;status.textContent="SYNCING VERIFIED RANKINGS…";
   try{
-   const {data,error}=await sb.rpc("iid_hall_of_fame");
+   const {data,error}=await sb.rpc(rpcName);
    if(error)throw error;
    if(!data||!data.save||!data.kill)throw Error("Unexpected response");
    showSide("save",data.save,data.engine_version);
    showSide("kill",data.kill,data.engine_version);
    const season=data.season;
-   scoring.textContent=data.engine_version===2
+   scoring.textContent=data.engine_version===4
+    ?"V4 • 30-DAY EPOCH • VERIFIED FACTION POWER"
+    :data.engine_version===2
     ?"SEASON "+String(season?.number||1).padStart(2,"0")+" • 30-DAY FACTION RANKINGS • 4H WORLD SETTLEMENT"
     :"V1 • VERIFIED PERSONAL POWER";
    const note=$("hof-cycle-note");
    if(note){
-    note.textContent=data.engine_version===2 && season?.ends_at
+    note.textContent=data.engine_version===4 && data.ends_at
+     ?"WORLD ENDS "+new Date(data.ends_at).toLocaleDateString("en-US",{timeZone:"UTC",day:"numeric",month:"short",year:"numeric"}).toUpperCase()+" UTC • CURRENT EPOCH ONLY"
+     :data.engine_version===2 && season?.ends_at
      ?"LEADERBOARD ENDS "+new Date(season.ends_at).toLocaleDateString("en-US",{timeZone:"UTC",day:"numeric",month:"short",year:"numeric"}).toUpperCase()+" UTC • WORLD EPOCH V3 NOT ACTIVE"
      :"LEGACY ALL-TIME RANKINGS • WORLD EPOCH V3 NOT ACTIVE";
    }
-   renderLegendary(data.legendary,data.engine_version===2);
+   renderLegendary(data.legendary,data.engine_version===2||data.engine_version===4);
+   if(data.engine_version===4){
+     const personal=data.personal;
+     $("monthly-summary").textContent=personal
+      ?"V4 • CURRENT EPOCH\\nVERIFIED BATTLES "+fmt(personal.battles)+
+       " • SAVE +"+fmt(personal.save_power)+" FACTION POWER"+
+       " • KILL −"+fmt(personal.kill_power)+" FACTION POWER"+
+       "\\nWORLD HP IS SETTLED SEPARATELY"
+      :"V4 PERSONAL STATS UNAVAILABLE";
+   }
    status.textContent="SERVER VERIFIED • UPDATED";
   }catch(e){
    status.textContent="RANKINGS TEMPORARILY UNAVAILABLE • TAP RETRY";
