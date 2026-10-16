@@ -18,14 +18,15 @@ test('World Return narratives never blame chickens for natural decay',()=>{
  assert.equal(v4ReturnHeadline({...base,battle_windows:1,net_hp:0}),'A PERFECT STALEMATE_');
 });
 test('V4 World Return renders real faction power separately from HP and disables legacy share cards',async()=>{
- const original=globalThis.document;
+ const original=globalThis.document,oldWindow=globalThis.window;
  const nodes=new Map(),labels=new Map();
  const get=id=>{if(!nodes.has(id))nodes.set(id,{textContent:'',hidden:true,disabled:false,
   title:'',dataset:{},listeners:{},addEventListener(event,fn){this.listeners[event]=fn;}});return nodes.get(id);};
  get('world-return').querySelector=sel=>{
   if(!labels.has(sel))labels.set(sel,{textContent:''});return labels.get(sel);
  };
- globalThis.document={getElementById:get};
+ globalThis.document={getElementById:get,addEventListener(){},removeEventListener(){}};
+ globalThis.window={addEventListener(){}};
  try{
   let calls=0;
   await initV4WorldReturn({nickname:'PlayerOne',sb:{rpc:async(name)=>{
@@ -36,8 +37,8 @@ test('V4 World Return renders real faction power separately from HP and disables
   }}});
   assert.equal(calls,1);
   assert.equal(get('world-return').hidden,false);
-  assert.equal(get('world-return-share').disabled,true);
-  assert.match(get('world-return-share').textContent,/COMING SOON/);
+  assert.equal(get('world-return-share').disabled,false);
+  assert.match(get('world-return-share').textContent,/CREATE V4 PIXEL SHARE CARD/);
   assert.equal(get('world-return-heal').textContent,'+205 POWER');
   assert.equal(get('world-return-kill').textContent,'−102 POWER');
   assert.equal(get('world-return-decay').textContent,'−27 HP');
@@ -47,7 +48,7 @@ test('V4 World Return renders real faction power separately from HP and disables
   assert.match(get('world-return-status').textContent,/SERVER VERIFIED/);
   get('world-return-dismiss').listeners.click();
   assert.equal(get('world-return').hidden,true);
- }finally{globalThis.document=original;}
+ }finally{globalThis.document=original;globalThis.window=oldWindow;}
 });
 test('V4 report routing is isolated from legacy V2 and production remains inactive',async()=>{
  const flow=await readFile('public/flow.js','utf8');
