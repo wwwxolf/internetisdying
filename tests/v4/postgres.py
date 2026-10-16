@@ -1,0 +1,85 @@
+"""Real PostgreSQL integration/concurrency tests. Disposable database ONLY.
+PGDATABASE must be iid_v4_test; never accepts a production URL.
+No external Python dependencies: psql is the transport.
+"""
+import os,subprocess,json,uuid,concurrent.futures,time
+from pathlib import Path
+assert os.environ.get('PGDATABASE')=='iid_v4_test', 'requires disposable iid_v4_test database'
+def sql(s,fail=False):
+ p=subprocess.run(['psql','-XAt','-v','ON_ERROR_STOP=1','-c',s],capture_output=True,text=True)
+ if fail:
+  assert p.returncode!=0,(s,p.stdout);return p.stderr
+ assert p.returncode==0,p.stderr
+ return p.stdout.strip()
+def file(p):sql(Path(p).read_text())
+U='10000000-0000-4000-8000-000000000001';V='10000000-0000-4000-8000-000000000002';S='20000000-0000-4000-8000-000000000001'
+sql('''create role anon;create role authenticated;create schema auth;
+create table auth.users(id uuid primary key,deleted_at timestamptz,banned_until timestamptz);
+create table auth.identities(user_id uuid,provider text);
+create table auth.sessions(id uuid,user_id uuid,not_after timestamptz);
+create function auth.jwt()returns jsonb language sql as $$select nullif(current_setting('request.jwt.claims',true),'')::jsonb$$;
+create function auth.uid()returns uuid language sql as $$select (auth.jwt()->>'sub')::uuid$$;
+grant usage on schema auth to anon,authenticated;''')
+file('supabase/migrations/20261014003346_create_iid_profiles_with_rls.sql')
+file('supabase/migrations/20261014033444_global_battle_engine.sql')
+file('sql/v4/engine.sql')
+sql(f"insert into auth.users(id)values('{U}'),('{V}');insert into auth.identities values('{U}','google'),('{V}','google');insert into auth.sessions values('{S}','{U}',null),('{V}','{V}',null);insert into public.iid_profiles(user_id,nickname,origin)values('{U}','PlayerOne','HUMAN'),('{V}','PlayerTwo','GLITCH');")
+def rpc(expr,u=U,fail=False):
+ claims=json.dumps({'sub':u,'session_id':S if u==U else V,'app_metadata':{'provider':'google'}})
+ out=sql(f"begin;set local role authenticated;set local request.jwt.claims='{claims}';select {expr};commit;",fail)
+ if fail:return out
+ return json.loads(next(l for l in out.splitlines() if l.startswith('{')))
+def fresh():
+ sql('truncate iid_v4.epochs cascade;')
+ e=sql("select iid_v4.prepare_epoch(date_trunc('day',clock_timestamp() at time zone 'UTC') at time zone 'UTC');")
+ # Move past periods to closed in fixture only; actual scheduler tested separately.
+ sql("update iid_v4.epochs set admission=true;update iid_v4.events set settled_at=clock_timestamp() where scheduled_at<=clock_timestamp();")
+ return e
+# SQL contract parity: exact expected cases, all powers, signed ties, overflow.
+assert sql('select iid_v4.battle_delta(73500,31500),iid_v4.chaos_delta(10,0),iid_v4.decay_cumulative(2592000)')=='4624|143|510000'
+assert sql("select bool_and(iid_v4.power(t,c) = round((100+t/10)::numeric*c/100)) from generate_series(0,50)t cross join (values(100),(105))v(c)")=='t'
+assert sql('select iid_v4.battle_delta(9223372036854775807,9223372036854775807)')=='0'
+e=fresh()
+assert sql('select count(*),sum(decay) from iid_v4.events')=='331|510000'
+assert sql("select decay from iid_v4.events where kind='FINAL'")=='1000'
+assert 'permission denied' in sql('set role anon;select public.iid_v4_start(gen_random_uuid(),\'HEAL\');',True)
+assert 'permission denied' in sql('set role authenticated;select * from iid_v4.attempts;',True)
+assert 'permission denied' in sql('set role authenticated;select iid_v4.settle_due();',True)
+key=str(uuid.uuid4());b=rpc(f"public.iid_v4_start('{key}','HEAL')")
+assert rpc(f"public.iid_v4_start('{key}','HEAL')")['id']==b['id']
+assert 'REQUEST_CONFLICT' in rpc(f"public.iid_v4_start('{key}','KILL')",fail=True)
+assert 'BATTLE_NOT_FINISHED' in rpc(f"public.iid_v4_finish('{b['id']}',50)",fail=True)
+assert 'BATTLE_NOT_FOUND' in rpc(f"public.iid_v4_finish('{b['id']}',50)",u=V,fail=True)
+sql(f"update iid_v4.attempts set started_at=clock_timestamp()-interval '13 seconds' where id='{b['id']}'")
+with concurrent.futures.ThreadPoolExecutor(8) as ex:
+ rs=list(ex.map(lambda _:rpc(f"public.iid_v4_finish('{b['id']}',50)"),range(8)))
+assert all(r==rs[0] for r in rs)
+assert sql("select sum(save_sum) from iid_v4.buckets where kind='BATTLE'")==str(rs[0]['power'])
+assert 'REQUEST_CONFLICT' in rpc(f"public.iid_v4_finish('{b['id']}',49)",fail=True)
+# Different users hit same period; every contribution retained.
+b2=rpc(f"public.iid_v4_start('{uuid.uuid4()}','KILL')",u=V)
+sql(f"update iid_v4.attempts set started_at=clock_timestamp()-interval '13 seconds' where id='{b2['id']}'")
+r2=rpc(f"public.iid_v4_finish('{b2['id']}',0)",u=V)
+assert sql("select sum(kill_sum) from iid_v4.buckets where kind='BATTLE'")==str(r2['power'])
+key=str(uuid.uuid4())
+with concurrent.futures.ThreadPoolExecutor(8) as ex:vs=list(ex.map(lambda _:rpc(f"public.iid_v4_vote('{key}','HEAL')"),range(8)))
+assert all(v==vs[0] for v in vs)
+assert sql("select sum(save_sum) from iid_v4.buckets where kind='CHAOS'")=='1'
+assert 'REQUEST_CONFLICT' in rpc(f"public.iid_v4_vote('{key}','KILL')",fail=True)
+print('PASS formula parity, 331-event schedule, RLS, ownership, replay, parallel duplicate finish/vote')
+# Catch-up and duplicate scheduler, all-empty world. No input changes between runs.
+def abandoned(parallel):
+ sql('truncate iid_v4.epochs cascade;')
+ sql("select iid_v4.prepare_epoch((date_trunc('day',clock_timestamp() at time zone 'UTC') at time zone 'UTC')-interval '31 days');update iid_v4.epochs set admission=true;")
+ for _ in range(24):
+  if parallel:
+   with concurrent.futures.ThreadPoolExecutor(4) as ex:list(ex.map(lambda _:sql('select iid_v4.settle_due()'),range(4)))
+  else:sql('select iid_v4.settle_due()')
+ result=sql("select hp,status,winner,extract(epoch from ended_at-starts_at)::integer from iid_v4.epochs")
+ ledger=sql("select kind,seq,nominal,applied,hp_after from iid_v4.events where settled_at is not null order by scheduled_at,priority")
+ before=sql('select version from iid_v4.epochs');assert sql('select iid_v4.settle_due()')=='0';assert sql('select version from iid_v4.epochs')==before
+ return result,ledger
+one=abandoned(False);many=abandoned(True);assert one==many
+assert one[0]=='0|FINAL|KILL|2566800',one[0]
+print('PASS chronological catch-up, duplicate scheduler, abandonment, terminal immutability')
+print('NOT COVERED: production load, OAuth browser flow, timed cutoff races, deployment integration')
