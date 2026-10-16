@@ -12,12 +12,14 @@
   <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="./styles.css?v=7"/>
   <link rel="stylesheet" href="./arena.css?v=12"/>
+  <link rel="stylesheet" href="./coop-menu.css?v=1"/>
   <link rel="stylesheet" href="./hall-of-fame.css?v=3"/>
   <link rel="stylesheet" href="./tap-battle.css?v=4"/>
   <link rel="stylesheet" href="./daily-chaos.css?v=2"/>
   <link rel="stylesheet" href="./world-return.css?v=4"/>
   <script src="./config.js?v=5"></script>
   <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./coop-menu.js?v=1"></script>
   <script type="module" src="./flow.js?v=38"></script>
 </head>
 <body data-page="arena" data-battle-mode="global">
@@ -48,7 +50,54 @@
             </div>
           </div>
           <button type="button" id="signout" class="reset">SIGN OUT</button>
+          <button type="button" id="coop-menu-toggle" class="coop-menu-toggle" aria-controls="coop-menu-drawer"
+                  aria-expanded="false" aria-label="Open the Coop Menu" hidden>🐔 MENU <span aria-hidden="true">▸</span></button>
         </div>
+
+        <!-- Presentation-only menu. coop-menu.js moves EXISTING panels into panes,
+             preserving every RPC, ID, listener, timer and underlying game engine. -->
+        <div id="coop-menu-backdrop" class="coop-menu-backdrop" hidden></div>
+        <aside id="coop-menu-drawer" class="coop-menu-drawer" role="dialog" aria-modal="true"
+               aria-label="The Coop Menu" aria-hidden="true" tabindex="-1" hidden inert>
+          <div class="coop-menu-head">
+            <div>
+              <p class="coop-menu-kicker">WORLD_001 / PRIVATE COOP</p>
+              <h2 class="coop-menu-title">🐔 THE COOP MENU_</h2>
+            </div>
+            <button id="coop-menu-close" class="coop-menu-close" type="button" aria-label="Close the Coop Menu">✕</button>
+          </div>
+          <p id="coop-menu-current" class="coop-menu-subhead" role="status">WORLD REPORT_</p>
+          <nav class="coop-menu-nav" aria-label="Arena secondary features">
+            <button type="button" data-coop-view="report" aria-pressed="true"><span class="coop-nav-symbol" aria-hidden="true">◈</span> WORLD REPORT</button>
+            <button type="button" data-coop-view="fame" aria-pressed="false"><span class="coop-nav-symbol" aria-hidden="true">★</span> HALL OF FAME</button>
+            <button type="button" data-coop-view="stats" aria-pressed="false"><span class="coop-nav-symbol" aria-hidden="true">▤</span> MY STATS</button>
+            <button type="button" data-coop-view="schedule" aria-pressed="false"><span class="coop-nav-symbol" aria-hidden="true">▦</span> SCHEDULE</button>
+            <button type="button" data-coop-view="fighter" aria-pressed="false"><span class="coop-nav-symbol" aria-hidden="true">♟</span> MY FIGHTER</button>
+          </nav>
+          <div class="coop-menu-scroll" id="coop-menu-scroll">
+            <div id="coop-pane-report" class="coop-pane" aria-label="World Report and Pixel Card">
+              <p class="coop-pane-caption">WORLD / REPORT &amp; PIXEL CARD</p>
+              <p class="coop-pane-caption">CREATE A SHAREABLE CARD FROM THE VERIFIED WORLD REPORT BELOW.</p>
+            </div>
+            <div id="coop-pane-fame" class="coop-pane" aria-label="Hall of Fame rankings" hidden>
+              <p class="coop-pane-caption">WORLD / HALL OF FAME &amp; LEGENDARY TOP 3</p>
+            </div>
+            <div id="coop-pane-stats" class="coop-pane" aria-label="Your personal battle statistics" hidden>
+              <p class="coop-pane-caption">YOU / YOUR VERIFIED BATTLE STATS</p>
+            </div>
+            <div id="coop-pane-schedule" class="coop-pane" aria-label="Battle schedule" hidden>
+              <p class="coop-pane-caption">WORLD / ALL SIX UTC WAR WINDOWS</p>
+            </div>
+            <div id="coop-pane-fighter" class="coop-pane" aria-label="Account and developer controls" hidden>
+              <div class="coop-menu-account">
+                <h3>MY FIGHTER_</h3>
+                <p>Your verified character and nickname are shown in the Arena header. Manage your session here.</p>
+                <div id="coop-account-actions"></div>
+              </div>
+            </div>
+          </div>
+          <div class="coop-menu-foot">TAP TO OPEN • AUTO-HIDES DURING BATTLE</div>
+        </aside>
 
         <!-- A locked pixel template with fresh authenticated data when CREATE is clicked.
              Native file share is invoked by a SECOND gesture to keep user activation. -->
@@ -141,6 +190,10 @@
             <span>SHARED HP</span><span aria-hidden="true">·</span><span>SERVER SYNC AUTO • ~1 MIN</span>
           </div>
         </section>
+
+        <button type="button" id="coop-share-cta" class="coop-share-cta" hidden>
+          <span>▣ PIXEL SHARE CARD_</span><span>OPEN COOP ↗</span>
+        </button>
 
         <section id="arena-decision" class="arena-decision" aria-labelledby="arena-decision-title">
           <div class="arena-decision-header">
