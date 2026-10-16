@@ -47,3 +47,10 @@ GitHub Actions run 38863582097 passed 7 focused Node tests, PostgreSQL transacti
 A consistent read snapshot of all 16 public game tables was saved outside the repository before migration. It does not include Supabase Auth or a complete PostgreSQL backup. No existing schema/data was overwritten.
 
 Security advisors report informational RLS-without-policy entries for private V4 tables: deliberate deny-by-default with checked RPC access. Existing public V1/V2 definer-function warnings remain outside this change. See [RLS advisor explanation](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy).
+
+## V4 maintenance hardening (2026-10-16, staged)
+
+- New additive correction: `20261016145800_v4_paused_admission_settlement.sql` updates **only** `iid_v4.settle_due()`. An already published ACTIVE V4 epoch now settles scheduled work even when `admission=false`; admission still rejects new start/vote/finish requests. This prevents a maintenance pause from freezing previously scheduled decay and outcomes. This change does **not** enable an epoch or install a scheduler.
+- Frontend now matches each V4 tap battle's HEAL/KILL origin to its PATCH/PECK button theme, hides the choice buttons during the tap session, and shows the V4 voting section. Personal leaderboard/return digest and live OAuth tests remain prerequisites for activation.
+- PostgreSQL isolation checks both `admission=false` settlement and blocked new inputs. This patch must be applied in production by the normal migration mechanism before activation.
+- Never publish or activate an epoch merely because the maintenance SQL has been installed. Owner-controlled old-world shutdown and new-world start time are still undecided.
