@@ -171,6 +171,7 @@ test("scheduled V4 clean launch is atomic, fails closed, resets game profiles bu
  assert.notEqual(injected,fn,"test fixture changes ONLY clock source");
  await admin(injected);
  await admin("update public.iid_world set enabled=true,hp=506000,version=3;update public.iid_economy_control set v2_enabled=true;");
+ await admin("delete from public.iid_battles;");
  const authCount=(await readAdmin("select count(*)::int n from auth.users")).n;
  const first=(await db.query("select public.iid_battle_start(gen_random_uuid(),'KILL') as b")).rows[0].b;
  assert.equal(first.engine_version,2);
