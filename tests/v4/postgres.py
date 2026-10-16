@@ -28,6 +28,8 @@ file('supabase/migrations/20261016145800_v4_paused_admission_settlement.sql')
 file('supabase/migrations/20261016171500_v4_readonly_rankings_return.sql')
 file('supabase/migrations/20261016175500_v4_immutable_share_cards.sql')
 file('supabase/migrations/20261016184500_v4_scheduler_core_staged.sql')
+file('supabase/migrations/20261016192500_v4_legacy_world_freeze_guard.sql')
+file('supabase/migrations/20261016192600_v4_owner_readiness_status.sql')
 sql(f"insert into auth.users(id)values('{U}'),('{V}');insert into auth.identities values('{U}','google'),('{V}','google');insert into auth.sessions values('{S}','{U}',null),('{V}','{V}',null);insert into public.iid_profiles(user_id,nickname,origin)values('{U}','PlayerOne','HUMAN'),('{V}','PlayerTwo','GLITCH');")
 def rpc(expr,u=U,fail=False):
  claims=json.dumps({'sub':u,'session_id':S if u==U else V,'app_metadata':{'provider':'google'}})
@@ -237,3 +239,46 @@ assert accepted['action']=='HEAL' and accepted['completed_at'] is None
 assert sql('select hp from public.iid_world where id=1')=='506000'
 assert sql('select enabled::text from public.iid_world where id=1')=='false'
 print('PASS isolated V2->V4 cutover rehearsal: old writer paused, epoch prepared privately, V4 admission explicit; V2 HP unchanged')
+
+# Cutover HP guard: dormant during V2, and blocks all old world mutations once
+# explicitly armed OR if a V4 epoch has accidentally been published.
+sql('truncate iid_v4.epochs cascade;')
+sql('update public.iid_world set hp=503777,version=14,enabled=true where id=1;')
+assert sql('select hp,version from public.iid_world where id=1')=='503777|14'
+assert sql('select legacy_frozen::text from iid_v4.cutover_control')=='false'
+assert 'permission denied' in sql('set role anon;select * from iid_v4.cutover_control;',True)
+assert 'permission denied' in sql('set role authenticated;select iid_v4.cutover_readiness();',True)
+assert 'permission denied' in sql('set role anon;select iid_v4.cutover_readiness();',True)
+
+# cron mock is disposable schema used ONLY to validate the read-only operator
+# status query; production cron is queried separately from Supabase.
+sql("create schema cron;create table cron.job(jobid bigint,jobname text,schedule text,active boolean);create table cron.job_run_details(jobid bigint,status text,start_time timestamptz);")
+sql("insert into cron.job values(1,'iid-v2-world-tick','*/2 * * * *',true),(2,'iid-v4-settlement','* * * * *',false);")
+sql("insert into cron.job_run_details values(1,'succeeded',clock_timestamp());")
+before=json.loads(sql('select iid_v4.cutover_readiness()'))
+assert before['read_only'] is True and before['cutover_authorized'] is False
+assert before['production_ready'] is False and before['legacy_cron_healthy'] is True
+assert before['v2']['hp']==503777 and before['v2']['cron_active'] is True
+assert before['v4']['cron_registered'] is True and before['v4']['cron_active'] is False
+assert before['v4']['published_epochs']==0 and before['freeze']['legacy_frozen'] is False
+assert len(before['manual_blockers'])>=3
+assert sql('select hp from public.iid_world where id=1')=='503777'
+
+sql('update iid_v4.cutover_control set legacy_frozen=true,armed_at=clock_timestamp() where id=1;')
+assert 'LEGACY_WORLD_FROZEN' in sql('update public.iid_world set hp=503776 where id=1;',True)
+assert 'LEGACY_WORLD_FROZEN' in sql('update public.iid_world set enabled=false where id=1;',True)
+assert 'LEGACY_WORLD_FROZEN' in sql('delete from public.iid_world where id=1;',True)
+assert 'LEGACY_WORLD_FROZEN' in sql('truncate public.iid_world;',True)
+assert sql('select hp from public.iid_world where id=1')=='503777'
+during=json.loads(sql('select iid_v4.cutover_readiness()'))
+assert during['freeze']['legacy_frozen'] is True and during['production_ready'] is False
+sql('update iid_v4.cutover_control set legacy_frozen=false,armed_at=null where id=1;')
+sql('update public.iid_world set hp=503776 where id=1;')
+assert sql('select hp from public.iid_world where id=1')=='503776'
+
+sql("select iid_v4.prepare_epoch(date_trunc('day',clock_timestamp() at time zone 'UTC') at time zone 'UTC');")
+sql('update iid_v4.epochs set published=true,admission=false;')
+assert 'LEGACY_WORLD_FROZEN' in sql('update public.iid_world set hp=503775 where id=1;',True)
+assert json.loads(sql('select iid_v4.cutover_readiness()'))['v4']['published_epochs']==1
+assert sql('select hp from public.iid_world where id=1')=='503776'
+print('PASS dormant cutover guard, legacy freeze, published-world HP protection, private readiness status and cron diagnostics')
