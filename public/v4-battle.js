@@ -37,7 +37,6 @@ export async function initV4Battle({sb}){
   $('next-chaos').hidden=false;
   $('arena-decision').hidden=!!round;
   $('tap-battle').hidden=!round;
-  text('monthly-summary','V4 PERSONAL STATS • LIVE LEADERBOARD IN DEVELOPMENT');
   if(w.status==='FINAL')status('EPOCH FINISHED • '+w.winner+' WINS');
   else if(state.sync_pending)status('WORLD IS SYNCHRONIZING • TRY AGAIN SHORTLY');
   if(!round)return;
@@ -72,6 +71,8 @@ export async function initV4Battle({sb}){
   try{const r=await rpc('finish',{p_battle_id:round.id,p_tap_total:finishClaim});state.battle=r;round=null;
    $('arena-result').hidden=false;text('arena-result-title',(r.action==='HEAL'?'SAVE':'KILL')+' • '+r.power+' PERSONAL POWER');
    text('arena-result-text','Critical ×'+r.critical/100+' • Your contribution is recorded. World HP settles when the window closes.');
+   if(typeof document.dispatchEvent==='function'&&typeof Event==='function')
+    document.dispatchEvent(new Event('iid:battle-settled'));
   }catch(e){failed=true;status('RESULT PENDING: '+e.message+'. Use RETRY SYNC.');}finally{busy=false;render();}
  }
  const tap=()=>{if(round&&!busy&&now()>=Date.parse(round.started_at)+2000&&now()<Date.parse(round.started_at)+12000)taps=Math.min(50,taps+1);};
