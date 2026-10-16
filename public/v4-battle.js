@@ -33,11 +33,20 @@ export async function initV4Battle({sb}){
   text('chaos-projected-impact','UP TO ±3,000 HP • EACH SIDE’S FIRST 9 VOTES DO NOT ADD POWER');
   text('chaos-vote-count',voted?'YOUR VOTE: '+(state.vote.choice==='HEAL'?'SAVE':'KILL'):'ONE VOTE PER UTC DAY');
   document.querySelectorAll('[data-chaos-choice]').forEach(b=>b.disabled=busy||voted||state.sync_pending||!w.admission||over||w.status==='FINAL');
+  // V4 owns these controls; legacy V2 modules are never initialized on this route.
+  $('next-chaos').hidden=false;
+  $('arena-decision').hidden=!!round;
   $('tap-battle').hidden=!round;
+  text('monthly-summary','V4 PERSONAL STATS • LIVE LEADERBOARD IN DEVELOPMENT');
   if(w.status==='FINAL')status('EPOCH FINISHED • '+w.winner+' WINS');
   else if(state.sync_pending)status('WORLD IS SYNCHRONIZING • TRY AGAIN SHORTLY');
   if(!round)return;
   const ready=Date.parse(round.started_at)+2000,end=ready+10000;
+  // Shared HTML defaults to SAVE; reset the faction visuals for KILL too.
+  $('tap-battle').dataset.side=round.action.toLowerCase();
+  text('tap-target-mark',round.action==='HEAL'?'+':'×');
+  $('tap-target').setAttribute('aria-label',round.action==='HEAL'
+    ? 'Tap to patch the internet' : 'Tap to feed the chicken');
   $('tap-countdown').hidden=now()>=ready;text('tap-countdown',String(Math.max(1,Math.ceil((ready-now())/1000))));
   $('tap-target').hidden=now()<ready;$('tap-target').disabled=busy||now()<ready||now()>=end||taps>=50;
   $('tap-hold').hidden=false;$('tap-hold').disabled=$('tap-target').disabled;
