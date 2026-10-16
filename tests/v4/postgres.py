@@ -323,6 +323,6 @@ assert sql("select count(*) from iid_v4.attempts where completed_at is null")=='
 assert sql("select sum(save_power)>0 and sum(kill_power)>0 from iid_v4.player_totals")=='t'
 assert sql("select hp from iid_v4.epochs")=='500000','power is not applied HP until event settles'
 assert sql("select hp from public.iid_world where id=1")=='503776','legacy HP must be immutable across V4 load simulation'
-assert json.loads(rpc('public.iid_v4_hall_of_fame()'))['save']['top'][0]['score']>=100
-assert len(json.loads(rpc('public.iid_v4_hall_of_fame()'))['legendary'])==3
+assert rpc('public.iid_v4_hall_of_fame()')['save']['top'][0]['score']>=100
+assert len(rpc('public.iid_v4_hall_of_fame()')['legendary'])==3
 print('PASS 100 verified SAVE + 100 verified KILL completed V4 battles; isolated score and HP ledgers')
