@@ -23,7 +23,7 @@ After that decision, in a separately reviewed maintenance operation:
 5. Register scheduler calls as owner at UTC 0,4,5,8,11,12,16,17,20,23 plus a 15-minute recovery heartbeat. iid_v4.settle_due() handles at most 16 events per transaction with a nonblocking advisory lock. A runner can invoke it at most four times in separate transactions. No scheduler is installed by staging SQL.
 6. Verify public summary, version and cron jobs read-only. Do not create test battles/votes/accounts in production.
 
-A complete cutover automation and V4 leaderboard/return-digest presentation are not implemented in this staging change. Those legacy modules are not initialized on the V4 route; player faction totals are recorded in iid_v4.player_totals for subsequent presentation. Do not activate until these product limitations and transition controls are resolved.
+A complete cutover automation and V4-specific share-card publisher are not implemented. V4 leaderboard, personal statistics, and return-digest presentation are now staged separately and never call legacy V2 APIs; do not activate until end-to-end account testing, V4 share cards, scheduled settlement, and transition controls are complete.
 
 ## Verification
 
@@ -54,3 +54,32 @@ Security advisors report informational RLS-without-policy entries for private V4
 - Frontend now matches each V4 tap battle's HEAL/KILL origin to its PATCH/PECK button theme, hides the choice buttons during the tap session, and shows the V4 voting section. Personal leaderboard/return digest and live OAuth tests remain prerequisites for activation.
 - PostgreSQL isolation checks both `admission=false` settlement and blocked new inputs. This patch must be applied in production by the normal migration mechanism before activation.
 - Never publish or activate an epoch merely because the maintenance SQL has been installed. Owner-controlled old-world shutdown and new-world start time are still undecided.
+
+## V4 rankings + World Return (2026-10-16, staged)
+
+- Additive migration `20261016171500_v4_readonly_rankings_return.sql` is installed. No V4 epoch has been created. No legacy table, HP or cron was modified.
+- `iid_v4_hall_of_fame()`: verified authenticated player only; current published epoch only. Top 10 per faction by **FACTION POWER**, personal faction totals and number of verified battles, and global Legendary Top 3 (one highest settled personal power per player). Ties deterministic. Player UUID and auth details are not returned.
+- `iid_v4_return_report()`: verified authenticated player only; first visit covers epoch history, subsequent visits cover the range since the player's previous authenticated report open, tracked through a private per-epoch cursor. The report distinguishes **SAVE/KILL FACTION POWER** from **WORLD HP** actually applied when battle, chaos and decay events settled. Reported net HP sums only actual settled ledger impacts, not raw power or provisional influence. Cursor tables are private: direct anon/authenticated table SELECT is revoked and RLS remains enabled.
+- The existing Hall of Fame presentation renders V4 rankings only on the V4 route; the existing V2 implementation remains unchanged. V4 World Return has a standalone presenter; legacy World Return and `iid_publish_share_card` are not used on the V4 route.
+- **V4 Pixel Card is deliberately disabled.** The legacy immutable pixel share service reads V2 world history; connecting it to a V4 report would fabricate or misattribute effects. V4-specific immutable sharing and WhatsApp Open Graph generation are still a blocking pre-activation product task.
+- PostgreSQL 17 CI covers authenticated/anonymous permissions, leaderboard ranking, single-best-battle Legendary records, two-player isolation, no UUID leaks, first-visit cursor, subsequent delta reports, actual applied HP, and replay prevention. Browser OAuth end-to-end and production throughput have not been validated.
+
+### Read-only preactivation audit, after staging
+
+- `iid_v4.epochs=0`, `iid_v4.events=0`, `iid_v4.return_cursors=0`, `iid_v4.summary() IS NULL`.
+- Legacy world still enabled, legacy V2 economy still enabled, and verified world HP at the check was 506,000.
+- The only active cron job observed was `iid-v2-world-tick` (every two minutes); no V4 cron exists.
+- Both new public RPCs grant EXECUTE to `authenticated`, not `anon`. Cursor SELECT is inaccessible to both browser roles.
+- Deployment and regression tests passed on staged code, but **absence of a published V4 epoch means its real player UI has not yet been tested against live V4 data**.
+
+### Pre-activation cutover checklist — not authorization to cut over
+
+1. Decide and announce a final V2 world cutoff and new V4 UTC-midnight start. The transition is globally consequential, so owner approval is mandatory.
+2. Complete V4 share cards, verify V4 personal/legendary display from a realistic synthetic dataset, and validate actual mobile OAuth login, return digest and V4 battle/vote end-to-end in a non-production environment.
+3. Verify no pending legacy battles or due V2 settlements remain before shutting the legacy mutation paths. Take a complete restorable database backup including relevant Auth records; the earlier table snapshots are not a sufficient restoration point.
+4. In a single reviewed runbook, gate **all** legacy entry points, disable `iid-v2-world-tick`, and verify there are no live legacy writers. Merely changing `v2_enabled` switches back toward V1 and is not an effective safety gate.
+5. Prepare an isolated new V4 epoch at an approved UTC midnight; inspect its 331 events and all grants before publishing. Keep `admission=false` while preparing. Publishing is the routing switch; a published but admission-paused epoch must **not** route players back to V2.
+6. Activate and test a dedicated V4 settlement schedule with a recovery heartbeat; verify cutoff locking and chronological catch-up. Verify only one engine can modify the globally displayed HP.
+7. Perform explicit go/no-go checks and record rollback conditions before opening new V4 input. Preserve both era ledgers and all player histories.
+
+Until all gates pass, V2 remains authoritative and V4 remains inactive.
