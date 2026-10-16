@@ -95,6 +95,15 @@ jobs:
           grep -q 'ONE HUNGRY CHICKEN. TWO SIDES.' /tmp/iid-battle.js
           grep -q 'world001-pecking-globe.svg' /tmp/iid-arena.html
           grep -q 'arena.css?v=12' /tmp/iid-arena.html
+          grep -q 'coop-menu-drawer' /tmp/iid-arena.html
+          grep -q 'coop-menu-toggle' /tmp/iid-arena.html
+          grep -q 'coop-menu.css?v=1' /tmp/iid-arena.html
+          grep -q 'coop-menu.js?v=1' /tmp/iid-arena.html
+          curl -fsSL --max-time 15 "$ROOT/coop-menu.css?v=1" -o /tmp/iid-coop-css.css
+          grep -q 'coop-menu-drawer' /tmp/iid-coop-css.css
+          curl -fsSL --max-time 15 "$ROOT/coop-menu.js?v=1" -o /tmp/iid-coop-js.js
+          grep -q 'initCoopMenu' /tmp/iid-coop-js.js
+          grep -q 'battleState' /tmp/iid-coop-js.js
           curl -fsSL --max-time 15 "$ROOT/assets/world001-pecking-globe.svg" -o /tmp/iid-pecking-globe.svg
           grep -q 'Four pixel chickens peck the internet globe' /tmp/iid-pecking-globe.svg
           grep -q 'three comic bubbles saying PECK!' /tmp/iid-pecking-globe.svg
