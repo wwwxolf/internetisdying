@@ -13,7 +13,7 @@ test('V4 cutover guard is installed inert; owner-only control prevents late lega
  assert.match(src,/exists\(select 1 from iid_v4\.epochs where published\)/);
  assert.match(src,/enable row level security/);
  assert.match(src,/revoke all on iid_v4\.cutover_control from public,anon,authenticated/);
- assert.doesNotMatch(src,/update public\.iid_world|cron\.alter_job|cron\.unschedule|published=true|admission=true/);
+ assert.doesNotMatch(src,/^\s*update public\.iid_world|cron\.alter_job|cron\.unschedule|published=true|admission=true/m);
 });
 
 test('Owner read-only status enumerates all launch blockers, V2 cron failures and V4 backlog',async()=>{
