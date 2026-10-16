@@ -64,12 +64,12 @@ jobs:
           ROOT="https://internetisdying.wwwxolf.workers.dev"
           for i in 1 2 3 4 5 6; do
             curl -fsSL --max-time 12 "$ROOT/arena.html" -o /tmp/iid-arena.html || true
-            if grep -q 'flow.js?v=36' /tmp/iid-arena.html 2>/dev/null; then
+            if grep -q 'flow.js?v=37' /tmp/iid-arena.html 2>/dev/null; then
               break
             fi
             sleep 5
           done
-          grep -q 'flow.js?v=36' /tmp/iid-arena.html
+          grep -q 'flow.js?v=37' /tmp/iid-arena.html
           curl -fsSL --max-time 15 "$ROOT/hall-of-fame.js?v=4" -o /tmp/iid-hof.js
           grep -q 'iid_hall_of_fame' /tmp/iid-hof.js
           grep -q 'LEGENDARY' /tmp/iid-arena.html
@@ -120,9 +120,16 @@ jobs:
           grep -q 'CHAOS BURST' /tmp/iid-share-story.js
           curl -fsSL --max-time 15 "$ROOT/api/v4-summary" -o /tmp/iid-v4-summary.json
           python3 -c 'import json; d=json.load(open("/tmp/iid-v4-summary.json")); assert d is None or (0 <= d["hp"] <= 1000000 and d["status"] in ("ACTIVE","FINAL"))'
-          curl -fsSL --max-time 15 "$ROOT/v4-battle.js?v=1" -o /tmp/iid-v4-battle.js
+          curl -fsSL --max-time 15 "$ROOT/v4-battle.js?v=2" -o /tmp/iid-v4-battle.js
           grep -q 'iid_v4_' /tmp/iid-v4-battle.js
           grep -q "dataset.side=round.action.toLowerCase()" /tmp/iid-v4-battle.js
           grep -q "'next-chaos').hidden=false" /tmp/iid-v4-battle.js
+          curl -fsSL --max-time 15 "$ROOT/v4-world-return.js?v=1" -o /tmp/iid-v4-report.js
+          grep -q 'iid_v4_return_report' /tmp/iid-v4-report.js
+          curl -fsSL --max-time 15 "$ROOT/hall-of-fame.js?v=5" -o /tmp/iid-v4-hof.js
+          grep -q 'FACTION POWER' /tmp/iid-v4-hof.js
+          curl -fsSL --max-time 15 "$ROOT/flow.js?v=37" -o /tmp/iid-v4-flow.js
+          grep -q 'iid_v4_hall_of_fame' /tmp/iid-v4-flow.js
+          grep -q 'v4-world-return.js?v=1' /tmp/iid-v4-flow.js
           echo "Verified deployed Arena, legacy assets and staged V4 routing."
 
