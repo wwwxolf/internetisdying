@@ -127,6 +127,8 @@ export async function initHallOfFame({sb,rpcName="iid_hall_of_fame"}){
    }
    renderLegendary(data.legendary,data.engine_version===2||data.engine_version===4);
    if(data.engine_version===4){
+     const heading=document.querySelector?.('.arena-test-tools .arena-decision-title');
+     if(heading)heading.textContent='YOUR EPOCH_';
      const personal=data.personal;
      $("monthly-summary").textContent=personal
       ?"V4 • CURRENT EPOCH\\nVERIFIED BATTLES "+fmt(personal.battles)+
