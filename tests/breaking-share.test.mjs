@@ -24,7 +24,7 @@ test("Locked card retains live verified stats, health status, no numerical HP to
  const source=await readFile("public/breaking-share-card.js","utf8");
  assert.ok(source.includes("canvas.toBlob("));
  assert.ok(source.includes('imageOrNull("./assets/world-chicken.svg")'));
- for(const label of Object.values(SHARE_LABELS))assert.ok(source.includes("SHARE_LABELS."),label);
+ assert.ok(source.includes("options.labels||SHARE_LABELS"));
 });
 test("Share UI has exactly two actions and a per-snapshot OG preview URL",async()=>{
  const html=await readFile("public/arena.html","utf8");
