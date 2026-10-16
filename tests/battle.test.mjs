@@ -20,7 +20,7 @@ insert into auth.identities values('${U}','google'),('${V}','google');
 insert into auth.sessions values('${S}','${U}',null);`);
 // pg_cron is a Supabase-hosted extension and is not provided by PGlite.
 // The scheduler migration is validated against the live Supabase database separately.
-for (const f of (await readdir('supabase/migrations')).filter(f=>f.endsWith('.sql')&&!f.includes('_game_economy_v2_scheduler_staged.sql')).sort()) {
+for (const f of (await readdir('supabase/migrations')).filter(f=>f.endsWith('.sql')&&!f.includes('_game_economy_v2_scheduler_staged.sql')&&!f.includes('_v4_cron_registered_disabled.sql')).sort()) {
   await db.exec(await readFile('supabase/migrations/'+f,'utf8'));
 }
 await db.exec(`insert into public.iid_profiles(user_id,nickname,origin) values('${U}','PlayerOne','HUMAN'),('${V}','PlayerTwo','GLITCH')`);
