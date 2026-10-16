@@ -95,8 +95,9 @@ declare
  t timestamptz:=clock_timestamp();since_at timestamptz;
  first_visit boolean; result jsonb;
 begin
- select * into e from iid_v4.epochs where published order by starts_at desc limit 1;
+ select * into e from iid_v4.epochs where published order by starts_at desc limit 1 for share;
  if not found then return null;end if;
+ t:=clock_timestamp(); -- capture after epoch lock so report HP and ledger cannot cross settlement
  insert into iid_v4.return_cursors(epoch_id,user_id,opened_at,visits)
   values(e.id,u,t,0) on conflict(epoch_id,user_id) do nothing;
  select * into strict c from iid_v4.return_cursors
