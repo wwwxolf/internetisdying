@@ -155,4 +155,53 @@ test("V4 cutover freeze blocks stale V1/V2 inputs but lets accepted battles drai
  // Only simulation reopens; production code never changes admission state.
  await admin("update iid_v4.cutover_control set legacy_admission_open=true,legacy_admission_paused_at=null where id=1");
 });
+test("scheduled V4 clean launch is atomic, fails closed, resets game profiles but not Google Auth",async()=>{
+ // Only in disposable PGlite: replace the wall-clock read with the exact
+ // scheduled instant. All destructive SQL remains identical to production.
+ await admin("create schema cron;create table cron.job(jobid bigint primary key,jobname text,active boolean);");
+ await admin(`create function cron.alter_job(job_id bigint,active boolean) returns void language sql as $fn$
+  update cron.job set active=alter_job.active where jobid=alter_job.job_id
+ $fn$;`);
+ await admin("insert into cron.job values(1,'iid-v2-world-tick',true),(2,'iid-v4-settlement',false);");
+ const migration=await readFile("supabase/migrations/20261016210500_v4_scheduled_clean_launch.sql","utf8");
+ const fn=migration.match(/create function iid_v4\\.execute_clean_launch\\(\\) returns jsonb[\\s\\S]*?end \\$\\$;/)?.[0];
+ assert.ok(fn,'schedule function extracted from production SQL');
+ const injected=fn.replace("t:=clock_timestamp();","t:=ctl.launch_at+interval '1 second';")
+  .replace("create function iid_v4.execute_clean_launch","create or replace function iid_v4.execute_clean_launch");
+ assert.notEqual(injected,fn,"test fixture changes ONLY clock source");
+ await admin(injected);
+ await admin("update public.iid_world set enabled=true,hp=506000,version=3;update public.iid_economy_control set v2_enabled=true;");
+ const authCount=(await readAdmin("select count(*)::int n from auth.users")).n;
+ const first=(await db.query("select public.iid_battle_start(gen_random_uuid(),'KILL') as b")).rows[0].b;
+ assert.equal(first.engine_version,2);
+ // Missing the launch cron job must reject BEFORE deleting anything.
+ await assert.rejects(admin("select iid_v4.execute_clean_launch()"),/CUTOVER_CRON_INVARIANT/);
+ assert.equal((await readAdmin("select count(*)::int n from public.iid_battles")).n,1);
+ assert.equal((await readAdmin("select count(*)::int n from public.iid_profiles")).n,1);
+ await admin("insert into cron.job values(3,'iid-v4-clean-launch',true)");
+ const success=(await readAdmin("select iid_v4.execute_clean_launch() j")).j;
+ assert.equal(success.status,'COMPLETED');
+ assert.equal(success.initial_hp,500000);
+ assert.equal(success.google_accounts_preserved,authCount);
+ const world=(await readAdmin("select hp,admission,published from iid_v4.epochs")).hp;
+ assert.equal(world,500000);
+ assert.equal((await readAdmin("select count(*)::int n from iid_v4.events")).n,331);
+ for(const tb of ['iid_profiles','iid_battles','iid_chaos_votes',
+  'iid_share_cards','iid_hof_totals','iid_hof_season_totals','iid_v2_window_results']){
+  assert.equal((await readAdmin("select count(*)::int n from public."+tb)).n,0,tb);
+ }
+ assert.equal((await readAdmin("select count(*)::int n from auth.users")).n,authCount);
+ assert.equal((await readAdmin("select enabled from public.iid_world where id=1")).enabled,false);
+ const jobs=(await readAdmin("select jsonb_object_agg(jobname,active) j from cron.job")).j;
+ assert.equal(jobs['iid-v2-world-tick'],false);
+ assert.equal(jobs['iid-v4-settlement'],true);
+ assert.equal(jobs['iid-v4-clean-launch'],false);
+ assert.equal((await readAdmin("select legacy_frozen from iid_v4.cutover_control")).legacy_frozen,true);
+ assert.equal((await readAdmin("select legacy_admission_open from iid_v4.cutover_control")).legacy_admission_open,false);
+ const twice=(await readAdmin("select iid_v4.execute_clean_launch() j")).j;
+ assert.equal(twice.status,'COMPLETED');
+ assert.equal((await readAdmin("select count(*)::int n from iid_v4.epochs")).n,1);
+ await assert.rejects(admin("insert into public.iid_battles (id) values(gen_random_uuid())"),/LEGACY_ADMISSION_CLOSED/);
+ await assert.rejects(admin("update public.iid_world set hp=499999"),/LEGACY_WORLD_FROZEN/);
+});
 after(()=>db.close());
