@@ -125,7 +125,8 @@ assert again['snapshot']['decay_hp']==42
 assert again['snapshot']['net_hp']==-42
 assert again['id']!=published['id']
 assert rpc("public.iid_v4_public_share_card('"+published['id']+"')") == published['snapshot']
-assert json.loads(sql("set role anon;select public.iid_v4_public_share_card('"+published['id']+"')")) == published['snapshot']
+anonymous=sql("set role anon;select public.iid_v4_public_share_card('"+published['id']+"')")
+assert json.loads(next(line for line in anonymous.splitlines() if line.startswith('{'))) == published['snapshot']
 assert sql("select public.iid_v4_public_share_card(gen_random_uuid())") == ''
 print('PASS V4 anonymous immutable share, corrected live cards, applied HP, privacy and V2 isolation')
 
