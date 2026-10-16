@@ -22,6 +22,7 @@ create function auth.uid()returns uuid language sql as $$select (auth.jwt()->>'s
 grant usage on schema auth to anon,authenticated;''')
 file('supabase/migrations/20261014003346_create_iid_profiles_with_rls.sql')
 file('supabase/migrations/20261014033444_global_battle_engine.sql')
+file('supabase/migrations/20261015010610_phase1_player_identity.sql')
 file('sql/v4/engine.sql')
 file('supabase/migrations/20261016145800_v4_paused_admission_settlement.sql')
 file('supabase/migrations/20261016171500_v4_readonly_rankings_return.sql')
