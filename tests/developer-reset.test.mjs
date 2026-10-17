@@ -156,7 +156,7 @@ test("V4 cutover freeze blocks stale V1/V2 inputs but lets accepted battles drai
  await admin("update iid_v4.cutover_control set legacy_admission_open=true,legacy_admission_paused_at=null where id=1");
 });
 test("scheduled V4 clean launch is atomic, fails closed, resets game profiles but not Google Auth",async()=>{
- // Only in disposable PGlite: replace the wall-clock read with the exact
+ // Only in disposable PGlite: replace every wall-clock read with the exact
  // scheduled instant. All destructive SQL remains identical to production.
  await admin("create schema cron;create table cron.job(jobid bigint primary key,jobname text,active boolean);");
  await admin(`create function cron.alter_job(job_id bigint,active boolean) returns void language sql as $fn$
@@ -166,9 +166,10 @@ test("scheduled V4 clean launch is atomic, fails closed, resets game profiles bu
  const migration=await readFile("supabase/migrations/20261016210500_v4_scheduled_clean_launch.sql","utf8");
  const fn=migration.match(/create function iid_v4\.execute_clean_launch\(\) returns jsonb[\s\S]*?end \$\$;/)?.[0];
  assert.ok(fn,'schedule function extracted from production SQL');
- const injected=fn.replace("t:=clock_timestamp();","t:=ctl.launch_at+interval '1 second';")
+ const injected=fn.replaceAll("clock_timestamp()","(ctl.launch_at+interval '1 second')")
   .replace("create function iid_v4.execute_clean_launch","create or replace function iid_v4.execute_clean_launch");
  assert.notEqual(injected,fn,"test fixture changes ONLY clock source");
+ assert.ok(!injected.includes("clock_timestamp()"),"all cutover reads share the frozen test clock, including backlog validation");
  await admin(injected);
  await admin("update public.iid_world set enabled=true,hp=506000,version=3;update public.iid_economy_control set v2_enabled=true;");
  await admin("delete from public.iid_battles;");
@@ -206,3 +207,4 @@ test("scheduled V4 clean launch is atomic, fails closed, resets game profiles bu
  await assert.rejects(admin("update public.iid_world set hp=499999"),/LEGACY_WORLD_FROZEN/);
 });
 after(()=>db.close());
+
