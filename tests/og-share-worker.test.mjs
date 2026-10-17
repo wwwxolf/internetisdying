@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 
 test("Landing uses SAVE vs KILL and shows read-only Global Pulses below world entry",async()=>{
-  const html=await readFile("public/index.html","utf8");
+  const html=await readFile("public/multiverse.html","utf8");
   const btn=html.indexOf('id="join-btn"'),counter=html.indexOf('id="global-pulses-total"');
   assert.ok(btn>0&&counter>btn,"Global Pulses must be below primary CTA");
   assert.match(html,/GLOBAL PULSES_/);
@@ -48,3 +48,4 @@ test("Landing global pulses are fetched from public read-only RPC, not browser c
   assert.doesNotMatch(js,/Math\.random|localStorage|data\.counted_taps\s*\+\+/);
   assert.match(css,/\.hero \.global-pulses-total/);
 });
+

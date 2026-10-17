@@ -120,7 +120,7 @@ test("returning visitors bypass prologue; replay explicitly overrides browser-on
 });
 
 test("landing Enter World connects to prologue, while server-authenticated Arena stays untouched",async()=>{
- const landing=await readFile("public/index.html","utf8");
+ const landing=await readFile("public/multiverse.html","utf8");
  const flow=await readFile("public/flow.js","utf8");
  const page=await readFile("public/prologue.html","utf8");
  const css=await readFile("public/prologue.css","utf8");
@@ -141,3 +141,4 @@ test("landing Enter World connects to prologue, while server-authenticated Arena
  assert.match(flow,/async function route\(u\)/);
  assert.match(flow,/if\(page==="arena"\)/);
 });
+

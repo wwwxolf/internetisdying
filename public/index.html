@@ -1,94 +1,16 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <meta name="theme-color" content="#0b101b"/>
-  <meta name="description" content="Five worlds. One internet. Only one survives at a time. Explore the pixel multiverse."/>
-  <title>THE INTERNET IS DYING — Explore the Multiverse</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
-  <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet"/>
-  <link href="./styles.css?v=5" rel="stylesheet"/>
-  <link href="./multiverse.css?v=3" rel="stylesheet"/>
-  <script src="./config.js?v=5"></script>
-  
-  <script type="module" src="./flow.js?v=7"></script>
-  <script type="module" src="./global-pulses.js?v=1"></script>
-</head>
-<body class="multiverse" data-page="landing">
-  <div class="page">
-    <header class="header">
-      <a class="brand" href="#top" aria-label="The Internet Is Dying home">THE INTERNET<br><span>IS DYING_</span></a>
-      <nav class="header-right" aria-label="Main menu">
-        <a class="navlink" href="#hall">HALL OF FAME</a>
-        <a class="navlink save-nav" href="./auth.html" aria-label="Sign in to save the internet">SAVE</a>
-        <a class="navlink kill-nav" href="./auth.html" aria-label="Sign in to kill the internet">KILL</a>
-      </nav>
-    </header>
-    <main id="top">
-      <section class="hero" aria-labelledby="main-title">
-        <h1 id="main-title">THE INTERNET <span>IS DYING_</span></h1>
-        <p class="tagline">Five worlds. One internet. Only one survives at a time.</p>
-      </section>
-      <section class="worlds" aria-labelledby="multiverse-title">
-        <div class="multiverse-heading"><h2 id="multiverse-title">EXPLORE THE MULTIVERSE_</h2><span class="world-count">01 OPEN / 05 WORLDS</span></div>
-        <a class="world-active" id="join-btn" href="./prologue.html" aria-label="Enter World 001: Chicken Eats the Internet">
-          <div class="art-stage"><img class="world-art" src="./assets/world-chicken.svg" width="160" height="96" alt="Pixel chicken eating a glowing internet globe and scattered data" decoding="async" fetchpriority="high"/></div>
-          <div class="world-content">
-            <div class="world-meta"><span class="world-id">WORLD_001</span><span class="world-status">ACTIVE NOW</span></div>
-            <h3>CHICKEN EATS<br><span>THE INTERNET</span></h3>
-            <p class="world-description">The chicken was hungry. The internet was delicious.</p>
-            <span class="world-duration">30-DAY WORLD</span><span class="world-enter">ENTER WORLD →</span>
-          </div>
-        </a>
-        <p class="world-replay"><a href="./prologue.html?replay=1">↺ REPLAY WORLD_001 INTRO</a></p>
-        <div class="locked-worlds" aria-label="Four locked worlds">
-          <article class="world-locked" aria-label="World 002: THE CATS TAKE OVER, locked">
-            <div class="locked-art"><img class="world-art" src="./assets/world-cat.svg" width="160" height="96" alt="Pixel cat wearing a crown over a captured computer" decoding="async"/></div>
-            <div class="locked-meta"><span>WORLD_002</span><span class="lock-label"><i class="pixel-lock" aria-hidden="true"></i>LOCKED</span></div>
-            <h3>THE CATS TAKE OVER</h3>
-          </article>
-          <article class="world-locked" aria-label="World 003: THE COW ATE THE CLOUD, locked">
-            <div class="locked-art"><img class="world-art" src="./assets/world-cow.svg" width="160" height="96" alt="Pixel cow taking a bite out of a digital cloud" decoding="async"/></div>
-            <div class="locked-meta"><span>WORLD_003</span><span class="lock-label"><i class="pixel-lock" aria-hidden="true"></i>LOCKED</span></div>
-            <h3>THE COW ATE THE CLOUD</h3>
-          </article>
-          <article class="world-locked" aria-label="World 004: THE PIGEONS STOLE THE WI-FI, locked">
-            <div class="locked-art"><img class="world-art" src="./assets/world-pigeon.svg" width="160" height="96" alt="Pixel pigeon carrying stolen Wi-Fi signals" decoding="async"/></div>
-            <div class="locked-meta"><span>WORLD_004</span><span class="lock-label"><i class="pixel-lock" aria-hidden="true"></i>LOCKED</span></div>
-            <h3>THE PIGEONS STOLE THE WI-FI</h3>
-          </article>
-          <article class="world-locked" aria-label="World 005: THE MONKEYS BROKE THE ALGORITHM, locked">
-            <div class="locked-art"><img class="world-art" src="./assets/world-monkey.svg" width="160" height="96" alt="Pixel monkey tangling an algorithm network" decoding="async"/></div>
-            <div class="locked-meta"><span>WORLD_005</span><span class="lock-label"><i class="pixel-lock" aria-hidden="true"></i>LOCKED</span></div>
-            <h3>THE MONKEYS BROKE THE ALGORITHM</h3>
-          </article>
-        </div>
-        <p class="world-concept">The plan: one world at a time, each lasting up to 30 days.<br>World rotation is coming soon. No live countdown yet.</p>
-        <p class="world-concept"><a class="view-all" href="./avatars.html">MEET THE WORLD_001 AVATARS →</a></p>
-        <p class="mini" id="landing-status" role="status" aria-live="polite"></p>
-      </section>
-      <section class="global-pulses" aria-labelledby="global-pulses-title">
-        <h2 id="global-pulses-title">GLOBAL PULSES_</h2>
-        <strong class="global-pulses-total" id="global-pulses-total" aria-live="polite" aria-atomic="true">—</strong>
-        <p class="global-pulses-status" id="global-pulses-status" role="status">CONNECTING TO WORLD LEDGER...</p>
-      </section>
-      <section class="below" aria-label="Hall of Fame preview">
-        <section class="panel" id="hall" aria-labelledby="hall-title">
-          <div class="panel-title"><h3 id="hall-title">★ HALL OF FAME</h3><span class="sample">SAMPLE DATA</span></div>
-          <div class="rank"><span class="rank-number">01</span><span class="rank-name">PIXELGHOST</span><span class="rank-points">725 CP</span></div>
-          <div class="rank"><span class="rank-number">02</span><span class="rank-name">CHAOSDUCK</span><span class="rank-points">640 CP</span></div>
-          <div class="rank"><span class="rank-number">03</span><span class="rank-name">VOIDBOT</span><span class="rank-points">615 CP</span></div>
-          <p>Example scores only. No player profiles or global rankings are connected.</p>
-          <span class="view-all" aria-label="Full Hall of Fame coming soon">VIEW ALL → COMING SOON</span>
-        </section>
-      </section>
-
-    </main>
-    <footer><span>© THE INTERNET IS DYING_</span><span>FIVE WORLDS. ONE INTERNET.</span></footer>
-  </div>
-
-</body>
-</html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f4f1e8"><title>Chicken Eats the Internet — Three crumbs. One catastrophe.</title><meta name="description" content="Place three crumbs. Release one very hungry chicken. Save the server or feed the chaos. A free tiny puzzle from THE INTERNET IS DYING."><meta property="og:title" content="Three crumbs. One hungry chicken. Can you save the internet?"><meta property="og:description" content="A tiny planning game. Place your crumbs, release the chicken, challenge a friend."><meta property="og:type" content="website"><link rel="stylesheet" href="./peck.css?v=1"><script type="module" src="./peck.js?v=1"></script></head>
+<body>
+<header class="site-header"><a class="brand" href="/" aria-label="The Internet Is Dying home">THE INTERNET<br><span>IS DYING<span class="cursor">_</span></span></a><nav aria-label="Main navigation"><a href="#worlds">THE 5 WORLDS</a><button id="help-open" class="text-button">HOW TO PLAY ↗</button></nav><span class="edition">VOL. 01 / THE CHICKEN INCIDENT</span></header>
+<main>
+<section class="intro"><div><p class="eyebrow"><span class="live-dot"></span> WORLD_001 · NOW PLAYING</p><h1>CHICKEN EATS<br>THE <span>INTERNET.</span></h1><p class="intro-copy">Three crumbs. One hungry chicken.<br>A surprisingly bad day for the internet.</p></div><div class="hero-note"><span class="stamp">100%<br>CLUCKED</span><p>A tiny game about<br><strong>big consequences.</strong></p></div></section>
+<section class="game-layout" aria-label="Chicken puzzle">
+<aside class="mission"><p class="eyebrow">01 / PICK YOUR INTENTIONS</p><div class="side-switch" role="group" aria-label="Choose your mission"><button id="save" aria-pressed="true">✚ SAVE</button><button id="kill" aria-pressed="false">× KILL</button></div><h2 id="mission-title">Outsmart<br>the appetite.</h2><p id="mission-copy">Lure the chicken into the coop before it reaches the server.</p><ol class="instructions"><li><span>01</span> Place up to <strong>3 crumbs.</strong></li><li><span>02</span> Release the chicken.</li><li><span>03</span> Live with your choices.</li></ol><div class="rule-note"><span>THE CHICKEN'S LOGIC</span><p>It follows the nearest crumb within <strong>3 walking steps</strong>. No crumb in range? It heads for the server.</p><p>Equal distance? The crumb you placed first wins. Equal routes? Right, down, left, up.</p></div><div class="local-record"><span>YOUR FIELD NOTES</span><strong id="record">0 / 8 SAVE MISSIONS</strong><small>Progress saved on this device.</small></div></aside>
+<div class="console"><div class="console-head"><div><span class="eyebrow">THE INTERNET / SECTOR <span id="sector">01</span></span><h2 id="level-name">A little misdirection</h2></div><span class="terminal-lights" aria-hidden="true"><i></i><i></i><i></i></span></div><div id="share-notice" class="share-notice" hidden>A friend sent you this exact puzzle. Your move.</div><div class="board-surround"><div class="board-top"><span id="board-state">● AWAITING QUESTIONABLE PLAN</span><span id="move-count">0 STEPS</span></div><div id="board" class="board" role="group" aria-label="Six by six puzzle board. Select a tile to place or remove a crumb."></div><div class="legend"><span><i class="legend-dot crumb-dot"></i>CRUMB</span><span><i class="legend-dot server-dot"></i>SERVER</span><span><i class="legend-dot coop-dot"></i>COOP</span><span><i class="legend-dot wall-dot"></i>FIREWALL</span></div></div><div class="controls"><div class="plan-line"><span id="crumb-count">0 / 3 CRUMBS PLACED</span><button id="undo" class="text-button" disabled>↶ UNDO</button><button id="clear" class="text-button" disabled>CLEAR</button></div><button id="release" class="release">RELEASE THE CHICKEN <span>→</span></button><p id="status" class="status" role="status" aria-live="polite">Tap an empty tile to leave a crumb. Tap it again to remove it.</p><section id="result" class="result" hidden tabindex="-1" aria-labelledby="result-title"><p id="result-tag" class="eyebrow"></p><h3 id="result-title"></h3><p id="result-copy"></p><div class="result-buttons"><button id="retry" class="secondary">↶ TRY AGAIN</button><button id="next" class="secondary">NEXT PUZZLE →</button><button id="share" class="secondary">CHALLENGE A FRIEND ↗</button></div></section><label id="copy-fallback" hidden>Copy this challenge link<input id="share-url" readonly></label></div><div class="level-nav"><button id="previous" aria-label="Previous puzzle">←</button><div><label for="level-select">PUZZLE</label> <select id="level-select" aria-label="Choose puzzle"></select></div><button id="forward" aria-label="Next puzzle">→</button></div></div>
+<aside class="dispatch"><p class="eyebrow">DISPATCH FROM THE COOP</p><div class="chicken-portrait" id="portrait" aria-hidden="true"></div><div class="speech">“I accept cookies.<br>And servers.”</div><p class="dispatch-copy">Nobody knows where it came from.<br><br>Everybody knows what it wants.</p><div class="challenge-note"><span>ONE BOARD. TWO SIDES.</span><p>Save it. Break it.<br>Send it to someone who thinks they can do better.</p></div><button id="share-plan" class="small-share">SHARE THIS PUZZLE ↗</button></aside>
+</section>
+<section id="worlds" class="worlds"><div class="world-heading"><div><p class="eyebrow">THE INTERNET HAS FIVE PROBLEMS</p><h2>This is only the first.</h2></div><p>One world at a time.<br>Five very questionable animals.</p></div><div class="world-grid"><article class="world-card active"><span>01 / PLAY NOW</span><strong><img src="./assets/world-chicken.svg" alt="Pixel chicken" width="96" height="64" loading="lazy"></strong><h3>CHICKEN EATS<br>THE INTERNET</h3><p>Three crumbs. One catastrophe.</p></article><article class="world-card"><span>02 / COMING LATER</span><strong><img src="./assets/world-cat.svg" alt="Pixel cat" width="96" height="64" loading="lazy"></strong><h3>THE CATS<br>TAKE OVER</h3><p>Your desktop. Their bed.</p></article><article class="world-card"><span>03 / COMING LATER</span><strong><img src="./assets/world-cow.svg" alt="Pixel cow" width="96" height="64" loading="lazy"></strong><h3>THE COW ATE<br>THE CLOUD</h3><p>Your backup was delicious.</p></article><article class="world-card"><span>04 / COMING LATER</span><strong><img src="./assets/world-pigeon.svg" alt="Pixel pigeon" width="96" height="64" loading="lazy"></strong><h3>THE PIGEONS<br>STOLE THE WI-FI</h3><p>Delivery is not guaranteed.</p></article><article class="world-card"><span>05 / COMING LATER</span><strong><img src="./assets/world-monkey.svg" alt="Pixel monkey" width="96" height="64" loading="lazy"></strong><h3>THE MONKEYS BROKE<br>THE ALGORITHM</h3><p>The rules have left the chat.</p></article></div></section>
+</main><footer><span>THE INTERNET IS DYING_</span><p>Play instantly. No login. No purchases.</p><a href="./arena.html">Classic V4 arena ↗</a></footer>
+<dialog id="help"><button id="help-close" aria-label="Close instructions">✕</button><p class="eyebrow">A SMALL FIELD GUIDE</p><h2>Think first.<br>Cluck later.</h2><p><strong>SAVE:</strong> get the chicken into the coop. You can place a crumb on the coop.</p><p><strong>KILL:</strong> make it eat all three crumbs, then reach the server. The coop ends the run.</p><p>It smells crumbs up to 3 walking steps away, around firewalls. Closest crumb wins; ties follow placement order. Without a crumb in range, it takes the shortest path to the server. Equal paths prefer right, down, left, up.</p><p>Tap a placed crumb to remove it. Use arrow keys to move between tiles and Enter or Space to place a crumb.</p><p><strong>Instant retry. No timer. Every route is deterministic.</strong></p><small>This puzzle saves progress on your device. It does not change the classic V4 world's HP or rankings.</small></dialog>
+<noscript><p class="no-script">This puzzle needs JavaScript. Please enable it to play.</p></noscript>
+</body></html>

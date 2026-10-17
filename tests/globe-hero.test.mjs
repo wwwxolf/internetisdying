@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 
 test("Landing offers one active world and four distinct locked worlds without fake timing",async()=>{
- const html=await readFile("public/index.html","utf8");
+ const html=await readFile("public/multiverse.html","utf8");
  assert.equal((html.match(/class="world-active"/g)||[]).length,1);
  assert.equal((html.match(/class="world-locked"/g)||[]).length,4);
  assert.match(html,/id="join-btn" href="\.\/prologue\.html"/);
@@ -42,3 +42,4 @@ test("Landing pulse remains intact while Arena shows the pecking globe; HP scans
  assert.match(arena,/class="world-core-signal"/);
  assert.doesNotMatch(arena,/class="pixel-heart"/);
 });
+
